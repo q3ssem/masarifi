@@ -942,7 +942,7 @@ textarea{width:100%;font:inherit;font-size:15px;border:1px solid var(--line);bor
 .moreopt summary small{color:var(--muted);font-weight:400;font-size:12px}
 .moreopt[open]{padding-bottom:6px}
 #view .day,#view>.section{content-visibility:auto;contain-intrinsic-size:auto 320px}
-.hub>.hubt:last-child:nth-child(odd){grid-column:1/-1 !important}
+
 .setlist{gap:8px}
 .setlist .setrow{min-height:56px;padding:9px 14px}
 /* v47 input redesign */
@@ -978,6 +978,7 @@ html.dark :is(input,select,textarea){color-scheme:dark}
 .two .field{min-width:0}
 :is(#sheet,#view) .two .field input{padding-inline:10px;min-width:0;width:100%;box-sizing:border-box}
 :is(#sheet,#view) .field :is(input,select,textarea){box-sizing:border-box;max-width:100%}
+.hub .hubt{min-height:64px}
 </style>
 
 </head>
@@ -3284,7 +3285,7 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
   })();
   var THEME_KEY = 'masarifi.theme';
-  var theme = { font: 'Tajawal', pal: 'sand', h1: '', h2: '', tile: '', icons: 'liquid', glass: '', v13: '', v15: '', v19: '', v25: '', v30: '', dark: 'off', dstyle: '', cc: '', cs: '', cust: {} };
+  var theme = { v47: '', font: 'Tajawal', pal: 'cloud', h1: '', h2: '', tile: '', icons: 'liquid', glass: '', v13: '', v15: '', v19: '', v25: '', v30: '', dark: 'off', dstyle: '', cc: '', cs: '', cust: {} };
   function themeDefault() { return { font: 'Tajawal', pal: 'sand', h1: '', h2: '', tile: '', icons: 'liquid', glass: 'off', v13: '1', v15: '1', v19: '1', v25: '1', v30: '1', dark: 'off', dstyle: '', cc: '', cs: '', cust: {} }; }
   var FONTS = { 'IBM Plex Sans Arabic': '400;500;600;700', 'Cairo': '400;500;600;700', 'Tajawal': '400;700', 'Almarai': '400;700', 'Noto Kufi Arabic': '400;500;600;700', 'Readex Pro': '400;500;600;700', 'El Messiri': '400;500;600;700', 'Changa': '400;500;600;700' };
   var PALS = [
@@ -3310,7 +3311,8 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     if (['sunset', 'forest', 'grape', 'rose', 'gold', 'olive', 'green', 'violet'].indexOf(theme.pal) >= 0) { theme.pal = 'ocean'; saveTheme(); }
     if (['liquid', 'orbit', 'flat', 'soft', 'leaf', 'drop', 'ring', 'split', 'hexa', 'tag'].indexOf(theme.icons) < 0) { theme.icons = 'liquid'; saveTheme(); }
     if (theme.v30 !== '1') { theme.pal = 'sand'; theme.dark = 'off'; theme.icons = 'liquid'; theme.v30 = '1'; saveTheme(); }
-    if (theme.v25 !== '1') { theme.pal = 'sand'; theme.glass = 'off'; theme.v25 = '1'; saveTheme(); } }
+    if (theme.v47 !== '1') { theme.pal = 'cloud'; theme.icons = 'liquid'; theme.glass = 'on'; theme.h1 = ''; theme.h2 = ''; theme.tile = ''; theme.cust = {}; theme.v47 = '1'; saveTheme(); }
+    if (theme.v25 !== '1') { theme.v25 = '1'; saveTheme(); } }
   function saveTheme() { try { localStorage.setItem(THEME_KEY, JSON.stringify(theme)); } catch (e) {} }
   function loadFont(name) {
     if (!FONTS[name]) return;
@@ -4899,7 +4901,7 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     fromHub = false; fromSet = false;
     var G = [
       ['أدوات سريعة', '#FF9F0A,#FF375F', [['pc', 'target', 'قبل ما تشتري'], ['wl', 'gift', 'قائمة الرغبات']]],
-      ['التخطيط', '#0A84FF,#40C8E0', [['budgets', 'target', 'الظروف والميزانية'], ['rinc', 'wallet', 'الدخل والراتب'], ['bal', 'wallet', 'الرصيد والتوقع'], ['sf', 'calendar', 'السنوية والمناسبات'], ['util', 'spark', 'الكهرباء والماء']]],
+      ['التخطيط', '#0A84FF,#40C8E0', [['budgets', 'target', 'الظروف والميزانية'], ['rinc', 'wallet', 'الدخل والراتب'], ['bal', 'wallet', 'الرصيد والتوقع'], ['sf', 'calendar', 'السنوية والمناسبات'], ['util', 'bolt', 'الكهرباء والماء']]],
       ['التحليل', '#BF5AF2,#5E5CE6', [['analyst', 'spark', 'المحلل المالي'], ['mclose', 'calendar', 'إغلاق الشهر'], ['worth', 'gift', 'هل كان يستاهل؟'], ['subs', 'music', 'الاشتراكات']]]
     ];
     var h = G.map(function (g) {
