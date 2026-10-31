@@ -2397,7 +2397,8 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     var hd = selD || (isCurM ? now : new Date(v.y, v.m, 1)), hj = '';
     try { hj = new Intl.DateTimeFormat(LANG === 'en' ? 'en-u-ca-islamic-umalqura' : 'ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(hd).replace(/\s*هـ$/, ' هـ'); } catch (e) {}
     setHtml('#openCal', ico('calendar', 'sm') + '<span>' + esc(lbl) + '</span>' + (hj ? '<span class="hij">' + esc(hj) + '</span>' : ''));
-    $('#nextM').disabled = v.y === now.getFullYear() && v.m === now.getMonth();
+    var vEnd = v.y + '-' + pad(v.m + 1) + '-31', isFutV = v.y > now.getFullYear() || (v.y === now.getFullYear() && v.m >= now.getMonth());
+    $('#nextM').disabled = isFutV && !state.expenses.concat(state.incomes).some(function (e) { return e.date > vEnd; });
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       var td = TABS[b.getAttribute('data-tab')]; if (!b.querySelector('.tic')) b.innerHTML = '<span class="tic">' + ico(td[0]) + '</span><span class="tl">' + td[1] + '</span>'; else b.querySelector('.tl').textContent = td[1];
       if (b.getAttribute('data-tab') === tabKey()) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
