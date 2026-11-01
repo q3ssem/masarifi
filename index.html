@@ -1179,7 +1179,7 @@ html.ready body::after{opacity:0;visibility:hidden}
   function midnight() { var t = new Date(); t.setHours(0, 0, 0, 0); return t; }
   function newId(p) { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   /* ---------- v45: home layout, alerts control, cleanup, month close, morning ---------- */
-  var HOME_BL = [['morning', 'ملخص الصباح'], ['ramadan', 'وضع رمضان'], ['env', 'مربعات الظروف (في بطاقة الدخل)'], ['bnpl', 'شريط تابي وتمارا'], ['forecast', 'التوقع (في العرض الكامل)'], ['inc', 'الدخل'], ['cats', 'حسب الفئة'], ['list', 'المصاريف']];
+  var HOME_BL = [['morning', 'ملخص الصباح'], ['ramadan', 'وضع رمضان'], ['env', 'مربعات الظروف (في بطاقة الدخل)'], ['bnpl', 'شريط تابي وتمارا'], ['inc', 'الدخل'], ['cats', 'حسب الفئة'], ['list', 'المصاريف']];
   var AL_K = [['budget', 'تجاوز الظروف'], ['due', 'مواعيد الأقساط والديون'], ['pace', 'توقع تجاوز الدخل'], ['backup', 'النسخة الاحتياطية'], ['renew', 'خصم الثوابت أول الشهر'], ['jm', 'الجمعية'], ['bal', 'الرصيد المتوقع'], ['sf', 'السنوية والمناسبات'], ['iv', 'الاستثمارات'], ['subs', 'الاشتراكات'], ['wl', 'قائمة الرغبات'], ['kk', 'مراجعة الشهر'], ['share', 'نسبة الأقساط من الدخل'], ['mc', 'إغلاق الشهر'], ['rate', 'هل كان يستاهل؟']];
   function cleanHS(o) {
     o = o && typeof o === 'object' && !Array.isArray(o) ? o : {}; var ids = HOME_BL.map(function (x) { return x[0]; });
@@ -1989,7 +1989,7 @@ html.ready body::after{opacity:0;visibility:hidden}
 
     var html = demo ? '<p class="demo">هذي أمثلة توضيحية. أضف أول دخل أو مصروف وتبدأ بياناتك الحقيقية.</p>' : '';
     var extra = '';
-    extra += '<div class="hero-sum"><span>الدخل <b>' + money(income) + '</b></span><span>المصروف <b>' + money(total) + '</b></span><span>' + (isCur ? 'المتوقع آخر الشهر' : 'عدد العمليات') + ' <b>' + (isCur ? money(r2(income - avg * dim)) : num(list.length)) + '</b></span></div>';
+    extra += '<div class="hero-sum"><span>الدخل <b>' + money(income) + '</b></span><span>المصروف <b>' + money(total) + '</b></span><span>عدد العمليات <b>' + num(list.length) + '</b></span></div>';
     if (!homeHidden('env')) extra += hcatsHtml(list, v);
     if (!demo) { var als = alertItems(list, income, isCur, elapsed, dim).filter(function (x) { return x.l > 0; }); lastAlerts = als; if (als.length) { extra += '<div class="hchips">'; { var mxl = Math.max.apply(null, als.map(function (x) { return x.l; })); extra += '<button type="button" class="hal-chip" data-act="alerts"><i class="lv' + mxl + '"></i>' + num(als.length) + ' ' + (als.length === 1 ? 'تنبيه' : 'تنبيهات') + '</button></div>'; } } } else lastAlerts = [];
     var hh = heroHtml('إجمالي الدخل الحالي', money(left), [], extra, income > 0 ? heroRing(Math.round(total / income * 100), total > income) : '').replace(/<dl class="stats[\s\S]*?<\/dl>/, '');
@@ -1999,7 +1999,7 @@ html.ready body::after{opacity:0;visibility:hidden}
     var full = state.ui === 'full';
     if (state.sel && parseYMD(state.sel)) html += '<div class="selchip"><span>عرض يوم ' + esc(fullDate(parseYMD(state.sel))) + '</span><button type="button" data-act="clrsel">الشهر كامل</button></div>';
     var B = {}, head = html; html = '';
-    if (!demo) { B.bnpl = bnplHtml(list); B.forecast = full ? forecastHtml(list, income, isCur, elapsed, dim) : ''; if (isCur && !state.sel) { if (now.getHours() < 13 && !homeHidden('morning')) B.morning = morningHtml(); if (!homeHidden('ramadan')) B.ramadan = ramadanHtml(); } }
+    if (!demo) { B.bnpl = bnplHtml(list);  if (isCur && !state.sel) { if (now.getHours() < 13 && !homeHidden('morning')) B.morning = morningHtml(); if (!homeHidden('ramadan')) B.ramadan = ramadanHtml(); } }
 
 var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel; }) : incs;
     if (incShow.length) {
@@ -3775,19 +3775,6 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     if (cloud()) { await col.doc(name).set(data); }
     state[key] = val; if (!cloud()) persistLocal(); render();
   }
-  function forecastHtml(list, income, isCur, elapsed, dim) {
-    if (!isCur || !list.length) return '';
-    var fixed = 0, vari = 0;
-    list.forEach(function (e) { if (e.fixed) fixed += e.amount; else vari += e.amount; });
-    var total = fixed + vari, proj = r2(fixed + vari / Math.max(1, elapsed) * dim), daysLeft = dim - elapsed, msg;
-    if (income > 0) {
-      if (proj > income) {
-        var cap = daysLeft > 0 ? Math.max(0, (income - total) / daysLeft) : 0;
-        msg = 'بهذا المعدل راح تصرف قرابة <b>' + money(proj) + '</b> وهذا يزيد على دخلك بـ <b>' + money(proj - income) + '</b>.' + (daysLeft > 0 ? ' حاول ما تتعدى <b>' + money(cap) + '</b> في اليوم لباقي الشهر.' : '');
-      } else msg = 'توقع نهاية الشهر: <b>' + money(proj) + '</b>، ويبقى لك قرابة <b>' + money(income - proj) + '</b>. استمر كذا.';
-    } else msg = 'بهذا المعدل راح يوصل مصروفك قرابة <b>' + money(proj) + '</b> نهاية الشهر.';
-    return '<div class="insight fc ' + (income > 0 && proj > income ? 'over' : '') + '" role="status"><span class="fc-t">توقع نهاية الشهر</span>' + msg + '</div>';
-  }
   function openBudgets() {
     var cats = getCats();
     var body = '<p class="note">مبلغ كل ظرف بالشهر (أقصى حد للفئة)، وأنبّهك لما تقرب منه. اترك الخانة فاضية لو ما تبي ظرف.</p><div class="bud-list">' + cats.map(function (c, i) {
@@ -5047,7 +5034,7 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     list.forEach(function (e) { if (e.fixed) return; var id = catOf(e.cat).id; by[id] = (by[id] || 0) + e.amount; });
     budIds(state.view.y, state.view.m).forEach(function (id) { var b = budOf(id, state.view.y, state.view.m), a = by[id] || 0; if (b && a >= b * 0.8) out.push({ k: 'budget', l: a >= b ? 2 : 1, t: (a >= b ? 'تجاوزت ميزانية ' : 'قربت من حد ') + catOf(id).name + ' (' + Math.round(a / b * 100) + '%)' }); });
     dueItems().forEach(function (x) { out.push({ k: 'due', l: x.d < 0 ? 2 : x.d <= 2 ? 1 : 0, t: x.n + ' · ' + whenLabel(x.d) + ' · ' + fmt(x.a) + ' ريال' }); });
-    if (isCur && income > 0 && list.length) {
+    if (isCur && income > 0 && list.length && elapsed >= 10) {
       var fx = 0, vr = 0; list.forEach(function (e) { if (e.fixed) fx += e.amount; else vr += e.amount; });
       var proj = fx + vr / Math.max(1, elapsed) * dim; if (proj > income) out.push({ k: 'pace', l: 1, t: 'بهذا المعدل تتجاوز دخلك بـ ' + fmt(proj - income) + ' ريال نهاية الشهر' });
     }
