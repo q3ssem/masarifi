@@ -1,5 +1,5 @@
 {
-  "version": "62.7.0-rc3.8-local-dev",
+  "version": "62.7.0-rc3.12-local-dev",
   "entry": "app/index.html",
   "releaseAuthorized": false,
   "legacyMigrationComplete": false,
@@ -8,13 +8,13 @@
   "assets": [
     {
       "path": "app/app.css",
-      "bytes": 17014,
-      "sha256": "2da924369bbff5f29901cd32b47adaa7ccf07058ffa7ec09a709fc8bc8b28109"
+      "bytes": 33709,
+      "sha256": "03dccc86a05cec47328220ed8dc3a19be534f3196329af8a27b6546ac0a06d30"
     },
     {
       "path": "app/app.mjs",
-      "bytes": 48827,
-      "sha256": "51c07f3b7b4ccc07c8e5045c740a2e4b7e74896331633287bafdac39f6e2cfdb"
+      "bytes": 59957,
+      "sha256": "0a72a0ce4de13f12dd6298050ef81bf3eac056f489393c832e3f552e63f17e52"
     },
     {
       "path": "app/app.webmanifest",
@@ -23,8 +23,8 @@
     },
     {
       "path": "app/appearance.mjs",
-      "bytes": 978,
-      "sha256": "c6e4ee0efeba366c6204ed081a0eca4e7633dacbfada0cad12d0c0395d98cb63"
+      "bytes": 1002,
+      "sha256": "7f7317869803251965c4c682917b63988a37a9bce9764e439e410608cc3799de"
     },
     {
       "path": "app/catalog.mjs",
@@ -53,13 +53,13 @@
     },
     {
       "path": "app/index.html",
-      "bytes": 8813,
-      "sha256": "1b5cd85265380dc8355925edb25df5dcbf8e30203884df825abe729cc2df8a73"
+      "bytes": 11065,
+      "sha256": "16e8c7f91c3ce31c507071c2b436d0a0b56f6410aeb1f6272583324720057ca6"
     },
     {
       "path": "app/offline-worker.mjs",
       "bytes": 5479,
-      "sha256": "db7924c1df6344d31b368760c982ad222a6f9c22a7840e807ed929cd05b1c93d"
+      "sha256": "9cacb64cf4fbc948404c1accba3d2c8837b0f439d1380b17bb3ecb715f30ed08"
     },
     {
       "path": "app/offline.mjs",
@@ -68,8 +68,8 @@
     },
     {
       "path": "app/themes.css",
-      "bytes": 12405,
-      "sha256": "8a63a9d253b863bd87583bd8746382a63672e1fbf7014e28aa2c2e6aaacfb50b"
+      "bytes": 24703,
+      "sha256": "88d80b26ec8b41e64880bd9d65a4bd4dbd21541103b65cc9d9111d626cefdaad"
     },
     {
       "path": "src/association-import.mjs",
@@ -183,8 +183,8 @@
     },
     {
       "path": "src/ui-model.mjs",
-      "bytes": 2223,
-      "sha256": "332a55517221c52334e9363557cf59fc64d0d052099735ec83d111214fe01782"
+      "bytes": 2512,
+      "sha256": "364e8eda3e5595422fb0c8f11af9fde5bc28fddd42a4bc1fe4623cef6cb73f03"
     },
     {
       "path": "src/wallet-import.mjs",

@@ -1,7 +1,7 @@
 name: Main transition integrity
 on:
   push:
-    branches: [main, 'release/masarifi-62.7-rc3.8']
+    branches: [main, 'release/masarifi-62.7-rc3.12']
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,7 +21,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/candidate"
           cp -r app src build-manifest.json README.txt "$RUNNER_TEMP/candidate/"
           node core62/scripts/verify-local-release.mjs "$RUNNER_TEMP/candidate"
-          echo "972e9f19390c059f3a1182018c3881be50fd58c3f4e1981dfe48c9e60b263521  build-manifest.json" | sha256sum -c -
+          echo "c4c3d050af4a4c0dcbbaaaa00055719820adbd3086dbb811e5ef622ba9b26944  build-manifest.json" | sha256sum -c -
           grep -F './app/index.html' index.html
           grep -F './legacy-61.8.1/index.html' index.html
           node --check sw.js
