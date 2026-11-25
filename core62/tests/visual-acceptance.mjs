@@ -69,6 +69,29 @@ try{
  }
  assert.equal(fieldMetrics.length,40);
  await writeFile(join(out,"mobile-field-metrics.json"),JSON.stringify({engine,scope:"mobile viewport geometry; not physical iOS native paint validation",cases:fieldMetrics.length,fieldMetrics},null,2));
+ // RC3.23: real hit-test actionability after scrolling short and tall sheets.
+ const sheetMetrics=[];
+ for(const style of ["original","glass","android","paper","mono"]){
+  await page.setViewportSize({width:390,height:844});if(await page.locator("#settingsPanel").isHidden())await page.locator("#openSettings").click();
+  await choose(page,"layout","classic");await choose(page,"style",style);await choose(page,"mode","light");await choose(page,"motion","off");await page.locator("#closeSettings").click();
+  for(const [width,height] of [[320,568],[390,844],[844,390],[390,480]])for(const direction of ["Income","Expense"]){
+   await page.setViewportSize({width,height});await nav(sections[0]);await page.locator("#quick"+direction).click();await page.evaluate(()=>document.fonts.ready);
+   const d=page.locator("#entryDialog"),submit=d.locator("#submitOperation"),close=d.locator("#closeEditor");
+   const geometry=await d.evaluate(root=>{
+    const rect=e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+    const r=rect(root),buttons=[...root.querySelectorAll(".choice-chip")].filter(e=>e.getClientRects().length),boxes=buttons.map(rect);
+    const overlap=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>.5&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>.5;
+    return {sheet:r,overflow:root.scrollWidth>root.clientWidth+1||r.left<-.5||r.right>innerWidth+.5||r.top<-.5||r.bottom>innerHeight+.5,short:boxes.filter(b=>b.height<43.5).length,overlap:boxes.some((a,i)=>boxes.slice(i+1).some(b=>overlap(a,b))),close:rect(root.querySelector("#closeEditor")),submit:rect(root.querySelector("#submitOperation"))};
+   });
+   assert.ok(!geometry.overflow&&!geometry.short&&!geometry.overlap&&geometry.close.width>=44&&geometry.close.height>=44&&geometry.submit.height>=44,JSON.stringify({style,width,height,direction,geometry}));
+   await submit.scrollIntoViewIfNeeded();await submit.click({trial:true});
+   const file="sheet-polish-"+style+"-"+width+"x"+height+"-"+direction.toLowerCase()+".png";await page.screenshot({path:join(out,file),animations:"disabled"});
+   await close.scrollIntoViewIfNeeded();await close.click({trial:true});await close.click();assert.equal(await d.evaluate(e=>e.open),false);
+   sheetMetrics.push({file,style,width,height,direction,...geometry,submitActionable:true,closeActionable:true});
+  }
+ }
+ assert.equal(sheetMetrics.length,40);
+ await writeFile(join(out,"sheet-polish-metrics.json"),JSON.stringify({engine,scope:"viewport and real Playwright actionability, not physical iOS keyboard or touch verification",cases:sheetMetrics.length,sheetMetrics},null,2));
  // Final focused witness: long amounts stay within their cards at narrow width, without altering engine data.
  const narrow=await context.newPage();
  try{

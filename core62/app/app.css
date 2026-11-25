@@ -524,3 +524,49 @@ html[data-style] .entry-sheet #fields select#accountId{text-overflow:ellipsis}
  html .search-date-fields>label{grid-template-columns:minmax(0,1fr);min-inline-size:0}
  html .search-date-fields input[type="date"]{inline-size:100%;min-inline-size:0;max-inline-size:100%;margin:0;direction:ltr;text-align:center}
 }
+
+/* RC3.23 — bottom-sheet chrome, stable choice tiles and compact-height usability. */
+html[data-style] .bottom-sheet{
+ overscroll-behavior-y:contain;scrollbar-width:thin;
+ max-block-size:calc(100vh - max(12px,env(safe-area-inset-top)));
+ max-block-size:calc(100dvh - max(12px,env(safe-area-inset-top)));
+}
+html[data-style] .bottom-sheet .editor-head{gap:12px;align-items:center;min-inline-size:0}
+html[data-style] .bottom-sheet .editor-head h2{min-inline-size:0;overflow-wrap:anywhere;line-height:1.35;margin-block:0}
+html[data-style] .bottom-sheet .editor-head .icon-btn{
+ flex:0 0 44px;inline-size:44px;block-size:44px;min-inline-size:44px;min-block-size:44px;
+ display:grid;place-items:center;padding:0;line-height:1;border:1px solid var(--border);border-radius:12px;
+ background:var(--identity-soft);color:var(--ink);box-shadow:none
+}
+html[data-style] .bottom-sheet .editor-head .icon-btn[hidden]{display:none!important}
+html[data-style] .entry-sheet #fields{align-content:start}
+html[data-style] .entry-sheet #fields>label:not([hidden]){min-inline-size:0;overflow-wrap:anywhere}
+html[data-style] .entry-sheet .choice-field{min-inline-size:0}
+html[data-style] .entry-sheet .choice-label{display:block;margin-block-end:7px}
+html[data-style] .entry-sheet .choice-grid,
+html[data-style] .entry-sheet[data-entry-kind="in"] #incomeSourceChoices{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch
+}
+html[data-style] .entry-sheet :is(#directionChoices,#accountTypeChoices){grid-template-columns:repeat(2,minmax(0,1fr))}
+html[data-style] .entry-sheet .choice-grid .choice-chip,
+html[data-style] .entry-sheet[data-entry-kind="in"] #incomeSourceChoices .choice-chip{
+ inline-size:100%;min-inline-size:0;min-block-size:52px;height:auto;padding:7px 6px;
+ border-radius:12px;line-height:1.35;overflow-wrap:anywhere;white-space:normal
+}
+html[data-style] .entry-sheet .choice-chip .choice-icon{flex:0 0 20px}
+html[data-style] .entry-sheet .choice-chip>span:last-child{flex:0 1 auto;min-inline-size:0;overflow-wrap:anywhere}
+html[data-style] .entry-sheet .entry-submit{padding-block:10px max(12px,env(safe-area-inset-bottom));isolation:isolate}
+html[data-style] .entry-sheet .entry-submit>button{min-block-size:54px;line-height:1.35;white-space:normal}
+html[data-style] .entry-sheet #fields :is(input,select,button){scroll-margin-block:76px 100px}
+html[data-style] #operationDialog .operation-tile{min-block-size:54px;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:360px){
+ html[data-style] .entry-sheet .choice-grid,
+ html[data-style] .entry-sheet[data-entry-kind="in"] #incomeSourceChoices{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-height:600px){
+ html[data-style] .entry-sheet #editor .editor-head,
+ html[data-style] .entry-sheet .entry-submit,
+ html[data-style] .settings-sheet>.editor-head{position:static}
+ html[data-style] .bottom-sheet{scroll-padding-block:12px}
+ html[data-style] .entry-sheet #fields :is(input,select,button){scroll-margin-block:12px}
+}
