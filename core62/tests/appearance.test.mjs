@@ -10,3 +10,5 @@ const unavailable=appearanceStore(undefined,ids);assert.equal(unavailable.save({
 console.log("Dual layout device preference allowlist passed.");
 
 assert.deepEqual(normalizeAppearance({style:"invalid",motion:"invalid"},ids),{layout:"classic",theme:ids[0],mode:"light",style:"original",motion:"ios"});assert.equal(a.save({style:"android",motion:"off"}),true);assert.equal(a.read().style,"android");assert.equal(a.read().motion,"off");
+
+for(const style of ["paper","mono"]){assert.equal(a.save({style,motion:"spring"}),true);assert.equal(a.read().style,style);assert.equal(a.read().motion,"spring");}
