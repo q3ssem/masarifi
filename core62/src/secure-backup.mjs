@@ -1,7 +1,8 @@
 // Encrypted portable backup for the isolated core; not wired to production.
 const ITERATIONS=600000,MAX_BYTES=16*1024*1024;
-function bytesToHex(x){return Array.from(x,b=>b.toString(16).padStart(2,"0")).join("");}
-function hexToBytes(s,n){if(typeof s!=="string"||s.length!==n*2||!/^[0-9a-f]+$/.test(s))throw Error("invalid-envelope");return Uint8Array.from(s.match(/../g),x=>parseInt(x,16));}
+const HEX=Array.from({length:256},(_,i)=>i.toString(16).padStart(2,"0"));
+function bytesToHex(x){const chunks=[];for(let i=0;i<x.length;i+=16384){const end=Math.min(x.length,i+16384),part=new Array(end-i);for(let j=i;j<end;j++)part[j-i]=HEX[x[j]];chunks.push(part.join(""));}return chunks.join("");}
+function hexToBytes(s,n){if(typeof s!=="string"||s.length!==n*2||!/^[0-9a-f]+$/.test(s))throw Error("invalid-envelope");const out=new Uint8Array(n),nibble=c=>c<=57?c-48:c-87;for(let i=0;i<n;i++)out[i]=(nibble(s.charCodeAt(i*2))<<4)|nibble(s.charCodeAt(i*2+1));return out;}
 function passBytes(password){if(typeof password!=="string"||password.length<12||password.length>1024)throw Error("passphrase-contract");return new TextEncoder().encode(password);}
 async function derive(crypto,password,salt){const p=passBytes(password);try{const base=await crypto.subtle.importKey("raw",p,"PBKDF2",false,["deriveKey"]);return await crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:ITERATIONS,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);}finally{p.fill(0);}}
 function aad(){return new TextEncoder().encode("Masarifi62|backup|v1|PBKDF2-SHA256|600000|AES-256-GCM");}

@@ -1,0 +1,27 @@
+import assert from "node:assert/strict";
+import {minorFromDecimal,safeMinor,isDate} from "../src/money.mjs";
+import {emptyDomain,execute,obligationStatus,accountBalances} from "../src/domain.mjs";
+import {searchMovements} from "../src/search.mjs";
+import {createAutosave} from "../src/autosave.mjs";
+assert.equal(minorFromDecimal("0.10")+minorFromDecimal("0.20"),30);
+assert.equal(minorFromDecimal("90071992547409.91"),Number.MAX_SAFE_INTEGER);
+assert.throws(()=>minorFromDecimal("90071992547409.92"));
+assert.throws(()=>minorFromDecimal("0.001"));
+assert.throws(()=>safeMinor(BigInt(Number.MAX_SAFE_INTEGER)+1n));
+assert.equal(isDate("2024-02-29"),true);assert.equal(isDate("2026-02-29"),false);
+let state=emptyDomain(),seq=0;
+function apply(type,fields){const cmd={type,...fields,opId:"audit"+(++seq),expectedRevision:state.revision},result=execute(state,cmd);assert.equal(result.status,"APPLIED_SHADOW");state=result.state;return cmd;}
+apply("account",{id:"cash",name:"cash",openingMinor:100000,openingDate:"2026-12-01"});
+apply("obligation",{id:"debt",family:"debt",direction:"out",amountMinor:12345,due:"2026-12-31",name:"debt"});
+const settle=apply("settle",{id:"paid",obligationId:"debt",amountMinor:12345,date:"2026-12-02",accountId:"cash",note:"audit"});
+assert.equal(execute(state,settle).status,"ALREADY_APPLIED");
+assert.equal(execute(state,{...settle,id:"paid2",opId:"second",expectedRevision:state.revision}).status,"BLOCKED");
+assert.equal(execute(state,{...settle,id:"stale",opId:"stale",expectedRevision:0}).status,"CONFLICT");
+assert.equal(obligationStatus(state)[0].remainingMinor,0);assert.equal(accountBalances(state)[0].balanceMinor,87655);
+const rows=Array.from({length:20000},(_,i)=>({id:"r"+i,date:"2026-12-01",amountMinor:-101,status:i%2?"confirmed":"planned",kind:"expense",category:"food",note:i%2?"قهوة":"طعام"}));
+const t=performance.now();const first=searchMovements(rows,"",{offset:19900,limit:100});const searchMs=performance.now()-t;
+assert.equal(first.total,20000);assert.equal(first.results.length,100);assert.equal(first.results[0].id,"r19900");assert.equal(first.truncated,false);
+const filtered=searchMovements(rows,"  ",{status:"confirmed",offset:9999,limit:100});assert.equal(filtered.total,10000);assert.equal(filtered.results[0].id,"r19999");assert.equal(filtered.results.length,1);
+assert.equal(searchMovements(rows,"قهوة",{status:"confirmed"}).total,10000);
+let saves=0;const auto=createAutosave({capture:()=>state.revision,save:async()=>{saves++;return {status:"CONFLICT"};}});auto.enable("synthetic-password");assert.equal((await auto.request()).status,"CONFLICT");assert.equal(auto.active(),false);assert.equal((await auto.request()).status,"OFF");assert.equal(saves,1);
+console.log(JSON.stringify({status:"AUDIT_02_REGRESSIONS_PASSED",searchRows:rows.length,searchMs:Math.round(searchMs),scope:"money, settlement, stale revision, search, autosave"}));
