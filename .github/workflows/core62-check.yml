@@ -31,6 +31,8 @@ jobs:
         run: node core62/tests/journal-capacity.mjs
       - name: Assemble clean pre-RC distribution
         run: node core62/scripts/build-clean-release.mjs
+      - name: Verify reproducible local release and reject corrupt packages
+        run: node core62/tests/package-integrity.mjs dist/masarifi62-pre-rc
       - uses: actions/upload-artifact@v4
         with:
           name: masarifi62-pre-rc
