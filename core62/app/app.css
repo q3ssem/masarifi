@@ -607,3 +607,29 @@ html[data-style] .search-result-label{min-inline-size:0;overflow-wrap:anywhere}
  html[data-style] .search-result{grid-template-columns:28px minmax(0,1fr) fit-content(40%);gap:6px}
  html[data-style] .identity-hero .hero-sum{gap:6px}
 }
+
+/* RC3.25 — Arabic typography, semantic selection and contrast-safe text. */
+html[data-font]{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html[data-font] :is(body,dialog){font-kerning:normal;letter-spacing:normal}
+html[data-font] :is(.hero-total,.hero-subtotal,.finance-value,.home-row-value,.wealth-fact-value,.search-result-amount,.metric>strong){font-weight:700;font-variant-numeric:tabular-nums;line-height:1.35}
+html[data-font] .amount-digits{direction:ltr;unicode-bidi:isolate;font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
+html[data-font] :is(.home-row-label small,.finance-card-title small,.finance-card-meta,.wealth-facts small,.hero-sum>div>small,.hub-label small,.settings-row-text small){font-size:12px;line-height:1.5}
+html[data-font] :is(.choice-label,.entry-sheet #fields>label){font-weight:600;line-height:1.45}
+html[data-style] .entry-sheet #fields>label>:is(input,select):not(#amt){font-size:16px;line-height:1.4}
+html[data-style] .entry-sheet :is(#amt,#note)::placeholder{color:var(--muted);opacity:1}
+html[data-style] .entry-sheet .choice-grid .choice-chip{color:var(--ink);font-weight:600}
+html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true]{
+ position:relative;background:var(--action);color:#fff;border-color:transparent;
+ padding-inline-end:22px;box-shadow:inset 0 0 0 1px #ffffff70
+}
+html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true]::after{
+ display:block;content:"✓";position:absolute;inset-inline-end:5px;top:5px;
+ color:#fff;font-size:13px;font-weight:700;line-height:1;pointer-events:none
+}
+html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true] .choice-icon{color:#fff}
+html[data-style] .entry-sheet .entry-submit>button{background:var(--action);color:#fff}
+html[data-style] :is(.choice-chip,.appearance-choice,.search-filter):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(forced-colors:active){
+ html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true]{border:2px solid Highlight}
+ html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true]::after{color:Highlight}
+}

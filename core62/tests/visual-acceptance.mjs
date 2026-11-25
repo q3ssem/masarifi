@@ -116,6 +116,36 @@ try{
  }
  assert.equal(cardMetrics.length,30);
  await writeFile(join(out,"card-polish-metrics.json"),JSON.stringify({engine,scope:"actual synthetic financial entries and live card geometry; physical-device appearance pending",cases:cardMetrics.length,cardMetrics},null,2));
+ // RC3.25: exercise all palette/mode/finish combinations on actual entry controls.
+ const typography=await context.newPage();const contrastMetrics=[];
+ try{
+  await typography.setViewportSize({width:390,height:844});await typography.emulateMedia({reducedMotion:"reduce"});
+  await typography.goto("http://127.0.0.1:"+server.address().port+"/app/index.html");
+  await typography.locator("#quickIncome").click();
+  await typography.locator("#incomeSourceChoices [data-choice=salary]").click();
+  const themes=await typography.locator("#theme option").evaluateAll(xs=>xs.map(x=>x.value));assert.equal(themes.length,12);
+  for(const style of ["original","glass","android","paper","mono"])for(const theme of themes)for(const mode of ["light","dark"]){
+   // Deliberately apply presentation attributes directly in this isolated page to test computed CSS, not settings persistence.
+   const result=await typography.evaluate(({style,theme,mode})=>{
+    Object.assign(document.documentElement.dataset,{layout:"classic",style,theme,mode,font:"tajawal"});
+    const canvas=document.createElement("canvas");canvas.width=canvas.height=1;const ctx=canvas.getContext("2d",{willReadFrequently:true});
+    function rgb(c){ctx.clearRect(0,0,1,1);ctx.fillStyle="#000";ctx.fillStyle=c;ctx.fillRect(0,0,1,1);return Array.from(ctx.getImageData(0,0,1,1).data);}
+    const lum=a=>a.slice(0,3).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+    const ratio=(a,b)=>(Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
+    function contrast(e){const s=getComputedStyle(e),fg=rgb(s.color),colors=s.backgroundImage==="none"?[s.backgroundColor]:(s.backgroundImage.match(/rgba?\([^)]*\)/g)??[]),bg=colors.map(rgb);return {sampled:bg.length,opaque:fg[3]===255&&bg.every(c=>c[3]===255),minimum:bg.length?Math.min(...bg.map(c=>ratio(fg,c))):0};}
+    const selected=document.querySelector("#incomeSourceChoices [aria-pressed=true]"),ordinary=document.querySelector("#incomeSourceChoices [aria-pressed=false]"),submit=document.getElementById("submitOperation"),mark=getComputedStyle(selected,"::after");
+    return {selected:contrast(selected),ordinary:contrast(ordinary),submit:contrast(submit),checkVisible:mark.display!=="none"&&mark.content.includes("✓"),inputFont:parseFloat(getComputedStyle(document.getElementById("note")).fontSize)};
+   },{style,theme,mode});
+   assert.ok(result.checkVisible&&result.inputFont>=16,JSON.stringify({style,theme,mode,result}));
+   for(const key of ["selected","ordinary","submit"])assert.ok(result[key].sampled>0&&result[key].opaque&&result[key].minimum>=4.5,JSON.stringify({style,theme,mode,key,result}));
+   contrastMetrics.push({style,theme,mode,...result});
+  }
+  for(const [font,family] of [["tajawal","Masarifi Tajawal"],["cairo","Masarifi Cairo"],["plex","Masarifi Plex"],["system","system-ui"]]){
+   const result=await typography.evaluate(async({font,family})=>{document.documentElement.dataset.font=font;await document.fonts.ready;return {family:getComputedStyle(document.getElementById("note")).fontFamily,loaded:font==="system"||((await document.fonts.load('400 16px "'+family+'"',"مصاريف")).length>0)};},{font,family});
+   assert.ok(result.family.includes(family)&&result.loaded,JSON.stringify(result));
+  }
+  assert.equal(contrastMetrics.length,120);await writeFile(join(out,"typography-contrast-metrics.json"),JSON.stringify({engine,scope:"computed CSS solid colors and action gradient endpoints only; not full WCAG certification or physical iPhone",cases:contrastMetrics.length,contrastMetrics},null,2));
+ }finally{await typography.close();}
  // Final focused witness: long amounts stay within their cards at narrow width, without altering engine data.
  const narrow=await context.newPage();
  try{

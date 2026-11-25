@@ -15,11 +15,11 @@ for(const [before,after] of [["function finishEntry(){if(!entryOrigin)return;con
 assert.notEqual(expectedController,originalController,"expected controller patch missing from baseline");
 assert.equal(await readFile(resolve("core62/app/app.mjs"),"utf8"),expectedController,"unexpected controller changes");
 const manifest=JSON.parse(await readFile(join(root,"build-manifest.json"),"utf8"));
-assert.equal(manifest.version,"62.7.0-rc3.24-local-dev");
+assert.equal(manifest.version,"62.7.0-rc3.25-local-dev");
 assert.equal(manifest.releaseAuthorized,false);assert.equal(manifest.legacyMigrationComplete,false);assert.equal(manifest.cloudSync,false);assert.equal(manifest.storage,"local-encrypted");
 assert.equal(manifest.entry,"app/index.html");
 assert.ok(manifest.assets.length>0);assert.equal(new Set(manifest.assets.map(a=>a.path)).size,manifest.assets.length);
 for(const a of manifest.assets){assert.ok(/^(app|src)\//.test(a.path)&&!a.path.split("/").includes(".."));const bytes=await readFile(join(root,a.path));assert.equal(bytes.length,a.bytes,a.path);assert.equal(createHash("sha256").update(bytes).digest("hex"),a.sha256,a.path);}
-const html=await readFile(join(root,manifest.entry),"utf8");assert.match(html,/<title>[^<]*RC3\.24<\/title>/);assert.match(html,/dir="rtl"/);assert.match(html,/connect-src 'none'/);
+const html=await readFile(join(root,manifest.entry),"utf8");assert.match(html,/<title>[^<]*RC3\.25<\/title>/);assert.match(html,/dir="rtl"/);assert.match(html,/connect-src 'none'/);
 const evidence={candidate:manifest.version,baseline:base,changed,assetsVerified:manifest.assets.length,financialSourceChanged:false,nonFinancialRuntimeChanges:["core62/src/secure-backup.mjs","core62/src/search.mjs","core62/app/app.mjs"],releaseAuthorized:false,browserEvidence:"SEPARATE_CI_JOBS_REQUIRED",deviceEvidence:"PENDING",ownerApproval:"PENDING"};
 await writeFile(join(root,"../final-release-evidence.json"),JSON.stringify(evidence,null,2)+"\n");console.log(JSON.stringify(evidence,null,2));
