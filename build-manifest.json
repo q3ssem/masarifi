@@ -1,5 +1,5 @@
 {
-  "version": "62.7.0-rc3.6-local-dev",
+  "version": "62.7.0-rc3.8-local-dev",
   "entry": "app/index.html",
   "releaseAuthorized": false,
   "legacyMigrationComplete": false,
@@ -8,13 +8,13 @@
   "assets": [
     {
       "path": "app/app.css",
-      "bytes": 7072,
-      "sha256": "029fa845092782bb0f4b9a4cd5b03c5add390ab2d8c966fe6d59277d575c20e3"
+      "bytes": 17014,
+      "sha256": "2da924369bbff5f29901cd32b47adaa7ccf07058ffa7ec09a709fc8bc8b28109"
     },
     {
       "path": "app/app.mjs",
-      "bytes": 42414,
-      "sha256": "fef28cb67f47ff5f8affec7daaa40844eea08b53ce9e6940126fbc8d105462e4"
+      "bytes": 48545,
+      "sha256": "22acc779156eda63e9f8c703a4416ce8ed438b75b0d61d51e071da480f18eadb"
     },
     {
       "path": "app/app.webmanifest",
@@ -23,8 +23,8 @@
     },
     {
       "path": "app/appearance.mjs",
-      "bytes": 858,
-      "sha256": "0cb6bfc3530bafdb1a390a287afa5514b5b656b4a764801d9de6e9131c66f43b"
+      "bytes": 978,
+      "sha256": "c6e4ee0efeba366c6204ed081a0eca4e7633dacbfada0cad12d0c0395d98cb63"
     },
     {
       "path": "app/catalog.mjs",
@@ -53,13 +53,13 @@
     },
     {
       "path": "app/index.html",
-      "bytes": 8199,
-      "sha256": "0ace808b976137c5836c6eb3b6b4a341e92980579e8fac3caba499a6db47280c"
+      "bytes": 8813,
+      "sha256": "1b5cd85265380dc8355925edb25df5dcbf8e30203884df825abe729cc2df8a73"
     },
     {
       "path": "app/offline-worker.mjs",
       "bytes": 5479,
-      "sha256": "ec2f187cf4b7ccff11f150c5b2a3c5a51aa68e2c20f81dc4ec6e6365625862d2"
+      "sha256": "fc855a2b0409c3cd81aeb198b8cb53239cbba825dd9f3bad68b5e008e828b09b"
     },
     {
       "path": "app/offline.mjs",
@@ -68,8 +68,8 @@
     },
     {
       "path": "app/themes.css",
-      "bytes": 4594,
-      "sha256": "d3b80493a77d1aae0343f4c47de660fd7d1f54a0532507fe875703df1865a361"
+      "bytes": 12405,
+      "sha256": "8a63a9d253b863bd87583bd8746382a63672e1fbf7014e28aa2c2e6aaacfb50b"
     },
     {
       "path": "src/association-import.mjs",

@@ -16,3 +16,79 @@ html[data-layout="unified"] .panel{border-radius:20px;padding:16px}
 
 /* Final polish: persistent local-save failure, independent of active section. */
 .save-alert{border:1px solid var(--negative);border-inline-start:4px solid var(--negative);background:var(--panel);border-radius:12px;padding:10px;margin-bottom:10px}.save-alert p{font-size:14px;color:var(--ink);overflow-wrap:anywhere}.save-alert button{width:100%}@media print{.save-alert{display:none!important}}
+
+/* Original 61.8.1 clean identity, improved distribution; unified layout remains optional. */
+.identity-icon{width:22px;height:22px;flex:none;vertical-align:middle}
+html[data-layout="classic"] body{font-family:Tajawal,"IBM Plex Sans Arabic",system-ui,-apple-system,Tahoma,sans-serif}
+html[data-layout="classic"] main{max-width:720px;padding-inline:14px}
+html[data-layout="classic"] .top{background:transparent;border:0;padding:4px 0;margin-bottom:10px;border-radius:0}
+html[data-layout="classic"] .brand h1{font-size:26px}
+html[data-layout="classic"] .brand .logo{width:40px;height:40px;border-radius:13px;transform:rotate(-6deg);box-shadow:0 7px 16px -10px var(--accent)}
+.brand .logo svg{width:24px;height:24px}
+html[data-layout="classic"] .brand .icon-btn{background:var(--identity-soft);border:1px solid var(--border);color:var(--accent);border-radius:13px}
+html[data-layout="classic"] .months{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:2px 4px;margin-top:12px}
+html[data-layout="classic"] .months button{color:var(--accent)}
+html[data-layout="classic"] #nav{background:var(--panel);gap:4px;padding:4px;border-radius:15px;margin-bottom:12px}
+html[data-layout="classic"] #nav button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;min-height:58px;font-size:12px;font-weight:500;color:var(--ink);border:1px solid transparent}
+html[data-layout="classic"] #nav button[aria-current="page"]{background:var(--identity-selected);color:var(--accent);border-color:var(--border);font-weight:700}
+html[data-layout="classic"] .more-nav button{display:flex;align-items:center;gap:8px;background:var(--identity-surface);color:var(--ink);text-align:start}
+html[data-layout="unified"] #nav button .identity-icon{display:none}
+html[data-layout="classic"] #view{background:none;border:0;padding:0}
+html[data-layout="classic"] #view>h2:not(:first-child){margin-top:22px}
+html[data-layout="classic"] #view>.line{background:var(--identity-surface);padding:12px 14px;border:1px solid var(--border);border-radius:12px;margin-bottom:5px;min-height:44px}
+html[data-layout="classic"] .identity-hero{background:var(--identity-hero);color:var(--ink);border:1px solid var(--border);border-radius:20px;padding:17px;margin:0 0 12px}
+.identity-hero .hero-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.identity-hero .hero-main{min-width:0;flex:1}
+.identity-hero .hero-total{color:var(--ink);font-size:34px;line-height:1.35;margin:4px 0}
+.identity-hero .hero-total.negative{color:var(--negative)}
+.identity-hero .hero-sum{grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--border);margin-top:12px;padding-top:10px;gap:8px}
+.identity-hero .hero-sum small,.identity-hero .hero-main small{color:var(--muted)}
+.identity-hero .hero-sum b{color:var(--ink);font-size:14px}
+.identity-hero .hero-foot{font-size:12px;color:var(--muted);margin:8px 0 0}
+.home-ratio{width:64px;height:64px;flex:none;display:grid;align-content:center;text-align:center;border:4px solid var(--accent);border-radius:50%;color:var(--accent)}
+.home-ratio.over{border-color:var(--negative);color:var(--negative)}.home-ratio strong{font-size:14px;overflow-wrap:anywhere}.home-ratio small{font-size:10px}
+html[data-layout="classic"] .quick-bar{gap:8px;margin:0 0 10px}
+html[data-layout="classic"] .quick-bar button{min-height:48px;border-radius:14px;font-size:15px;font-weight:700}
+html[data-layout="classic"] .quick-bar #quickIncome{background:var(--identity-surface);color:var(--accent);border:1px solid var(--border)}
+.home-link{width:100%;display:flex;align-items:center;gap:10px;text-align:start;background:var(--identity-surface);color:var(--ink);font-size:14px;border-radius:12px;margin-bottom:10px}
+.home-link span{flex:1}.home-link svg{color:var(--accent)}
+.home-group{margin:16px 0 0;min-width:0}.home-group-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:17px;font-weight:700;margin:0 0 8px;min-height:44px}.home-count{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--identity-soft);color:var(--muted)}
+details.home-group{background:var(--panel);padding:5px 12px 8px;border:1px solid var(--border);border-radius:14px}details.home-group summary{cursor:pointer}details.home-group:not([open]) summary{margin-bottom:0}details.home-group summary::after{content:"⌄";color:var(--accent);margin-inline-start:auto}details.home-group[open] summary::after{content:"⌃"}
+.home-rows{background:var(--identity-surface);border:1px solid var(--border);border-radius:15px;padding:0 12px}
+.home-row{display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,auto);align-items:center;gap:9px;min-height:60px;padding:9px 0;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;color:var(--ink);text-align:start;width:100%;font-size:14px}
+.home-row:last-child{border-bottom:0}.home-icon{display:grid;place-items:center;border-radius:10px;width:34px;height:34px;background:var(--identity-soft);color:var(--accent)}.home-icon.expense{background:color-mix(in srgb,var(--accent) 12%,var(--identity-surface))}.home-icon.income{color:var(--positive);background:color-mix(in srgb,var(--positive) 12%,var(--identity-surface))}.home-icon svg{width:18px;height:18px}
+.home-row-label{min-width:0;overflow-wrap:anywhere}.home-row-label small{display:block;font-size:11px;color:var(--muted);line-height:1.45}.home-row-value{text-align:end;overflow-wrap:anywhere;font-size:14px;font-variant-numeric:tabular-nums;unicode-bidi:isolate}.home-row-value.income{color:var(--positive)}.home-empty{padding:14px 0;margin:0;font-size:13px}
+html[data-layout="classic"] .period{background:var(--panel);padding:4px 12px;margin-bottom:10px}
+html[data-layout="classic"] .notice{font-size:11px;background:transparent;padding:3px 8px;margin-bottom:2px}
+html[data-layout="classic"] #saveState{padding:2px 8px;margin-bottom:6px}
+@media(max-width:350px){html[data-layout="classic"] main{padding-inline:9px}html[data-layout="classic"] .brand h1{font-size:21px}html[data-layout="classic"] .brand .logo{width:32px;height:32px}html[data-layout="classic"] #nav button{font-size:11px}.identity-hero .hero-total{font-size:27px}.identity-hero .hero-sum b{font-size:12px}.identity-hero .hero-sum small{font-size:11px}.home-row{gap:6px;grid-template-columns:30px minmax(0,1fr) minmax(0,auto)}.home-icon{width:28px;height:28px}.home-row-value{font-size:12px}}
+
+/* RC3.8: optional appearance treatments, independent of palette and layout. */
+html{--style-solid:color-mix(in srgb,var(--ink) 4%,var(--page-solid,#f5f8fa));--style-radius:18px}
+html[data-mode="light"]{--page-solid:#f5f8fa;--glass-base:#fff;--glass-alpha:82%;--glass-edge:#fff}
+html[data-mode="dark"]{--page-solid:#171f29;--glass-base:#18232e;--glass-alpha:88%;--glass-edge:#8295a6}
+html[data-style="glass"] :is(.panel,.metric,#nav,.months,.home-rows,details.home-group,.home-link,.more-nav button,#view>.line,.identity-hero){background:color-mix(in srgb,var(--glass-base) var(--glass-alpha),var(--accent));border-color:color-mix(in srgb,var(--glass-edge) 45%,var(--border));border-radius:23px;box-shadow:0 5px 18px -12px color-mix(in srgb,var(--ink) 32%,transparent)}
+html[data-style="glass"] #view{background:transparent;box-shadow:none}
+html[data-style="glass"] .top{background:transparent;box-shadow:none}
+html[data-style="glass"] .quick-bar button,html[data-style="glass"] #nav button[aria-current="page"]{border-radius:24px}
+@supports ((backdrop-filter:blur(8px)) or (-webkit-backdrop-filter:blur(8px))){
+ html[data-style="glass"] :is(.months,#nav,#settingsPanel){background:color-mix(in srgb,var(--glass-base) 72%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+}
+html[data-style="android"]{--android-surface:color-mix(in srgb,var(--page-solid) 95%,var(--accent));--android-tonal:color-mix(in srgb,var(--page-solid) 82%,var(--accent));--android-selected:color-mix(in srgb,var(--page-solid) 70%,var(--accent))}
+html[data-style="android"] :is(.panel,.metric,.home-rows,details.home-group,.home-link,#view>.line,.months){background:var(--android-surface);border-color:transparent;border-radius:24px;box-shadow:none}
+html[data-style="android"] #view{background:transparent}
+html[data-style="android"] .top{background:transparent}
+html[data-style="android"] .identity-hero,html[data-style="android"] .hero{background:var(--android-tonal);color:var(--ink);border:0;border-radius:28px}
+html[data-style="android"] #nav{background:var(--android-surface);border:0;border-radius:28px;padding:6px}
+html[data-style="android"] #nav button{border-radius:20px;color:var(--ink)}
+html[data-style="android"] #nav button[aria-current="page"]{background:var(--android-selected);color:var(--ink);border-color:transparent;font-weight:700}
+html[data-style="android"] :is(button,input,select){border-radius:18px}
+html[data-style="android"] .quick-bar button{border-radius:28px}
+html[data-style="android"] .home-icon{border-radius:16px;background:var(--android-tonal)}
+html[data-motion="ios"] :is(button,.home-link,.home-row){transition:transform 180ms cubic-bezier(.22,1,.36,1),background-color 180ms ease,box-shadow 180ms ease}
+html[data-motion="quick"] :is(button,.home-link,.home-row){transition:transform 90ms ease,background-color 90ms ease}
+html:is([data-motion="ios"],[data-motion="quick"]) button:active:not(:disabled){transform:scale(.975)}
+html[data-motion="off"] *{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){html *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-transparency:reduce){html[data-style="glass"] :is(.months,#nav,#settingsPanel){background:var(--glass-base);backdrop-filter:none;-webkit-backdrop-filter:none}}
+@media(max-width:350px){html[data-style="android"] #nav{padding:3px}html[data-style="android"] #nav button{padding-inline:2px}}
