@@ -3,8 +3,10 @@ import {createServer} from "node:http";
 import {readFile} from "node:fs/promises";
 import {resolve,extname,relative} from "node:path";
 import {chromium,webkit} from "playwright";
+import {createSyncServer,createMemoryVaults} from "../server/sync-server.mjs";
 const root=resolve("core62");
-const server=createServer(async(req,res)=>{try{const file=resolve(root,"."+new URL(req.url,"http://localhost").pathname);if(relative(root,file).startsWith(".."))throw Error("path");const body=await readFile(file);res.setHeader("Content-Type",{".html":"text/html;charset=utf-8",".mjs":"text/javascript;charset=utf-8",".css":"text/css;charset=utf-8"}[extname(file)]||"application/octet-stream");res.end(body);}catch{res.statusCode=404;res.end("Not found");}});
+const api=createSyncServer({authenticate:a=>a==="Bearer synthetic-sync-token"?"synthetic-account":null,store:createMemoryVaults()});
+const server=createServer(async(req,res)=>{if(req.url==="/v1/vault"){api.emit("request",req,res);return;}try{const file=resolve(root,"."+new URL(req.url,"http://localhost").pathname);if(relative(root,file).startsWith(".."))throw Error("path");const body=await readFile(file);res.setHeader("Content-Type",{".html":"text/html;charset=utf-8",".mjs":"text/javascript;charset=utf-8",".css":"text/css;charset=utf-8"}[extname(file)]||"application/octet-stream");res.end(body);}catch{res.statusCode=404;res.end("Not found");}});
 await new Promise(r=>server.listen(0,"127.0.0.1",r));const url="http://127.0.0.1:"+server.address().port+"/app/index.html";
 const engine=process.env.BROWSER_ENGINE==="webkit"?webkit:chromium;
 const browser=await engine.launch({headless:true});try{
@@ -38,6 +40,9 @@ const browser=await engine.launch({headless:true});try{
  await page.reload();assert.equal(await page.locator("html").getAttribute("data-layout"),"unified");assert.equal(await page.locator("#nav button").count(),7);
  await openSection("التقارير والبيانات");await page.locator("#vaultPassword").fill("synthetic-strong-passphrase");await page.locator("#openLocal").click();await page.locator("#dataStatus").getByText(/تم فتح الخزنة/).waitFor();
  await openSection("الحسابات والحركات");await page.locator("#view").getByText(/حفظ تلقائي/).waitFor();await page.locator("#openSettings").click();await page.locator("#layout").selectOption("classic");assert.equal(await page.locator("#nav button").count(),4);await page.locator("#view").getByText(/حفظ تلقائي/).waitFor();
+ await openSection("التقارير والبيانات");await page.locator("#syncPanel summary").click();await page.locator("#syncToken").fill("synthetic-sync-token");await page.locator("#vaultPassword").fill("synthetic-strong-passphrase");page.once("dialog",d=>d.accept());await page.locator("#pushSync").click();await page.locator("#syncStatus").getByText(/تم اعتماد النسخة المشفرة/).waitFor({timeout:30000});
+ const other=await browser.newContext({viewport:{width:390,height:844}});const remote=await other.newPage();await remote.goto(url);await remote.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await remote.locator("#syncPanel summary").click();await remote.locator("#syncToken").fill("synthetic-sync-token");await remote.locator("#vaultPassword").fill("synthetic-strong-passphrase");await remote.locator("#pullSync").click();await remote.locator("#syncStatus").getByText(/استُعيدت النسخة الأحدث/).waitFor({timeout:30000});await remote.locator("#moreToggle").click();await remote.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();await remote.locator("#view").getByText(/حفظ تلقائي/).waitFor();await other.close();
+ console.log("Same-origin HTTP sync UI: encrypted push and second browser context pull passed.");
  console.log("Responsive screen checks: "+layouts);
  assert.deepEqual(errors,[]);console.log("Browser app save/reload/restore, edit prefill, wrong-password overwrite rejection, two-connection CAS and theme/section matrix passed.");
  }finally{await browser.close();server.close();}
