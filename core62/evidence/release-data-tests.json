@@ -1,0 +1,90 @@
+{
+  "passed": 21,
+  "total": 21,
+  "checks": [
+    {
+      "name": "journal records command",
+      "pass": true
+    },
+    {
+      "name": "blocked command not stored",
+      "pass": true
+    },
+    {
+      "name": "journal replay exact",
+      "pass": true
+    },
+    {
+      "name": "ID counter preserved",
+      "pass": true
+    },
+    {
+      "name": "duplicate journal command blocked",
+      "pass": true
+    },
+    {
+      "name": "invalid journal format",
+      "pass": true
+    },
+    {
+      "name": "snapshot detached",
+      "pass": true
+    },
+    {
+      "name": "month report confirmed planned separate",
+      "pass": true
+    },
+    {
+      "name": "CSV roundtrip quoted Arabic",
+      "pass": true
+    },
+    {
+      "name": "planned report CSV cannot import as confirmed",
+      "pass": true
+    },
+    {
+      "name": "CSV formula guard",
+      "pass": true
+    },
+    {
+      "name": "CSV malformed quote blocked",
+      "pass": true
+    },
+    {
+      "name": "atomic import into fresh session",
+      "pass": true
+    },
+    {
+      "name": "simple legacy mapping",
+      "pass": true
+    },
+    {
+      "name": "unsupported wallet blocks migration",
+      "pass": true
+    },
+    {
+      "name": "future legacy record blocked",
+      "pass": true
+    },
+    {
+      "name": "unmapped legacy metadata blocked",
+      "pass": true
+    },
+    {
+      "name": "vault first write",
+      "pass": true
+    },
+    {
+      "name": "vault CAS stale writer",
+      "pass": true
+    },
+    {
+      "name": "vault previous revision",
+      "pass": true
+    },
+    {
+      "name": "vault rejects unencrypted record",
+      "pass": true
+    }
+  ]
+}

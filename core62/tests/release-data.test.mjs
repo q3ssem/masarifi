@@ -1,0 +1,26 @@
+import {createJournalSession,parseJournal} from "../src/journal.mjs";
+import {monthlyReport,reportCSV,parseCSV,previewCSV} from "../src/reporting.mjs";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {vaultTransition} from "../src/journal-store.mjs";
+const checks=[];function check(name,f){try{if(f()!==true)throw Error("assertion");checks.push({name,pass:true});}catch(e){checks.push({name,pass:false,error:String(e)});}}
+const throws=f=>{try{f();return false;}catch{return true;}},asOf="2026-12-31";const j=createJournalSession();
+const id=j.nextId("expense");const rec={type:"record",id,direction:"out",amountMinor:12345,date:"2026-12-01",category:"food",note:"أكل",accountId:null};check("journal records command",()=>j.apply("domain",rec).status==="APPLIED_SHADOW");check("blocked command not stored",()=>j.apply("domain",rec).status==="BLOCKED"&&j.exportJournal().commands.length===1);
+const backup=JSON.stringify(j.exportJournal()),restored=parseJournal(backup);check("journal replay exact",()=>JSON.stringify(restored.snapshot())===JSON.stringify(j.snapshot()));check("ID counter preserved",()=>restored.nextId("expense")==="expense_2");check("duplicate journal command blocked",()=>throws(()=>parseJournal(JSON.stringify({...j.exportJournal(),commands:[...j.exportJournal().commands,...j.exportJournal().commands]}))));
+check("invalid journal format",()=>throws(()=>parseJournal("{}")));check("snapshot detached",()=>{const a=j.exportJournal();a.commands[0].fields.amountMinor=1;return j.exportJournal().commands[0].fields.amountMinor===12345;});
+const rows=[{id:"e1",date:"2026-12-01",amountMinor:-12345,category:"food",note:"أكل, \"بيت\"",status:"confirmed",kind:"expense"},{id:"p",date:"2026-12-20",amountMinor:-5000,category:"food",status:"planned",kind:"expense"}];const r=monthlyReport(rows,"2026-12");check("month report confirmed planned separate",()=>r.cents.confirmedOut===12345&&r.cents.plannedOut===5000&&r.confirmedNetMinor===-12345);
+const csv=reportCSV(rows.slice(0,1),"2026-12"),preview=previewCSV(csv,{asOf});check("CSV roundtrip quoted Arabic",()=>preview.status==="IMPORT_PREVIEW"&&preview.commands[0].fields.note===rows[0].note&&preview.commands[0].fields.amountMinor===12345);
+check("planned report CSV cannot import as confirmed",()=>previewCSV(reportCSV(rows,"2026-12"),{asOf}).status==="BLOCKED");
+check("CSV formula guard",()=>reportCSV([{...rows[0],note:"=1+1"}],"2026-12").includes("'=1+1"));
+check("CSV malformed quote blocked",()=>throws(()=>parseCSV('a,"broken')));
+check("atomic import into fresh session",()=>importIntoEmpty(preview).snapshot().domain.movements.length===1);
+const old={app:"masarifi",version:2,expenses:[{id:"e_1",amount:12.34,cat:"food",note:"قديم",date:"2026-12-01"}],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs:{}};
+const lp=previewLegacy(JSON.stringify(old),{asOf});check("simple legacy mapping",()=>lp.status==="IMPORT_PREVIEW"&&importIntoEmpty(lp).snapshot().domain.movements[0].amountMinor===1234);
+const blocked=previewLegacy(JSON.stringify({...old,prefs:{wallet59:{accounts:[{id:"a"}]}}}),{asOf});check("unsupported wallet blocks migration",()=>blocked.status==="BLOCKED"&&throws(()=>importIntoEmpty(blocked)));
+check("future legacy record blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],date:"2027-01-01"}]}),{asOf}).status==="BLOCKED");
+check("unmapped legacy metadata blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],tag:"project"}]}),{asOf}).status==="BLOCKED");
+const env={format:"masarifi62-backup",version:1};const a=vaultTransition(null,0,env);check("vault first write",()=>a.status==="SAVED"&&a.next.generation===1);
+check("vault CAS stale writer",()=>vaultTransition(a.next,0,env).status==="CONFLICT");
+check("vault previous revision",()=>vaultTransition(a.next,1,{...env,x:1}).next.previous===env);
+check("vault rejects unencrypted record",()=>vaultTransition(null,0,{}).status==="BLOCKED");
+const result={passed:checks.filter(x=>x.pass).length,total:checks.length,checks};
+console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;
