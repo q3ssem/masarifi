@@ -445,3 +445,51 @@ html[data-layout="classic"] .wealth-hero{margin:0 0 12px}
 .search-result{display:grid;grid-template-columns:32px minmax(0,1fr) minmax(0,auto);align-items:center;gap:8px;min-height:54px;padding:9px 0;border-bottom:1px solid var(--border)}
 .search-result:last-child{border-bottom:0}.search-result-label{min-width:0;overflow-wrap:anywhere;font-size:13px}.search-result-amount{font-size:14px;font-weight:700;flex-wrap:wrap;justify-content:flex-end}.search-results .cash-empty{margin:8px 0}
 @media(max-width:350px){.search-card{padding:9px}.search-date-fields{grid-template-columns:1fr}.search-result{gap:5px;grid-template-columns:28px minmax(0,1fr) minmax(0,auto)}.search-result .choice-icon{width:28px;height:28px}.search-result-amount{font-size:12px}.wealth-fact-value{font-size:14px}}
+
+
+/* RC3.20 — cohesive original-identity finishing pass; presentation only. */
+html{
+  --polish-gap:10px;
+  --polish-radius:14px;
+  --polish-press-duration:160ms;
+  --polish-ease:cubic-bezier(.22,1,.36,1);
+  --polish-edge:color-mix(in srgb,var(--border) 78%,var(--ink));
+}
+html[data-font] :is(body,dialog){font-kerning:normal;letter-spacing:normal}
+html[data-font] :is(button,input,select,textarea){font-family:inherit}
+html :is(.amount-digits,.home-row-value,.finance-value,.wealth-fact-value,.search-result-amount,.hero-total,.line strong){font-variant-numeric:tabular-nums;letter-spacing:normal}
+html[data-layout="classic"] #view>h2{font-weight:700;margin-block:14px 8px}
+html[data-layout="classic"][data-style="original"] :is(.finance-card,.expense-day,.financial-rows,.search-card,.search-results,.wealth-history){border-radius:var(--polish-radius);border-color:var(--polish-edge)}
+html[data-layout="classic"][data-style="original"] :is(.finance-card,.search-card){gap:var(--polish-gap)}
+html[data-layout="classic"] :is(.finance-card-title,.home-row-label,.search-result-label,.settings-row-text,.hub-label){line-height:1.45}
+html[data-layout="classic"] :is(.finance-card-title small,.finance-card-meta,.wealth-facts small,.settings-row-text small,.search-result-head span){line-height:1.5}
+html[data-layout="classic"] :is(.finance-card-title b,.home-row-label>span,.settings-row-text b){overflow-wrap:anywhere}
+html[data-layout="classic"] :is(.finance-value,.search-result-amount,.wealth-fact-value,.home-row-value){min-width:0;max-width:100%;overflow-wrap:anywhere}
+html[data-layout="classic"] .finance-card-head{grid-template-columns:36px minmax(0,1fr) minmax(0,44%)}
+html[data-layout="classic"] .search-result{grid-template-columns:32px minmax(0,1fr) minmax(0,44%)}
+html[data-layout="classic"] :is(.finance-card .choice-icon,.settings-row .choice-icon,.hub-tile .choice-icon,.report-hero-icon){flex:none}
+html :is(.identity-icon,.brand svg,.home-edit-mark svg){stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
+html :is(.choice-icon,.home-icon,.search-glyph) svg{flex:none}
+html :is(.search-filter,.report-tool,.finance-action,.settings-row,.appearance-choice,.hub-tile,.icon-btn){min-height:44px}
+html :is(button,select,input,textarea,summary):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+html :is(button,select,input,textarea):disabled{cursor:not-allowed}
+html .search-bar:focus-within{border-color:var(--accent)}
+html[data-style="glass"] :is(.finance-card,.search-card,.search-results,.wealth-history,.expense-day,.financial-rows){background:color-mix(in srgb,var(--choice-surface) 94%,transparent);border-radius:20px}
+html[data-style="android"] :is(.finance-card,.search-card,.search-results,.wealth-history,.expense-day,.financial-rows){background:var(--android-surface);border-radius:22px}
+html[data-style="paper"] :is(.finance-card,.search-card,.search-results,.wealth-history,.expense-day,.financial-rows){background:var(--paper-card);border-radius:15px}
+html[data-style="mono"] :is(.finance-card,.search-card,.search-results,.wealth-history,.expense-day,.financial-rows){background:var(--mono-card);border-radius:12px;box-shadow:none}
+@media(prefers-reduced-transparency:reduce){
+  html[data-style="glass"] :is(.finance-card,.search-card,.search-results,.wealth-history,.expense-day,.financial-rows){background:var(--choice-surface)}
+}
+@media(prefers-reduced-motion:no-preference){
+  html[data-motion="ios"] :is(.finance-action,.report-tool,.search-filter,.settings-row,.hub-tile,.appearance-choice){transition:transform var(--polish-press-duration) var(--polish-ease),background-color var(--polish-press-duration) ease,border-color var(--polish-press-duration) ease}
+  html[data-motion="ios"] :is(.finance-action,.report-tool,.search-filter,.settings-row,.hub-tile,.appearance-choice):active:not(:disabled){transform:scale(.98)}
+}
+@media(max-width:360px){
+  html[data-layout="classic"] .finance-card-head{grid-template-columns:30px minmax(0,1fr) minmax(0,43%);gap:6px}
+  html[data-layout="classic"] .search-result{grid-template-columns:28px minmax(0,1fr) minmax(0,43%);gap:5px}
+  html .search-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-layout="classic"] .finance-value{font-size:17px}
+  html[data-layout="classic"] :is(.finance-card-meta,.wealth-facts small,.search-result-head span){font-size:12px}
+}
+@media(forced-colors:active){html :is(button,summary,input,select):focus-visible{outline:2px solid Highlight}html .finance-card progress{forced-color-adjust:auto}}
