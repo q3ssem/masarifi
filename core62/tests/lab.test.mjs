@@ -11,8 +11,8 @@ check("duplicate fail closed",()=>financialDNA([rows[0],rows[0]],"2026-12").stat
 check("dashboard filter",()=>buildDashboard(rows,"2026-12","planned").rows.length===2);
 check("dashboard totals independent of filter",()=>buildDashboard(rows,"2026-12","planned").analysis.cents.confirmedIn===650000);
 check("invalid ledger hidden",()=>buildDashboard([rows[0],rows[0]],"2026-12").rows.length===0);
-check("six legacy themes",()=>THEMES.length===6&&new Set(THEMES.map(t=>t[0])).size===6);
-check("twelve theme states",()=>THEMES.every(t=>["light","dark"].every(m=>Object.keys(themeTokens(t[0],m)).length===9)));
+check("six immutable legacy palettes plus six new palettes",()=>THEMES.length===12&&new Set(THEMES.map(t=>t[0])).size===12&&["reef6181","violet6181","citrus6181","canopy6181","dawn6181","polar6181"].every((id,i)=>THEMES[i][0]===id));
+check("twenty-four theme states",()=>THEMES.every(t=>["light","dark"].every(m=>Object.keys(themeTokens(t[0],m)).length===9)));
 check("semantic colors independent",()=>THEMES.every(t=>themeTokens(t[0],"light")["--negative"]==="#9a2433"));
 const opt={openingMinor:388000,asOf:"2026-12-15",through:"2026-12-31"};
 const s=decisionLab(rows,opt,{date:"2026-12-18",costMinor:50000});

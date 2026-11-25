@@ -170,3 +170,48 @@ html[data-motion="spring"] .bottom-sheet[open]{animation:choice-spring-in 340ms 
 html[data-motion="off"] button:active:not(:disabled){transform:none}
 
 .appearance-choice[aria-pressed="true"]{position:relative}.appearance-choice[aria-pressed="true"]::after{content:"✓";position:absolute;inset-inline-end:5px;top:4px;color:var(--tile-color);font-size:12px;line-height:1;pointer-events:none}
+
+/* RC3.12 — final identity polish. No animated layout or financial values. */
+html{--identity-surface:var(--choice-surface);--identity-soft:var(--choice-neutral)}
+main{isolation:isolate}
+html[data-layout="classic"] .brand .logo{transform:none}
+html[data-layout="classic"] #nav button{min-height:58px;line-height:1.35}
+html[data-layout="classic"] .hero-sum{gap:6px}
+.identity-hero .hero-total{font-size:clamp(26px,8vw,34px);font-weight:760;letter-spacing:-.025em}
+.identity-hero .hero-main small{font-size:13px;font-weight:600}
+.identity-hero .hero-sum small{font-size:11px;line-height:1.45}
+.identity-hero .hero-sum b{font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+.home-row-label>span{font-weight:600}.home-row-label small{font-size:12px}
+.home-row-value{font-weight:700}.home-row{min-height:60px}
+.choice-grid .choice-chip{min-height:64px;border-radius:14px;line-height:1.3}
+.choice-grid .choice-chip[aria-pressed="true"]{position:relative}
+.choice-grid .choice-chip[aria-pressed="true"]::after{content:"✓";position:absolute;top:4px;inset-inline-end:5px;color:var(--tile-color);font-size:13px;line-height:1;pointer-events:none}
+.operation-tile,.appearance-choice{line-height:1.35}
+#settingsPanel>.editor-head{margin-bottom:8px}
+.appearance-group h3{font-size:14px;color:var(--ink)}
+.appearance-choice{min-height:68px;font-size:12px}
+.appearance-theme .appearance-grid{gap:6px}
+.appearance-choice .palette-swatch{height:26px}
+.entry-submit>button{width:100%;min-height:48px;font-weight:700}
+.entry-submit #message:empty{display:none}
+.entry-submit #message{font-size:13px;margin:6px 0 0;overflow-wrap:anywhere}
+.entry-sheet #editor{padding-bottom:0}
+.entry-sheet #editor .editor-head{position:sticky;top:0;z-index:2;background:var(--choice-surface);padding:4px 0 8px;margin:0 0 4px}
+.entry-sheet #editorTitle{font-size:21px;margin:0}
+.entry-sheet #fields{gap:8px;margin:4px 0 12px}
+.entry-sheet #amt{min-height:62px;font-size:32px;font-weight:750;direction:ltr}
+.entry-sheet #fields label{font-size:13px;font-weight:600}
+.entry-sheet .entry-submit{position:sticky;bottom:0;z-index:2;background:var(--choice-surface);border-top:1px solid var(--choice-outline);padding:10px 0 max(14px,env(safe-area-inset-bottom));}
+.entry-sheet .entry-submit>button{min-height:50px}
+.entry-sheet #fields{scroll-margin-block-end:85px}
+.bottom-sheet{max-height:92vh;max-height:92dvh;scroll-padding-block:76px 90px}
+.entry-notice{margin:0 0 8px;padding:8px 12px;font-size:13px}
+html[data-style="paper"] .entry-sheet :is(.entry-submit,.editor-head){background:var(--paper-card)}
+html[data-style="mono"] .entry-sheet :is(.entry-submit,.editor-head){background:var(--mono-card)}
+html[data-style="android"] .entry-sheet :is(.entry-submit,.editor-head){background:var(--android-surface)}
+/* Blur is confined to the small chrome; a solid entry surface keeps text legible. */
+html[data-style="glass"] .entry-sheet #editor .editor-head,html[data-style="glass"] .entry-sheet .entry-submit{background:var(--choice-surface)}
+@media(max-width:350px){.entry-sheet #amt{font-size:28px;min-height:56px}.entry-sheet #editorTitle{font-size:18px}.entry-sheet .choice-grid{gap:5px}.entry-sheet .choice-grid .choice-chip{min-height:58px}.appearance-choice{font-size:11px}.home-row-label small{font-size:11px}}
+@media(max-height:480px){.entry-sheet .entry-submit,.entry-sheet #editor .editor-head{position:static}.bottom-sheet{max-height:96dvh}}
+@media(prefers-reduced-motion:reduce){html button:active:not(:disabled){transform:none!important}html .bottom-sheet[open]{animation:none!important}}
+@media print{.entry-submit,#entryNotice,.section-actions{display:none!important}}
