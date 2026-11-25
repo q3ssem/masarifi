@@ -1,12 +1,23 @@
-# RC1 closure status — HOLD
-Baseline 61.8.1 main b6b03894d2ebf166d0e255b8587859a3bd12aedf; classic and unified interfaces preserved.
-Verified: run 45591648027 passed all jobs including atomic pay-now; 45592698629 passed all jobs including typed wishlist and wealth references; BNPL run 45592866973 unit and Chromium passed at last check. Future-record run 45593051546 new suite passed, older rejection assertion failed because behavior changed; updated to require planned status, added future recurring ambiguity guard and browser future/cancel test. Latest CI must pass before approval.
-Open release gates:
-- Production cloud hostname/TLS, provisioned identities, durable volume and backup, rate limiting, security/device rehearsal. Local reference runtime tested but not hosted.
-- Real v2 backup read-only preview with six-bucket per-month reconciliation, wallet/asset and investment reconciliation, user acceptance of explicit assumed/month-only classification. Unknown active preferences, audit history, currency rates, complex links, sales basis, and fuzzy recurring matches still blocked; no full legacy migration claim.
-- Feature parity: templates/project budgets, advanced budget transfers and subscriptions/renewals, SMS import, split bills/refunds, reminders, reporting variations, linked purchase editing, true asset reconciliation, language/accessibility and offline PWA/install/upgrade. Existing new UI is not pixel-identical; manual device comparison remains.
-- Journal cap 20,000 and mixed history performance, browser persistence and quota/crash behavior remain device gates.
-No data or main changes. Do not advance RC2 as fully approved until release authority explicitly accepts scope and gates are closed.
+# RC1 closure status — LOCAL ONLY / HOLD pending final verification
+
+## Governing scope — owner-approved
+The owner explicitly requires a local-only version now; all Internet-dependent features are deferred. This section supersedes earlier historical release gates below. No cloud sync, online account, server-side financial storage, remote backup, live bank connection, live exchange-rate service, network-dependent notifications or production financial server is required for RC1. Do not add such features during closure. Preserve the separated experimental cloud code outside the release package.
+
+Local application scope: financial engine, accounts, expenses/income, obligations, installments, budgets, goals, assets, reports, encrypted IndexedDB, local autosave, manual encrypted backup/restore, and offline PWA operation. Manual import/export is local. Static asset delivery for first installation or later application updates is distinct from Internet-dependent financial features; it must not carry financial data or require a financial backend.
+
+## Active local exit gates
+- Latest local package CI: unit, Chromium and WebKit all pass, including offline writes, reload, encrypted restore and application upgrade without losing local data.
+- No cloud interface or transport in the packaged client; no financial network API; manifest cloudSync false.
+- Local feature integrity, regression, keyboard/accessibility and both layouts. Document unsupported legacy features rather than claiming complete parity.
+- Physical iPhone: installation, reopening offline, local save, encrypted export/restore, upgrade, storage pressure/interruption. Browser emulation is not physical-device proof.
+- Fresh-install engineering approval and old-data migration approval are distinct. Actual legacy migration remains prohibited until an independently exported real backup is reconciled and unsupported fields are addressed. Never use private data in CI or commit it.
+- Explicit release decision after evidence is available; no merge to main, no deployment, no releaseAuthorized change without approval.
+
+Baseline main: b6b03894d2ebf166d0e255b8587859a3bd12aedf.
+RC1.17 verified all jobs in run 45598543717. RC1.18 commit aa8388d3b5ccf85ee03ef6a495e98a6ba725f281: unit PASS, browser checks pending in run 45600614780 at scope update.
+Current decision: HOLD for local verification only; Internet features are not blockers.
+
+## Historical engineering evidence (not current scope)
 
 ## RC1.11 development follow-up
 RC1.10 run 45595358973 passed unit, Chromium and WebKit. RC1.11 adds bounded project budgets with explicit existing-expense links, equal bill allocation by halalah (reference only; no debts/refunds), and manual SAR SMS amount extraction requiring confirmation. Raw SMS is not stored. Existing expense references must be detached before editing/voiding. No automatic SMS access, comprehensive bank formats, refunds or legacy parity claimed. CI pending for RC1.11. Real backup, production deployment, physical device/offline PWA, remaining advanced feature parity are still release blockers.
