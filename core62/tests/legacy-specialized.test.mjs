@@ -1,0 +1,22 @@
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+const checks=[];function check(name,f){try{if(f()!==true)throw Error("assertion");checks.push({name,pass:true});}catch(e){checks.push({name,pass:false,error:String(e)});}}
+const base={app:"masarifi",version:2,expenses:[],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs:{}},asOf="2026-12-31";
+const debt={id:"d_1",who:"دين",dir:"owe",amount:1000,due:"2027-01-01",plan:"due",monthly:0,pays:[{a:100,d:"2026-12-01"}]};
+const inst={id:"i_1",name:"قسط",amount:200,months:4,start:"2026-10",day:31,mode:"manual",paid:2,paidBase:0,trackPayments:true,paidOn:[{k:0,d:"2026-10-31"},{k:1,d:"2026-11-30"}]};
+const goal={id:"g_1",name:"هدف",target:1000,saved:0,deadline:"2027-06"};
+const source=JSON.stringify({...base,debts:[debt],insts:[inst],goals:[goal]});const p=previewLegacy(source,{asOf});
+check("exact debt, installments and zero-savings goal preview",()=>p.status==="IMPORT_PREVIEW");
+const j=importIntoEmpty(p),s=j.snapshot(),v=j.view({month:"2026-12",asOf,through:"2027-02-28",openingMinor:0});
+check("debt principal and recorded payments",()=>v.obligations.find(o=>o.id==="d_1").remainingMinor===90000);
+check("installment actual payment dates",()=>s.domain.movements.filter(x=>x.obligationId.startsWith("sch:i_1")).map(x=>x.date).join(",")==="2026-10-31,2026-11-30");
+check("confirmed sums and outstanding match",()=>v.projection.quality.cents.confirmedOut===50000&&v.projection.quality.cents.plannedOut===130000);
+check("goal target and explicit deadline",()=>s.goals[0].targetMinor===100000&&s.goals[0].due==="2027-06-01");
+check("reject debt overpaid",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,pays:[{a:1001,d:"2026-12-01"}]}]}),{asOf}).status==="BLOCKED");
+check("accept monthly debt",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,plan:"monthly",monthly:100}]}),{asOf}).status==="IMPORT_PREVIEW");
+check("reject estimated installment history",()=>previewLegacy(JSON.stringify({...base,insts:[{...inst,paidBase:1}]}),{asOf}).status==="BLOCKED");
+check("reject automatic installment history",()=>previewLegacy(JSON.stringify({...base,insts:[{...inst,trackPayments:false,mode:"auto"}]}),{asOf}).status==="BLOCKED");
+check("accept savings as opening balance",()=>previewLegacy(JSON.stringify({...base,goals:[{...goal,saved:50}]}),{asOf}).status==="IMPORT_PREVIEW");
+check("preserve payment timestamps",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,pays:[{...debt.pays[0],ts:123}]}]}),{asOf}).status==="IMPORT_PREVIEW");
+check("source unchanged",()=>JSON.stringify(JSON.parse(source))===source&&p.sourcePreserved);
+const result={passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
+console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

@@ -1,0 +1,18 @@
+import assert from "node:assert/strict";
+import {createJournalSession,parseJournal} from "../src/journal.mjs";
+import {monthlyReport} from "../src/reporting.mjs";
+const s=createJournalSession(),apply=(type,f)=>assert.equal(s.apply(type,f).status,"APPLIED_SHADOW");
+apply("domain",{type:"account",id:"a",name:"test",openingMinor:10000,openingDate:"2026-01-01"});
+apply("domain",{type:"record",id:"e",direction:"out",amountMinor:500,date:"2026-02-01",category:"food",note:"expense",accountId:"a"});
+const refund={id:"r",movementId:"e",amountMinor:300,date:"2026-02-02",accountId:"a",note:"refund"};
+apply("refund",refund);
+const before=s.exportJournal();
+assert.equal(s.apply("refund",{...refund,id:"r2",amountMinor:201}).code,"refund-exceeds-expense");
+assert.equal(s.apply("domain",{type:"void",id:"e"}).code,"refund-reference-locked");
+assert.equal(s.apply("domain",{type:"void",id:"r"}).code,"refund-reference-locked");
+assert.deepEqual(s.exportJournal(),before);
+let v=s.view({month:"2026-02",asOf:"2026-02-03",through:"2026-02-28"});assert.equal(v.accounts[0].balanceMinor,9800);assert.equal(v.projection.quality.cents.confirmedOut,500);assert.equal(v.projection.quality.cents.confirmedIn,300);
+let report=monthlyReport(v.projection.rows,"2026-02");assert.equal(report.refundMinor,300);assert.equal(report.confirmedIncomeExcludingRefundsMinor,0);assert.equal(report.confirmedNetMinor,-200);
+apply("refund-void",{id:"r"});apply("refund",{...refund,id:"r3",amountMinor:500});
+assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
+console.log("Linked partial refunds, over-refund rejection, accounting, reversal and replay verified.");

@@ -1,0 +1,3 @@
+# 62.6.4 alpha.2 — unified workspace
+
+Single clean controller for domain commands, scheduled rules/materialization, budgets, goals/contributions, portfolio events, assets, search and projections. All commands are shadow only, state snapshots detached. Cross-family view composes independent engines. User supplies forecast opening cash and horizon, and outstanding schedule rules; no automated confirmation or transfer. Investment flows and goal contributions are not automatically linked to cash; wealth is explicit-inputs-only, not a verified bank statement. The model is in-memory, no import, no cloud or legacy UI dependency, no production persistence. 24/24 source-level assertions. A browser UI and durable integration are separate gates.

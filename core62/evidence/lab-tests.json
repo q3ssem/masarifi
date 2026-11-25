@@ -1,0 +1,172 @@
+{
+  "passed": 41,
+  "total": 41,
+  "elapsedMs": 246,
+  "syntheticRows": 100000,
+  "tests": [
+    {
+      "name": "confirmed net",
+      "pass": true
+    },
+    {
+      "name": "category split",
+      "pass": true
+    },
+    {
+      "name": "only confirmed expense",
+      "pass": true
+    },
+    {
+      "name": "transfer excluded",
+      "pass": true
+    },
+    {
+      "name": "duplicate fail closed",
+      "pass": true
+    },
+    {
+      "name": "dashboard filter",
+      "pass": true
+    },
+    {
+      "name": "dashboard totals independent of filter",
+      "pass": true
+    },
+    {
+      "name": "invalid ledger hidden",
+      "pass": true
+    },
+    {
+      "name": "six legacy themes",
+      "pass": true
+    },
+    {
+      "name": "twelve theme states",
+      "pass": true
+    },
+    {
+      "name": "semantic colors independent",
+      "pass": true
+    },
+    {
+      "name": "decision delta",
+      "pass": true
+    },
+    {
+      "name": "decision deficit",
+      "pass": true
+    },
+    {
+      "name": "zero decision",
+      "pass": true
+    },
+    {
+      "name": "priority then due",
+      "pass": true
+    },
+    {
+      "name": "allocation no fabrication",
+      "pass": true
+    },
+    {
+      "name": "anomaly median",
+      "pass": true
+    },
+    {
+      "name": "anomaly minimum sample",
+      "pass": true
+    },
+    {
+      "name": "no mutation",
+      "pass": true
+    },
+    {
+      "name": "disjoint edits",
+      "pass": true
+    },
+    {
+      "name": "same edit idempotent",
+      "pass": true
+    },
+    {
+      "name": "different edits conflict",
+      "pass": true
+    },
+    {
+      "name": "no partial conflict merge",
+      "pass": true
+    },
+    {
+      "name": "implicit deletion blocked",
+      "pass": true
+    },
+    {
+      "name": "explicit tombstone preview",
+      "pass": true
+    },
+    {
+      "name": "delete vs edit conflict",
+      "pass": true
+    },
+    {
+      "name": "new ID conflict",
+      "pass": true
+    },
+    {
+      "name": "duplicate record rejected",
+      "pass": true
+    },
+    {
+      "name": "unsafe prototype key rejected",
+      "pass": true
+    },
+    {
+      "name": "merge read only",
+      "pass": true
+    },
+    {
+      "name": "queue operation",
+      "pass": true
+    },
+    {
+      "name": "duplicate op idempotent",
+      "pass": true
+    },
+    {
+      "name": "reused op with changed data blocked",
+      "pass": true
+    },
+    {
+      "name": "unacknowledged queue retained",
+      "pass": true
+    },
+    {
+      "name": "stale ack blocked",
+      "pass": true
+    },
+    {
+      "name": "matched ack advances",
+      "pass": true
+    },
+    {
+      "name": "ack replay harmless",
+      "pass": true
+    },
+    {
+      "name": "stale enqueue conflict",
+      "pass": true
+    },
+    {
+      "name": "100k analytics exact",
+      "pass": true
+    },
+    {
+      "name": "positive transfer excluded",
+      "pass": true
+    },
+    {
+      "name": "acknowledged ID cannot be reused with changed data",
+      "pass": true
+    }
+  ]
+}

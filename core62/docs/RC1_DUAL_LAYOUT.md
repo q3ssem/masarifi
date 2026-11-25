@@ -1,0 +1,2 @@
+# RC1 dual interface
+Classic (four original tabs, monthly hero) remains default. Unified restores the seven-section dashboard and earlier all-history metric grid as an alternative. Same DOM controller, journal, vault, import/export and operations; layout toggle does not recreate session or reset form fields. Device preference stores only allowlisted layout/theme/mode in isolated localStorage namespace; no credentials or money. Browser suite adds 336 unified layouts per engine, draft preservation and reload + vault continuity. Actual visual parity not asserted. No main merge.

@@ -1,0 +1,7 @@
+# 62.1.1 — projection parity and persistent shadow vault
+
+Baseline 61.8.1 b6b03894d2ebf166d0e255b8587859a3bd12aedf. Extracted actual fin618Cents, fin618Analyze, calendar helpers, ledgerMonth from index.html. The projection fixture stubs upstream expense/income/commitment generators, date, formatting and categories; it does NOT run entire legacy application or verify source-to-ledger generation. Tests execute both actual legacy aggregator and new engine over projected synthetic rows, verify six buckets plus row fields (id/date/status/kind/category/halalah) in order. Legacy display/source/ts fields are not migrated by rowParity; raw source capture retains them. No production write allowed. 
+
+New IndexedDB adapter uses separate database masarifi62-shadow-v1, one atomic readwrite transaction for compare-and-swap, stage or rollback and bounded four-revision history. It requires explicit plaintext-shadow opt-in; not encrypted, not a production backup, not integrated into app. No network access. Local source double read is not atomic with IndexedDB; browser integration and source lock are required. Adapter implementation is NOT browser-executed in this run: only pure state transitions tested. Browser crash, quota, reopen, cross-tab, old snapshots, cloud and real user data remain gates. No production deployment.
+
+24/24 tests in JS environment; 100k synthetic projection comparison 577 ms. Reproduce with node core62/tests/parity-vault.test.mjs. Original legacy functions are frozen only for testing, not shipped as app modules.

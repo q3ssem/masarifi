@@ -1,0 +1,15 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {parseJournal} from "../src/journal.mjs";
+const asOf="2026-12-15",date="2026-12-01",opts={month:"2026-12",asOf,through:"2027-01-31",openingMinor:0};
+const raw={app:"masarifi",version:2,expenses:[{id:"e_1",amount:100,cat:"food",note:"",date}],incomes:[{id:"n_1",amount:1000,src:"salary",note:"",date:"2026-11-25"}],insts:[],debts:[],goals:[],fixeds:[],budget:2000,cats:[{id:"food",name:"مطاعم وأكل",icon:"food",v:"--k-food"}],cbud:{food:500},rates:{},prefs:{ri:[{id:"r_1",name:"راتب",src:"salary",amount:1000,day:25,start:"2026-11",stop:""}]}};
+const p=previewLegacy(JSON.stringify(raw),{asOf});assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p),v=s.view(opts);
+assert.equal(v.projection.quality.cents.confirmedIn,100000);assert.equal(v.projection.quality.cents.plannedIn,200000);assert.equal(v.incomeMatches.length,1);
+assert.equal(v.budget.overallLimitMinor,200000);assert.equal(v.budget.overallRemainingMinor,190000);assert.equal(v.budget.items[0].remainingConfirmedMinor,40000);assert.equal(v.categories[0].name,"مطاعم وأكل");
+assert.equal(s.view({...opts,month:"2027-01"}).budget.overallLimitMinor,200000);
+assert.equal(s.apply("domain",{type:"void",id:"n_1"}).status,"BLOCKED");assert.equal(s.apply("materialize",{scheduleId:"r_1",due:"2026-11-25"}).status,"BLOCKED");
+assert.equal(s.apply("budget",{month:"2026-12",category:"food",limitMinor:30000}).status,"APPLIED_SHADOW");assert.equal(s.view(opts).budget.items[0].remainingConfirmedMinor,20000);
+assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
+assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[]}),{asOf}).status,"IMPORT_PREVIEW");assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[{...raw.incomes[0],date:"2026-11-24"}]}),{asOf}).status,"BLOCKED");
+assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[...raw.incomes,{...raw.incomes[0],id:"n_2"}]}),{asOf}).status,"BLOCKED");
+console.log("RC1 budget defaults, category identity and exact recurring-income matching passed.");

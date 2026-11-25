@@ -1,0 +1,5 @@
+// Established Masarifi labels and stable semantic IDs, independent of legacy code.
+export const DEFAULT_CATEGORIES=Object.freeze([["food","مطاعم وأكل"],["coffee","قهوة"],["groceries","بقالة"],["transport","مواصلات وبنزين"],["bills","فواتير واشتراكات"],["shopping","تسوق"],["fun","ترفيه وألعاب"],["health","صحة"],["tabby","تابي"],["tamara","تمارا"],["other","أخرى"]].map(Object.freeze));
+export const INCOME_SOURCES=Object.freeze([["salary","راتب"],["citizen","حساب المواطن"],["social","الضمان الاجتماعي"],["extra","دخل إضافي"],["custom","مخصص"]].map(Object.freeze));
+export function categoryOptions(categories,used=[]){const options=new Map(DEFAULT_CATEGORIES);for(const c of categories??[])options.set(c.id,c.name);for(const id of used)if(typeof id==="string"&&id&&!options.has(id))options.set(id,id);return [...options];}
+export function sourceOptions(used=[]){const options=new Map(INCOME_SOURCES);for(const id of used)if(typeof id==="string"&&id&&!options.has(id))options.set(id,id);return [...options];}

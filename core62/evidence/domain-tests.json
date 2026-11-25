@@ -1,0 +1,146 @@
+{
+  "passed": 34,
+  "total": 34,
+  "stress": {
+    "commands": 500,
+    "ms": 1436
+  },
+  "tests": [
+    {
+      "name": "opening balances",
+      "pass": true
+    },
+    {
+      "name": "expense exact",
+      "pass": true
+    },
+    {
+      "name": "input immutable",
+      "pass": true
+    },
+    {
+      "name": "duplicate command idempotent",
+      "pass": true
+    },
+    {
+      "name": "same op changed payload blocked",
+      "pass": true
+    },
+    {
+      "name": "stale writer blocked",
+      "pass": true
+    },
+    {
+      "name": "duplicate movement blocked",
+      "pass": true
+    },
+    {
+      "name": "edit replaces not duplicates",
+      "pass": true
+    },
+    {
+      "name": "income increases bank",
+      "pass": true
+    },
+    {
+      "name": "transfer conserves money",
+      "pass": true
+    },
+    {
+      "name": "transfer excluded from expense and income",
+      "pass": true
+    },
+    {
+      "name": "same-account transfer blocked",
+      "pass": true
+    },
+    {
+      "name": "five obligation families",
+      "pass": true
+    },
+    {
+      "name": "partial payment atomic",
+      "pass": true
+    },
+    {
+      "name": "overpayment blocked",
+      "pass": true
+    },
+    {
+      "name": "debt fully settled",
+      "pass": true
+    },
+    {
+      "name": "settlement not editable as expense",
+      "pass": true
+    },
+    {
+      "name": "void payment restores both liability and cash",
+      "pass": true
+    },
+    {
+      "name": "receivable increases balance",
+      "pass": true
+    },
+    {
+      "name": "void transfer restores both accounts",
+      "pass": true
+    },
+    {
+      "name": "double void blocked",
+      "pass": true
+    },
+    {
+      "name": "archived history preserved",
+      "pass": true
+    },
+    {
+      "name": "archive blocks new linked entry",
+      "pass": true
+    },
+    {
+      "name": "missing account blocked",
+      "pass": true
+    },
+    {
+      "name": "predating opening blocked",
+      "pass": true
+    },
+    {
+      "name": "noninteger amount blocked",
+      "pass": true
+    },
+    {
+      "name": "unknown command field rejected",
+      "pass": true
+    },
+    {
+      "name": "corrupt state blocked",
+      "pass": true
+    },
+    {
+      "name": "audit records before and after",
+      "pass": true
+    },
+    {
+      "name": "all active movements exact ledger",
+      "pass": true
+    },
+    {
+      "name": "never production writes",
+      "pass": true
+    },
+    {
+      "name": "500 sequential commands exact",
+      "pass": true
+    },
+    {
+      "name": "gross overflow without account blocked",
+      "pass": true
+    },
+    {
+      "name": "blocked aggregate overflow leaves state unchanged",
+      "pass": true
+    }
+  ]
+}

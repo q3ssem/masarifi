@@ -1,0 +1,2 @@
+# RC1 fixed migration
+Optional explicit category in outgoing obligations and scheduled rules; old journals without category preserve old output. Strict tracked fixed migration preserves amount, category, date, start/end, paid months when dates are explicit. Rejects assumed or undated history, outstanding earlier months with differing legacy projection semantics, unrecognized metadata. Nine source-level cases. Standard legacy exports with meaningful timestamps and preferences still block; no real migration. No main merge.

@@ -1,0 +1,2 @@
+# Future ordinary records
+Future legacy ordinary transactions are stored as planned-record commands, separate from actual domain accounts, and explicitly confirmed or cancelled in the journal. No automatic confirmation at midnight, and no unverified future wallet links. UI future quick entries cannot link to accounts before confirmation. Direct lower-level commands still require callers to select correct semantics; historic domain journals remain unchanged. Tests pending CI. No production migration.

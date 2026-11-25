@@ -1,0 +1,96 @@
+name: Core 62 isolated verification
+on:
+  push:
+    branches: ['work/masarifi-62-core']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check isolated module graph
+        run: node core62/scripts/check-clean-app.mjs
+      - name: Run all isolated core tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in core62/tests/*.test.mjs; do
+            echo "::group::$f"
+            node "$f"
+            echo "::endgroup::"
+          done
+      - name: Verify temporary legacy bridge generation
+        run: node core62/scripts/build-bridge.mjs --check
+      - name: Verify journal capacity and replay
+        run: node core62/tests/journal-capacity.mjs
+      - name: Assemble clean pre-RC distribution
+        run: node core62/scripts/build-clean-release.mjs
+      - name: Verify reproducible local release and reject corrupt packages
+        run: node core62/tests/package-integrity.mjs dist/masarifi62-pre-rc
+      - uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-pre-rc
+          path: dist/masarifi62-pre-rc/
+          if-no-files-found: error
+          retention-days: 14
+
+  browser:
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependency
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Browser app and encrypted IndexedDB checks
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/browser-release.mjs
+      - name: Packaged offline PWA and encrypted vault restoration
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/offline-release.mjs
+
+      - name: Prepare immutable RC1.19 and RC2.10 upgrade baselines
+        shell: bash
+        run: |
+          set -euo pipefail
+          old1=eb987964a5e4bfda0e09546d7b1b829ad95632a7
+          old2=5fd6ca9853e20ca20313f5d836de8bfaa0651397
+          git fetch --no-tags --depth=1 origin "$old1" "$old2"
+          for item in "rc1:$old1" "rc2:$old2"; do
+            name="${item%%:*}"
+            sha="${item#*:}"
+            mkdir -p "$RUNNER_TEMP/masarifi-$name"
+            git archive "$sha" core62/app core62/src core62/scripts icon-180.png icon-192.png icon-512.png | tar -xf - -C "$RUNNER_TEMP/masarifi-$name"
+          done
+      - name: Upgrade frozen RC1.19 and RC2.10 to RC3 with actual encrypted data
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/historical-upgrade.mjs "$RUNNER_TEMP/masarifi-rc1" "$RUNNER_TEMP/masarifi-rc2"
+
+      - name: Capture local visual acceptance evidence
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/visual-acceptance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: masarifi62-visual-${{ matrix.engine }}
+          path: dist/visual-${{ matrix.engine }}/
+          if-no-files-found: warn
+          retention-days: 14

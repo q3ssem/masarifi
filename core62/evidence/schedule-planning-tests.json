@@ -1,0 +1,142 @@
+{
+  "passed": 33,
+  "total": 33,
+  "stress": {
+    "occurrences": 12000,
+    "ms": 29
+  },
+  "tests": [
+    {
+      "name": "month-end clamp restores anchor",
+      "pass": true
+    },
+    {
+      "name": "leap February",
+      "pass": true
+    },
+    {
+      "name": "finite term across windows",
+      "pass": true
+    },
+    {
+      "name": "no due before start",
+      "pass": true
+    },
+    {
+      "name": "quarterly schedule",
+      "pass": true
+    },
+    {
+      "name": "end date inclusive",
+      "pass": true
+    },
+    {
+      "name": "duplicate schedule blocks",
+      "pass": true
+    },
+    {
+      "name": "income direction contract",
+      "pass": true
+    },
+    {
+      "name": "invalid date window blocks",
+      "pass": true
+    },
+    {
+      "name": "recurring income stable identity",
+      "pass": true
+    },
+    {
+      "name": "materialize not confirmed payment",
+      "pass": true
+    },
+    {
+      "name": "repeated materialization idempotent",
+      "pass": true
+    },
+    {
+      "name": "changed rule cannot overwrite materialized debt",
+      "pass": true
+    },
+    {
+      "name": "partial settlement reduces plan only",
+      "pass": true
+    },
+    {
+      "name": "confirmed plus outstanding no double count",
+      "pass": true
+    },
+    {
+      "name": "full payment removes plan",
+      "pass": true
+    },
+    {
+      "name": "void restores remaining plan",
+      "pass": true
+    },
+    {
+      "name": "conflicting materialized amount fails closed",
+      "pass": true
+    },
+    {
+      "name": "duplicate occurrences fail closed",
+      "pass": true
+    },
+    {
+      "name": "forecast includes overdue and recurring plans",
+      "pass": true
+    },
+    {
+      "name": "budget confirmed vs planned",
+      "pass": true
+    },
+    {
+      "name": "unbudgeted expense visible",
+      "pass": true
+    },
+    {
+      "name": "duplicate budget category blocked",
+      "pass": true
+    },
+    {
+      "name": "goal contributions and withdrawal",
+      "pass": true
+    },
+    {
+      "name": "goal monthly round up",
+      "pass": true
+    },
+    {
+      "name": "goal not a cash movement",
+      "pass": true
+    },
+    {
+      "name": "overdue goal",
+      "pass": true
+    },
+    {
+      "name": "negative savings blocked",
+      "pass": true
+    },
+    {
+      "name": "duplicate contribution blocked",
+      "pass": true
+    },
+    {
+      "name": "12000 occurrences unique",
+      "pass": true
+    },
+    {
+      "name": "manual outstanding obligation included",
+      "pass": true
+    },
+    {
+      "name": "missing materialized occurrence blocks forecast",
+      "pass": true
+    },
+    {
+      "name": "manual and scheduled obligations counted once",
+      "pass": true
+    }
+  ]
+}

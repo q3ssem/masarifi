@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {parseJournal} from "../src/journal.mjs";
+const asOf="2026-12-31",date="2026-12-01",base={app:"masarifi",version:2,expenses:[{id:"e_1",amount:100,cat:"food",note:"وجبة",date,ts:123,tag:"سفر",cur:"USD",orig:25,bnpl:"",mood:"calm",w:"y"}],incomes:[{id:"n_1",amount:1000,note:"",date,ts:456,src:"salary"}],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs:{wallet59:{accounts:[],transfers:[],links:[],history:[{id:"wh_1",date,kind:"rename",detail:"تعديل اسم",ref:"a_1",before:null,after:null}]}}};
+const p=previewLegacy(JSON.stringify(base),{asOf});assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p),snap=s.snapshot();
+assert.deepEqual(snap.domain.movements[0].metadata,{tag:"سفر",currency:"USD",originalMinor:2500,mood:"calm",needClass:"y"});assert.equal(snap.domain.movements[1].metadata.incomeSource,"salary");assert.equal(snap.walletHistory[0].origin,"imported-history");
+assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),snap);
+const opts={month:"2026-12",asOf,through:asOf,openingMinor:0,query:"سفر"};assert.equal(s.view(opts).search.total,1);
+const r=snap.domain.movements[0];assert.equal(s.apply("domain",{type:"edit",id:r.id,direction:"out",amountMinor:11000,date,category:"food",note:"edited",accountId:null}).status,"APPLIED_SHADOW");assert.deepEqual(s.snapshot().domain.movements[0].metadata,r.metadata);
+assert.equal(s.apply("domain",{type:"edit",id:r.id,direction:"in",amountMinor:11000,date,category:null,note:"edited",accountId:null}).status,"BLOCKED");
+assert.equal(previewLegacy(JSON.stringify({...base,expenses:[{...base.expenses[0],cur:"",orig:25}]}),{asOf}).status,"BLOCKED");
+assert.equal(previewLegacy(JSON.stringify({...base,expenses:[{...base.expenses[0],unexpected:"data"}]}),{asOf}).status,"BLOCKED");
+console.log("RC1 typed metadata and historical wallet audit: source, currency, tags, replay, search and edit preservation passed.");

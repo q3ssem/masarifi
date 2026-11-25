@@ -1,0 +1,30 @@
+name: Main transition integrity
+on:
+  push:
+    branches: [main, 'release/masarifi-62.7-rc3.6']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact candidate and retained old tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD:legacy-61.8.1)" = "5862cca1bd1fd339ec7f6b49a343f866c91456f5"
+          mkdir -p "$RUNNER_TEMP/candidate"
+          cp -r app src build-manifest.json README.txt "$RUNNER_TEMP/candidate/"
+          node core62/scripts/verify-local-release.mjs "$RUNNER_TEMP/candidate"
+          echo "80a261cc9a4e2547d0e18f8bd9a0cec35b8af44af8a9ed3d2c11a64d2067e694  build-manifest.json" | sha256sum -c -
+          grep -F './app/index.html' index.html
+          grep -F './legacy-61.8.1/index.html' index.html
+          node --check sw.js
+          node --check launch.mjs
+          node core62/scripts/build-clean-release.mjs "$RUNNER_TEMP/rebuilt"
+          diff -r "$RUNNER_TEMP/candidate" "$RUNNER_TEMP/rebuilt"

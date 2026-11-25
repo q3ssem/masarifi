@@ -1,0 +1,59 @@
+{
+  "passed": 11,
+  "total": 11,
+  "checks": [
+    {
+      "name": "batch success",
+      "pass": true
+    },
+    {
+      "name": "sequential state and audit parity",
+      "pass": true
+    },
+    {
+      "name": "journal parity",
+      "pass": true
+    },
+    {
+      "name": "mixed replay exact",
+      "pass": true
+    },
+    {
+      "name": "duplicate atomic rejection",
+      "pass": true
+    },
+    {
+      "name": "invalid account atomic rejection",
+      "pass": true
+    },
+    {
+      "name": "stale batch",
+      "pass": true
+    },
+    {
+      "name": "non-record rejected",
+      "pass": true
+    },
+    {
+      "name": "intermediate overflow blocked",
+      "pass": true
+    },
+    {
+      "name": "gross overflow blocked",
+      "pass": true
+    },
+    {
+      "name": "20k capacity",
+      "pass": true
+    }
+  ],
+  "stress": {
+    "count": 20000,
+    "buildMs": 777,
+    "replayMs": 1069,
+    "exact": true,
+    "bytes": 3488957,
+    "cap": "journal-limit"
+  },
+  "environment": "source-level JS isolate; not device"
+}

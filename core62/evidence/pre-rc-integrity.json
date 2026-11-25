@@ -1,0 +1,42 @@
+{
+  "passed": 9,
+  "total": 9,
+  "checks": [
+    {
+      "name": "first command",
+      "pass": true
+    },
+    {
+      "name": "failed operation",
+      "pass": true
+    },
+    {
+      "name": "second command",
+      "pass": true
+    },
+    {
+      "name": "replay audit exact after rejection",
+      "pass": true
+    },
+    {
+      "name": "generated id skips imported ids",
+      "pass": true
+    },
+    {
+      "name": "reject extra budget field",
+      "pass": true
+    },
+    {
+      "name": "reject reserved domain op id",
+      "pass": true
+    },
+    {
+      "name": "no state mutation on invalid operation",
+      "pass": true
+    },
+    {
+      "name": "reject oversized CSV final line",
+      "pass": true
+    }
+  ]
+}

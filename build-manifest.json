@@ -1,0 +1,205 @@
+{
+  "version": "62.7.0-rc3.6-local-dev",
+  "entry": "app/index.html",
+  "releaseAuthorized": false,
+  "legacyMigrationComplete": false,
+  "cloudSync": false,
+  "storage": "local-encrypted",
+  "assets": [
+    {
+      "path": "app/app.css",
+      "bytes": 7072,
+      "sha256": "029fa845092782bb0f4b9a4cd5b03c5add390ab2d8c966fe6d59277d575c20e3"
+    },
+    {
+      "path": "app/app.mjs",
+      "bytes": 42414,
+      "sha256": "fef28cb67f47ff5f8affec7daaa40844eea08b53ce9e6940126fbc8d105462e4"
+    },
+    {
+      "path": "app/app.webmanifest",
+      "bytes": 345,
+      "sha256": "7f22c554a53e89a055f03d79e9f0d0d8bf623d2820bdd96a6a644a89f51a9bb1"
+    },
+    {
+      "path": "app/appearance.mjs",
+      "bytes": 858,
+      "sha256": "0cb6bfc3530bafdb1a390a287afa5514b5b656b4a764801d9de6e9131c66f43b"
+    },
+    {
+      "path": "app/catalog.mjs",
+      "bytes": 1129,
+      "sha256": "79788ec717c3ea9d3d15fba319f2b80ccfe867296e8c360085591d73647a13e9"
+    },
+    {
+      "path": "app/data-center.mjs",
+      "bytes": 14514,
+      "sha256": "cd5355d7ea4513c089ddbb1319b7bfd0a26bf8e6dab3994ca06f57f137cfdd02"
+    },
+    {
+      "path": "app/icon-180.png",
+      "bytes": 13980,
+      "sha256": "ced620c1e923633fed6f50d3b14e9323d725261fe13fc80a2cd2a3231f6974ba"
+    },
+    {
+      "path": "app/icon-192.png",
+      "bytes": 14934,
+      "sha256": "6d79744faa20f5ea9a56a48c9780febab943d07fd99becadcdd5160bb92f3300"
+    },
+    {
+      "path": "app/icon-512.png",
+      "bytes": 74220,
+      "sha256": "2e5f7887db0ec2d28020a2840785bc5d409baa41c5245b12228829338b88fcdd"
+    },
+    {
+      "path": "app/index.html",
+      "bytes": 8199,
+      "sha256": "0ace808b976137c5836c6eb3b6b4a341e92980579e8fac3caba499a6db47280c"
+    },
+    {
+      "path": "app/offline-worker.mjs",
+      "bytes": 5479,
+      "sha256": "ec2f187cf4b7ccff11f150c5b2a3c5a51aa68e2c20f81dc4ec6e6365625862d2"
+    },
+    {
+      "path": "app/offline.mjs",
+      "bytes": 944,
+      "sha256": "7364cc768806bdfcbf7fb3ec07f5f98317bd3d5bed63f8718b9cfaafe24c6302"
+    },
+    {
+      "path": "app/themes.css",
+      "bytes": 4594,
+      "sha256": "d3b80493a77d1aae0343f4c47de660fd7d1f54a0532507fe875703df1865a361"
+    },
+    {
+      "path": "src/association-import.mjs",
+      "bytes": 4519,
+      "sha256": "aa055bf4dfb75d4f932c459e6b87f8908c0fa63234b8d13651de758558a6ee69"
+    },
+    {
+      "path": "src/autosave.mjs",
+      "bytes": 1189,
+      "sha256": "4cdfe3b166d756ba0fc7441cf593e757c50863f8b06069e4e52fe7fd8501718c"
+    },
+    {
+      "path": "src/debt-planning.mjs",
+      "bytes": 2000,
+      "sha256": "bdb12ef39e1a4b75dd238eca8672d70ccc9d767759909d0c684a7aeac965eed5"
+    },
+    {
+      "path": "src/domain.mjs",
+      "bytes": 13646,
+      "sha256": "64dbb31b01e2af977e21e0ad774c63c57d5d019f0590161246c1a0c0be0da926"
+    },
+    {
+      "path": "src/expense-tools.mjs",
+      "bytes": 2070,
+      "sha256": "cacae6f25b3238b52481468e0333615e06465b7bf0a25f376bb0ac1b3e98ff04"
+    },
+    {
+      "path": "src/financial-preferences.mjs",
+      "bytes": 1027,
+      "sha256": "22b684b74c014376cdeaaf5137eb017e0f4dffc0445d5b20a2475c01af6b17c9"
+    },
+    {
+      "path": "src/intelligence.mjs",
+      "bytes": 4334,
+      "sha256": "6e75b84e30dc94ce20754f0cf71e87b1c86461eccf8a7b165463a42f8c689e1b"
+    },
+    {
+      "path": "src/investment-import.mjs",
+      "bytes": 4837,
+      "sha256": "b03ea30168675e88c675325d5e2f54b7da05c0cf19a814533898db71bd25bbe4"
+    },
+    {
+      "path": "src/journal-store.mjs",
+      "bytes": 3858,
+      "sha256": "b2b5fbc3c06f93fc74e6b39b87f654eee85688ba06d6976481f9126af76dca84"
+    },
+    {
+      "path": "src/journal.mjs",
+      "bytes": 4582,
+      "sha256": "82c40861e0501fe8e9d63f332fdcfd9e5fda413ff32a433545119a242d39da82"
+    },
+    {
+      "path": "src/ledger.mjs",
+      "bytes": 1309,
+      "sha256": "5c4c948501af16a0797da3fd291d3823a3bdad5f1bbd5cb6f1ce14741d9a0a46"
+    },
+    {
+      "path": "src/legacy-import.mjs",
+      "bytes": 18248,
+      "sha256": "d96a3ce53b6e60f7c3db1b476135b55f6bd63b5e9280336c5fbbaaf49b1d80a0"
+    },
+    {
+      "path": "src/money.mjs",
+      "bytes": 843,
+      "sha256": "5f75197d668e6135cd250bd1353f91baf44b367cae7e6b43ef7876785cfa128f"
+    },
+    {
+      "path": "src/planning.mjs",
+      "bytes": 4149,
+      "sha256": "11c7caafd639a902eec213097616ac05048e059b8c58fc0b3fa8936a717d6bd4"
+    },
+    {
+      "path": "src/projections.mjs",
+      "bytes": 2568,
+      "sha256": "7b78fa2adda3860b722974d92a2671ec2039028ff878c38b06898a2771c7a600"
+    },
+    {
+      "path": "src/record-metadata.mjs",
+      "bytes": 1791,
+      "sha256": "b6257d2537337edc99019864fb33397ee3b09d03999f9d9862e5b21d1a03bf19"
+    },
+    {
+      "path": "src/reference-import.mjs",
+      "bytes": 2492,
+      "sha256": "5cdfd265a381fd9d777560744a56b5f7288848107dd4c785eeaf4684cbd88977"
+    },
+    {
+      "path": "src/reporting.mjs",
+      "bytes": 4178,
+      "sha256": "a462be69d630273cc32cab2f35037e4f2f320b8c42d9984769a6f0d5392c92ab"
+    },
+    {
+      "path": "src/schedule.mjs",
+      "bytes": 5807,
+      "sha256": "6e93dd09f5c6ebf6d60533e5e4e6193074f3e98ad040ef91eea6d724aa7547e5"
+    },
+    {
+      "path": "src/search.mjs",
+      "bytes": 1667,
+      "sha256": "9582416ed2f49eb3c62de30c5a6f77960640df185632e789b7db35b7217b7dbc"
+    },
+    {
+      "path": "src/secure-backup.mjs",
+      "bytes": 2740,
+      "sha256": "bdfa30ca999a55ee23b5e49ff9749e9d5058768321785068349e8f5d686851d0"
+    },
+    {
+      "path": "src/text-limits.mjs",
+      "bytes": 271,
+      "sha256": "bb13d511ff6b48a6c9da2e18411bd05a0eb71533eeed4adcc75212fd9be885c7"
+    },
+    {
+      "path": "src/ui-model.mjs",
+      "bytes": 2223,
+      "sha256": "332a55517221c52334e9363557cf59fc64d0d052099735ec83d111214fe01782"
+    },
+    {
+      "path": "src/wallet-import.mjs",
+      "bytes": 4743,
+      "sha256": "34049bb8da1c74c67a783e85d7c3d4e30c4a3642f825d28c2ae40ba2da886672"
+    },
+    {
+      "path": "src/wealth.mjs",
+      "bytes": 4616,
+      "sha256": "31f771d118217f0b11057a5f3dffeaf2414a98afeb5d040a13b459aef0b9086b"
+    },
+    {
+      "path": "src/workspace.mjs",
+      "bytes": 29870,
+      "sha256": "9e34bc5fcbc28d4b0ed2a5a235cde9e2cef81da1b20a307322489f98e46b0888"
+    }
+  ]
+}

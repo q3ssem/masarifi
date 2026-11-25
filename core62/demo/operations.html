@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="reef6181" data-mode="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'"><title>مصاريف 62 — مختبر العمليات</title><link rel="stylesheet" href="./themes.css"><link rel="stylesheet" href="./app.css"><link rel="stylesheet" href="./operations.css"></head><body><main>
+<header><div><h1>مصاريف 62</h1><small>مختبر العمليات الجديدة</small></div><div class="controls"><label>المظهر<select id="mode"><option value="light">فاتح</option><option value="dark">داكن</option></select></label><label>الثيم<select id="theme"></select></label></div></header>
+<p class="notice">مختبر معزول للبيانات الصناعية فقط. جميع التغييرات في الذاكرة وتزول عند إعادة تحميل الصفحة. لا تستخدم بياناتك الحقيقية.</p>
+<section class="panel"><h2>الملخص</h2><div class="cards" id="metrics"></div><p id="status" role="status" aria-live="polite"></p></section>
+<section class="panel"><h2>العمليات</h2><label>العملية<select id="action"><option value="account">حساب جديد</option><option value="record">تسجيل حركة</option><option value="edit">تعديل حركة</option><option value="transfer">تحويل داخلي</option><option value="obligation">التزام جديد</option><option value="settle">سداد أو قبض</option><option value="void">عكس حركة</option><option value="archive">أرشفة حساب</option></select></label><form id="command" autocomplete="off"><div class="fields" id="fields"></div><button type="submit">تنفيذ تجريبي</button></form></section>
+<section class="panel"><h2>الحسابات</h2><div id="accounts"></div></section>
+<section class="panel"><h2>الالتزامات</h2><div id="obligations"></div></section>
+<section class="panel"><h2>سجل الحركات</h2><div id="movements"></div></section>
+</main><script type="module" src="./operations.mjs"></script></body></html>

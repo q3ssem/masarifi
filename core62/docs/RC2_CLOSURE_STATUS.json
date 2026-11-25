@@ -1,0 +1,29 @@
+{
+  "release": "62.7.0-rc2.10-local-dev",
+  "profile": "local-only",
+  "baseVerified": {
+    "commit": "f5cbd163326869c86bf699ea35abf5c57438ac86",
+    "runId": 45610267979,
+    "conclusion": "success",
+    "testFiles": 47,
+    "visualScreens": 224,
+    "assets": 39,
+    "bytes": 316484,
+    "artifactId": 15019542980
+  },
+  "scope": {
+    "cloudSync": false,
+    "financialBackendRequired": false,
+    "productionReleaseAuthorized": false,
+    "mainMergeAuthorized": false,
+    "legacyMigrationApproved": false
+  },
+  "gates": {
+    "rc2_0_to_9": "IMPLEMENTED_AND_CUMULATIVE_AUTOMATED_PASS",
+    "rc2_10": "PENDING_CI",
+    "manualVisualReview": "PENDING",
+    "physicalIPhone": "NOT_EXECUTED",
+    "realLegacyMigration": "NOT_APPROVED"
+  },
+  "notes": "RC2.10 is a candidate freeze, not production approval; package verification is integrity/consistency, not a digital signature or security certification."
+}

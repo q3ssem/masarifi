@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {parseJournal} from "../src/journal.mjs";
+const asOf="2026-12-15";
+const iv={h:[{id:"iv_1",n:"أسهم",t:"stock",cost:1000,val:1200,r:5,fee:0.5,mat:"",g:"",note:"تقييم موثق",rev:"2026-12-10",ts:11}],tx:[{h:"iv_1",d:"2026-11-01",k:"buy",a:1000,id:"ivtx_abc",ts:1},{h:"iv_1",d:"2026-12-05",k:"div",a:20,id:"ivtx_def",ts:2}],vh:{"2026-11":{v:1050,c:1000}},dca:{a:0,h:"",m:[]},tgt:{stock:60},inf:2,safe:5,cool:{}};
+const base={app:"masarifi",version:2,expenses:[],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs:{iv}};
+const preview=x=>previewLegacy(JSON.stringify({...base,prefs:{iv:x}}),{asOf});
+const p=preview(iv);assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p),v=s.view({month:"2026-12",asOf,through:asOf});
+assert.equal(v.portfolio.basisMinor,100000);assert.equal(v.portfolio.marketMinor,120000);assert.equal(v.portfolio.dividendsMinor,2000);assert.equal(v.portfolio.totalProfitMinor,22000);assert.equal(v.projection.quality.cents.confirmedOut,0);assert.equal(v.portfolio.items[0].metadata.feeBps,50);assert.equal(v.investmentPolicy.targets[0].weightBps,6000);assert.equal(v.investmentSnapshots[0].marketMinor,105000);
+assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
+assert.equal(preview({...iv,h:[{...iv.h[0],cost:900}]}).status,"BLOCKED");assert.equal(preview({...iv,tx:[...iv.tx,{...iv.tx[0],id:"sale",k:"sell"}]}).status,"BLOCKED");assert.equal(preview({...iv,h:[{...iv.h[0],rev:""}]}).status,"BLOCKED");
+assert.throws(()=>importIntoEmpty({...p,investmentParity:{asOf,basisMinor:1,marketMinor:1}}),/investment-parity/);
+console.log("RC1 investment basis, valuation, policy, history and no household-expense duplication passed.");

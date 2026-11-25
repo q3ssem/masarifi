@@ -1,0 +1,2 @@
+# Association migration
+Strict tracked associations with explicit payment dates, participant names, turn, stop, monthly contribution schedule and distinct receipt obligation; amount multiplied by original member count. Source timestamps preserved on settlement. Prior unpaid months, estimated/undated payments, invalid receipt or unsupported links fail closed. Descriptor is clean typed metadata; complete legacy association editing and historical projection parity not yet implemented. Node CI pending; no production data.

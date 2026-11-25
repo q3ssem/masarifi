@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {parseJournal} from "../src/journal.mjs";
+const asOf="2026-12-15",opts={month:"2026-12",asOf,through:"2027-02-28",openingMinor:0};
+const j={id:"jm_1",name:"جمعية",amount:100,n:4,turn:2,start:"2026-11",day:5,names:["أ","ب"],stop:"",hide:false,trackFrom:"2026-11",paidMonths:["2026-11","2026-12"],paidOn:[{m:"2026-11",d:"2026-11-05",ts:1},{m:"2026-12",d:"2026-12-05",ts:2}],gotOn:"2026-12-05",gotTs:3};
+const base={app:"masarifi",version:2,expenses:[],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs:{jm:[j]}};
+const p=previewLegacy(JSON.stringify(base),{asOf});assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p),v=s.view(opts);
+assert.equal(v.associations[0].turn,2);assert.equal(v.projection.quality.cents.confirmedIn,40000);assert.equal(v.projection.quality.cents.confirmedOut,20000);assert.equal(v.projection.quality.cents.plannedOut,20000);assert.equal(v.projection.quality.cents.plannedIn,0);assert.equal(s.snapshot().domain.movements.find(m=>m.direction==="in").sourceTimestamp,3);
+assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
+const inspect=x=>previewLegacy(JSON.stringify({...base,prefs:{jm:[x]}}),{asOf});
+assert.equal(inspect({...j,trackFrom:"2026-12"}).status,"IMPORT_PREVIEW");assert.equal(inspect({...j,paidOn:[]}).status,"IMPORT_PREVIEW");assert.equal(inspect({...j,gotOn:"2026-12-20"}).status,"BLOCKED");
+console.log("RC1 explicit association migration: participant order, contributions, receipt, timestamps and replay passed.");

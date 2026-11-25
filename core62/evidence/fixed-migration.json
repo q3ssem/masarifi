@@ -1,0 +1,42 @@
+{
+  "passed": 9,
+  "total": 9,
+  "checks": [
+    {
+      "name": "tracked fixed preview",
+      "pass": true
+    },
+    {
+      "name": "category and confirmed date preserved",
+      "pass": true
+    },
+    {
+      "name": "outstanding category preserved",
+      "pass": true
+    },
+    {
+      "name": "end month inclusive",
+      "pass": true
+    },
+    {
+      "name": "estimated history blocked",
+      "pass": true
+    },
+    {
+      "name": "undated payment blocked",
+      "pass": true
+    },
+    {
+      "name": "past unpaid semantics blocked",
+      "pass": true
+    },
+    {
+      "name": "unmapped timestamps blocked",
+      "pass": true
+    },
+    {
+      "name": "category survives replay",
+      "pass": true
+    }
+  ]
+}

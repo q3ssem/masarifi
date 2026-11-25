@@ -1,0 +1,32 @@
+{
+  "scopeVersion": 1,
+  "release": "RC1",
+  "profile": "local-only",
+  "ownerApproved": true,
+  "cloudSync": false,
+  "financialBackendRequired": false,
+  "internetDependentFeatures": "deferred",
+  "staticAssetDelivery": "installation-and-application-updates-only",
+  "requiredLocalGates": [
+    "unit",
+    "chromium",
+    "webkit",
+    "offline-write-reload",
+    "encrypted-backup-restore",
+    "application-upgrade",
+    "physical-iphone",
+    "local-feature-review"
+  ],
+  "legacyMigration": {
+    "requiredBeforeMigratingRealData": true,
+    "approved": false
+  },
+  "productionReleaseAuthorized": false,
+  "mainMergeAuthorized": false,
+  "developmentTransition": {
+    "rc1AutomatedBaseline": "eb987964a5e4bfda0e09546d7b1b829ad95632a7",
+    "rc2DevelopmentAuthorized": true,
+    "fullRC1ReleaseApproval": false,
+    "physicalAcceptanceCarriedForward": true
+  }
+}

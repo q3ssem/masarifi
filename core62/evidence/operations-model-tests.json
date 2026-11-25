@@ -1,0 +1,42 @@
+{
+  "passed": 9,
+  "total": 9,
+  "checks": [
+    {
+      "name": "session starts empty",
+      "pass": true
+    },
+    {
+      "name": "new account command",
+      "pass": true
+    },
+    {
+      "name": "isolated sessions",
+      "pass": true
+    },
+    {
+      "name": "record expense command",
+      "pass": true
+    },
+    {
+      "name": "view follows command",
+      "pass": true
+    },
+    {
+      "name": "view mutations isolated",
+      "pass": true
+    },
+    {
+      "name": "invalid command doesn't change revision",
+      "pass": true
+    },
+    {
+      "name": "void reflected in balances",
+      "pass": true
+    },
+    {
+      "name": "decimal parser exact",
+      "pass": true
+    }
+  ]
+}

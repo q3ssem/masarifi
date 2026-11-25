@@ -1,0 +1,54 @@
+{
+  "passed": 12,
+  "total": 12,
+  "checks": [
+    {
+      "name": "exact debt, installments and zero-savings goal preview",
+      "pass": true
+    },
+    {
+      "name": "debt principal and recorded payments",
+      "pass": true
+    },
+    {
+      "name": "installment actual payment dates",
+      "pass": true
+    },
+    {
+      "name": "confirmed sums and outstanding match",
+      "pass": true
+    },
+    {
+      "name": "goal target and explicit deadline",
+      "pass": true
+    },
+    {
+      "name": "reject debt overpaid",
+      "pass": true
+    },
+    {
+      "name": "reject monthly debt",
+      "pass": true
+    },
+    {
+      "name": "reject estimated installment history",
+      "pass": true
+    },
+    {
+      "name": "reject automatic installment history",
+      "pass": true
+    },
+    {
+      "name": "reject savings without date",
+      "pass": true
+    },
+    {
+      "name": "reject payment timestamps not preserved",
+      "pass": true
+    },
+    {
+      "name": "source unchanged",
+      "pass": true
+    }
+  ]
+}

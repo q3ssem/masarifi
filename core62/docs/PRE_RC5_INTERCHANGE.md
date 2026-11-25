@@ -1,0 +1,2 @@
+# Pre-RC 5 — interchange bounds
+Journal, CSV and legacy source input share explicit UTF-8 byte bounds and 20,000-command/row cap. Import validates all records before committing a new session; no merging or hidden truncation. CSV remains a report/simple transaction interchange, not a complete backup. Import preview bound to source file, session revision and analysis date. Added 20k Arabic CSV import and byte-bound regression, awaiting Node CI. Full legacy preferences, linked wallets, assumed payment semantics and cloud remain blocked.

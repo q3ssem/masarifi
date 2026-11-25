@@ -1,0 +1,121 @@
+{
+  "passed": 28,
+  "total": 28,
+  "elapsedMs": 76,
+  "syntheticRows": 100000,
+  "syntheticBytes": 4689345,
+  "tests": [
+    {
+      "name": "legacy capture",
+      "pass": true
+    },
+    {
+      "name": "raw whitespace and metadata preserved",
+      "pass": true
+    },
+    {
+      "name": "unrelated origin data excluded",
+      "pass": true
+    },
+    {
+      "name": "unknown namespace key preserved",
+      "pass": true
+    },
+    {
+      "name": "theme and locale retained",
+      "pass": true
+    },
+    {
+      "name": "order-independent capture",
+      "pass": true
+    },
+    {
+      "name": "missing source blocks",
+      "pass": true
+    },
+    {
+      "name": "malformed JSON blocks",
+      "pass": true
+    },
+    {
+      "name": "incomplete shape blocks",
+      "pass": true
+    },
+    {
+      "name": "cloud account blocks before copy",
+      "pass": true
+    },
+    {
+      "name": "pending cloud queue blocks",
+      "pass": true
+    },
+    {
+      "name": "cloud revision metadata blocks",
+      "pass": true
+    },
+    {
+      "name": "storage exception blocks",
+      "pass": true
+    },
+    {
+      "name": "unstable capture blocks",
+      "pass": true
+    },
+    {
+      "name": "stage never allows production write",
+      "pass": true
+    },
+    {
+      "name": "stage reports coverage gaps",
+      "pass": true
+    },
+    {
+      "name": "altered source rejected",
+      "pass": true
+    },
+    {
+      "name": "empty store",
+      "pass": true
+    },
+    {
+      "name": "commit shadow",
+      "pass": true
+    },
+    {
+      "name": "stale writer conflict",
+      "pass": true
+    },
+    {
+      "name": "failed commit doesn't change revision",
+      "pass": true
+    },
+    {
+      "name": "read clone isolated",
+      "pass": true
+    },
+    {
+      "name": "missing rollback target blocks",
+      "pass": true
+    },
+    {
+      "name": "rollback stale writer conflict",
+      "pass": true
+    },
+    {
+      "name": "rollback to empty increments revision",
+      "pass": true
+    },
+    {
+      "name": "restore old shadow",
+      "pass": true
+    },
+    {
+      "name": "zero source storage writes",
+      "pass": true
+    },
+    {
+      "name": "100k source rows exact raw preservation",
+      "pass": true
+    }
+  ]
+}

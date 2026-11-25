@@ -1,0 +1,46 @@
+{
+  "release": "62.7.0-rc1.19-local-dev",
+  "testedCommit": "eb987964a5e4bfda0e09546d7b1b829ad95632a7",
+  "profile": "local-only",
+  "automatedGate": "PASS",
+  "fullRC1": "HOLD_PHYSICAL_DEVICE_AND_FINAL_SCOPE_REVIEW",
+  "ci": {
+    "runId": 45601184443,
+    "conclusion": "success",
+    "unit": {
+      "jobId": 139160205874,
+      "testFiles": 45
+    },
+    "chromium": {
+      "jobId": 139160206878,
+      "responsiveChecks": 672
+    },
+    "webkit": {
+      "jobId": 139160206592,
+      "responsiveChecks": 672
+    }
+  },
+  "distribution": {
+    "assetCount": 39,
+    "assetBytes": 304743,
+    "reachableJsModules": 30,
+    "artifactId": 15015711851,
+    "artifactBytes": 179075,
+    "artifactSha256": "2eac6aa10a07ecd89830fe26fef3faa1a4eba1abb238d8bfd5304e270df1879e",
+    "retentionDays": 14
+  },
+  "mixedJournal": {
+    "commands": 20000,
+    "buildMs": 2120,
+    "replayMs": 2186,
+    "bytes": 3466045,
+    "scope": "20 batches separated by budget operations; not arbitrary interleaving or physical-device stress"
+  },
+  "cloudSync": "DEFERRED",
+  "physicalIPhone": "NOT_EXECUTED",
+  "legacyMigration": "NOT_APPROVED",
+  "manualVisualReview": "NOT_EXECUTED",
+  "productionReleaseAuthorized": false,
+  "mainMergeAuthorized": false,
+  "mainVerified": "b6b03894d2ebf166d0e255b8587859a3bd12aedf"
+}

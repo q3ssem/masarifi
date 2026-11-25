@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {parseJournal} from "../src/journal.mjs";
+import {isDefaultPreference} from "../src/financial-preferences.mjs";
+const asOf="2026-12-15",prefs={payday:27,sg:12.5,pb:[],ri:[],jm:[],sx:[],wl:[],kk:{},nw:{a:[],h:{}},em:{},rc:{a:0,d:"",ts:0,h:[]},sf:[],ro:"",cr:{},hw:0,iv:{h:[],tx:[],vh:{},dca:{a:0,h:"",m:[]},tgt:{},inf:2,safe:5,cool:{}},hs:{order:["list","inc","cats"],hide:[]},ao:[],mc:{},ru:{on:false,st:5,g:"",ts:0,t:0},ef:{m:0,g:""},rm:{a:{}},ut:[],wallet59:{accounts:[],transfers:[],links:[],history:[]},q617:[]};
+const raw={app:"masarifi",version:2,expenses:[],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs};
+const inspect=p=>previewLegacy(JSON.stringify({...raw,prefs:p}),{asOf});
+const p=inspect(prefs);assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p);assert.deepEqual(s.snapshot().financialPreferences,{payday:27,savingsTargetBps:1250});assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
+assert.equal(isDefaultPreference("rc",{h:[],ts:0,d:"",a:0}),true);assert.equal(isDefaultPreference("rc",{h:[],ts:0,d:"",a:0,extra:true}),false);
+assert.equal(inspect({...prefs,hs:{order:["inc","list","cats"],hide:[]}}).status,"BLOCKED");assert.equal(inspect({...prefs,ru:{...prefs.ru,on:true}}).status,"BLOCKED");assert.equal(inspect({...prefs,sg:95}).status,"BLOCKED");
+assert.equal(s.apply("financial-preferences",{payday:28,savingsTargetBps:2000}).status,"APPLIED_SHADOW");
+console.log("RC1 default exported preference schema and salary/savings settings passed.");

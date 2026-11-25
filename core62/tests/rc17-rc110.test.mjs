@@ -1,0 +1,26 @@
+import assert from "node:assert/strict";
+import {createJournalSession,parseJournal} from "../src/journal.mjs";
+import {reconcileMonthly} from "../src/monthly-reconciliation.mjs";
+import {createSyncServer,createMemoryVaults} from "../server/sync-server.mjs";
+const j=createJournalSession(),apply=(t,f)=>assert.equal(j.apply(t,f).status,"APPLIED_SHADOW");
+apply("template",{id:"t",name:"Food",direction:"out",amountMinor:100,category:"food",note:"test"});
+apply("reminder",{id:"r",name:"Renew",due:"2026-12-01"});
+apply("budget-default",{category:"food",limitMinor:1000});
+apply("budget-default",{category:"travel",limitMinor:100});
+apply("budget-transfer",{month:"2026-12",from:"food",to:"travel",amountMinor:300});
+const before=j.exportJournal();
+assert.equal(j.apply("budget-transfer",{month:"2026-12",from:"food",to:"travel",amountMinor:701}).status,"BLOCKED");
+assert.deepEqual(j.exportJournal(),before);
+assert.deepEqual(j.snapshot().limits,[{month:"2026-12",category:"food",limitMinor:700},{month:"2026-12",category:"travel",limitMinor:400}]);
+assert.equal(j.view({month:"2026-12",asOf:"2026-12-01",through:"2026-12-31"}).reminders[0].dueNow,true);
+assert.deepEqual(parseJournal(JSON.stringify(j.exportJournal())).snapshot(),j.snapshot());
+apply("template-remove",{id:"t"});apply("reminder-dismiss",{id:"r"});assert.equal(j.snapshot().templates.length,0);assert.equal(j.snapshot().reminders.length,0);
+const r=(id,date,amountMinor,status="confirmed")=>({id,date,amountMinor,status,kind:"expense",category:"food"});
+const source=[r("a","2026-12-01",-100),r("b","2027-01-01",-200,"planned")];
+assert.equal(reconcileMonthly(source,source).status,"MONTHLY_TOTALS_MATCH");
+assert.equal(reconcileMonthly(source,[r("a","2027-01-01",-100),source[1]]).status,"BLOCKED");
+assert.equal(reconcileMonthly(source,[source[0],r("b","2027-01-01",-200,"confirmed")]).status,"BLOCKED");
+assert.equal(reconcileMonthly(source,[...source,source[0]]).status,"BLOCKED");
+let clock=0;const server=createSyncServer({authenticate:h=>h==="Bearer a"?"a":h==="Bearer b"?"b":null,store:createMemoryVaults(),rateLimit:2,windowMs:1000,now:()=>clock});
+try{await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));const get=token=>fetch("http://127.0.0.1:"+server.address().port+"/v1/vault",{headers:{authorization:"Bearer "+token}});assert.equal((await get("a")).status,200);assert.equal((await get("a")).status,200);const denied=await get("a");assert.equal(denied.status,429);assert.equal(denied.headers.get("retry-after"),"1");assert.equal((await get("b")).status,200);clock=1000;assert.equal((await get("a")).status,200);assert.equal((await get("invalid")).status,401);}finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+console.log("RC1.7–1.10: template/reminder replay, atomic budget transfer, monthly reconciliation and per-account throttling verified.");
