@@ -633,3 +633,22 @@ html[data-style] :is(.choice-chip,.appearance-choice,.search-filter):focus-visib
  html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true]{border:2px solid Highlight}
  html[data-style] .entry-sheet .choice-grid .choice-chip[aria-pressed=true]::after{color:Highlight}
 }
+
+/* RC3.26 — stable hit targets, short compositor-friendly transitions. */
+html[data-motion] :is(button,.home-link,.home-row){touch-action:manipulation}
+html[data-motion="ios"] :is(button,.home-link,.home-row),
+html[data-motion="spring"] :is(button,.home-link,.home-row),
+html[data-motion="quick"] :is(button,.home-link,.home-row){
+ transition-property:background-color,border-color,color;transition-duration:120ms;transition-timing-function:ease-out
+}
+html[data-motion="quick"] :is(button,.home-link,.home-row){transition-duration:80ms}
+html[data-motion] :is(button,.home-link,.home-row):active:not(:disabled){transform:none}
+html[data-motion="ios"] .bottom-sheet[open]{animation:sheet-polish-fade 160ms ease-out}
+html[data-motion="quick"] .bottom-sheet[open]{animation:sheet-polish-fade 90ms ease-out}
+html[data-motion="spring"] .bottom-sheet[open]{animation:sheet-polish-fade 220ms cubic-bezier(.22,1,.36,1)}
+@keyframes sheet-polish-fade{from{opacity:.82}to{opacity:1}}
+html[data-motion="off"] .bottom-sheet[open]{animation:none!important}
+@media(prefers-reduced-motion:reduce){
+ html[data-motion] .bottom-sheet[open]{animation:none!important}
+ html[data-motion] :is(button,.home-link,.home-row){transition:none!important}
+}

@@ -146,6 +146,37 @@ try{
   }
   assert.equal(contrastMetrics.length,120);await writeFile(join(out,"typography-contrast-metrics.json"),JSON.stringify({engine,scope:"computed CSS solid colors and action gradient endpoints only; not full WCAG certification or physical iPhone",cases:contrastMetrics.length,contrastMetrics},null,2));
  }finally{await typography.close();}
+ // RC3.26: repeat real navigation and modal actions with every motion preference.
+ const motionPage=await context.newPage();const motionMetrics=[];
+ try{
+  await motionPage.setViewportSize({width:390,height:844});
+  await motionPage.goto("http://127.0.0.1:"+server.address().port+"/app/index.html");
+  await motionPage.emulateMedia({reducedMotion:"no-preference"});
+  for(const reduced of ["no-preference","reduce"])for(const motion of ["ios","quick","spring","off"]){
+   await motionPage.emulateMedia({reducedMotion:reduced});
+   await choose(motionPage,"motion",motion);await motionPage.locator("#closeSettings").click();
+   for(let cycle=0;cycle<5;cycle++){
+    const start=Date.now();
+    await motionPage.locator('#nav [data-section="reports"]').click();
+    const viewEffects=await motionPage.locator("#view").evaluate(e=>e.getAnimations().map(a=>({duration:Number(a.effect?.getTiming().duration),frames:a.effect?.getKeyframes()})));
+    if(reduced==="reduce"||motion==="off")assert.equal(viewEffects.length,0);
+    else for(const a of viewEffects){assert.ok(a.duration<=220);assert.ok(a.frames.every(f=>!f.transform));}
+    await motionPage.locator('#nav [data-section="overview"]').click();
+    await motionPage.locator("#quickIncome").click();const d=motionPage.locator("#entryDialog");
+    assert.equal(await d.evaluate(e=>e.open),true);
+    const sheetEffects=await d.evaluate(e=>e.getAnimations().map(a=>({duration:Number(a.effect?.getTiming().duration),frames:a.effect?.getKeyframes()})));
+    if(reduced==="reduce"||motion==="off")assert.equal(sheetEffects.length,0);
+    else for(const a of sheetEffects){assert.ok(a.duration<=220);assert.ok(a.frames.every(f=>!f.transform));}
+    await d.locator("#closeEditor").click();assert.equal(await d.evaluate(e=>e.open),false);
+    await motionPage.locator("#quickExpense").click();assert.equal(await d.evaluate(e=>e.open),true);
+    await d.locator("#closeEditor").click();assert.equal(await d.evaluate(e=>e.open),false);
+    assert.equal(await motionPage.locator("#view").evaluate(e=>e.getAnimations().length),0);
+    motionMetrics.push({motion,reduced,cycle:cycle+1,elapsedMs:Date.now()-start,viewEffects:viewEffects.length,sheetEffects:sheetEffects.length});
+   }
+  }
+  assert.equal(motionMetrics.length,40);
+  await writeFile(join(out,"motion-polish-metrics.json"),JSON.stringify({engine,scope:"real Playwright clicks and animation contracts; elapsed time includes automation overhead, not device FPS or touch latency",cases:motionMetrics.length,motionMetrics},null,2));
+ }finally{await motionPage.close();}
  // Final focused witness: long amounts stay within their cards at narrow width, without altering engine data.
  const narrow=await context.newPage();
  try{
