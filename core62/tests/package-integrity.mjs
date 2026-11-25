@@ -19,7 +19,8 @@ try{
  await rejects("duplicate manifest path",p=>modify(p,m=>m.assets.push(m.assets[0])));
  await rejects("path traversal",p=>modify(p,m=>m.assets[0].path="../secret"));
  await rejects("cloud enabled",p=>modify(p,m=>m.cloudSync=true));
+ await rejects("unsupported release version",p=>modify(p,m=>m.version="62.7.0-rc99.0-local-dev"));
  await rejects("unauthorized release flag",p=>modify(p,m=>m.releaseAuthorized=true));
  await rejects("inconsistent worker inventory",async p=>{const file=join(p,"app/offline-worker.mjs"),old=await readFile(file,"utf8"),next=old.replace(/const ENTRIES=\[[^\n]+\];/,"const ENTRIES=[];");assert.notEqual(old,next);await writeFile(file,next);const {createHash}=await import("node:crypto");await modify(p,m=>{const a=m.assets.find(a=>a.path==="app/offline-worker.mjs");a.bytes=Buffer.byteLength(next);a.sha256=createHash("sha256").update(next).digest("hex");});});
- console.log(JSON.stringify({status:"PACKAGE_INTEGRITY_PASS",...first,reproducible:true,negativeCases:8}));
+ console.log(JSON.stringify({status:"PACKAGE_INTEGRITY_PASS",...first,reproducible:true,negativeCases:9}));
 }finally{await rm(root,{recursive:true,force:true});}
