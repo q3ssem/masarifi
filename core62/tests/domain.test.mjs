@@ -53,5 +53,8 @@ check("all active movements exact ledger",()=>analyzeLedger(domainLedger(s)).com
 check("never production writes",()=>execute(s,cmd("record",record("unlinked",1,"out",null))).productionWriteAllowed===false);
 let stress=emptyDomain();const t=Date.now();for(let i=0;i<500;i++){const r=execute(stress,{type:"record",opId:"stress"+i,expectedRevision:i,...record("r"+i,103,"out",null)});if(r.status!=="APPLIED_SHADOW")throw Error("stress command "+i);stress=r.state;}const elapsed=Date.now()-t;
 check("500 sequential commands exact",()=>stress.revision===500&&stress.audit.length===500&&analyzeLedger(domainLedger(stress)).cents.confirmedOut===51500);
+const maxState=execute(emptyDomain(),{type:"record",opId:"max1",expectedRevision:0,...record("max1",Number.MAX_SAFE_INTEGER,"out",null)}).state;
+check("gross overflow without account blocked",()=>execute(maxState,{type:"record",opId:"max2",expectedRevision:1,...record("max2",1,"out",null)}).code==="ledger-quality");
+check("blocked aggregate overflow leaves state unchanged",()=>maxState.revision===1&&maxState.movements.length===1&&analyzeLedger(domainLedger(maxState)).cents.confirmedOut===Number.MAX_SAFE_INTEGER);
 const result={passed:results.filter(x=>x.pass).length,total:results.length,stress:{commands:500,ms:elapsed},tests:results};
 console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

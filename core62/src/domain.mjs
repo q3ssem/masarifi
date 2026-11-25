@@ -1,4 +1,5 @@
 import {isDate,safeMinor} from "./money.mjs";
+import {analyzeLedger} from "./ledger.mjs";
 // Clean, in-memory domain model; no legacy state, DOM, network, or storage dependency.
 const FAMILIES=Object.freeze(["debt","installment","association","fixed","bnpl"]);
 const idOK=x=>typeof x==="string"&&/^[A-Za-z0-9:_-]{1,100}$/.test(x);
@@ -23,7 +24,7 @@ for(const a of s.accounts)must(textOK(a.name)&&a.name.trim()&&isDate(a.openingDa
 for(const o of s.obligations)must(FAMILIES.includes(o.family)&&["in","out"].includes(o.direction)&&amountOK(o.amountMinor)&&isDate(o.due)&&textOK(o.name)&&o.name.trim(),"obligation-state");
 for(const m of s.movements){must(amountOK(m.amountMinor)&&isDate(m.date)&&textOK(m.note)&&typeof m.voided==="boolean","movement-state");const validRef=id=>{const a=find(s.accounts,id);return a&&m.date>=a.openingDate;};if(m.kind==="transfer"){must(m.from!==m.to&&validRef(m.from)&&validRef(m.to),"transfer-state");}else{must(["record","settlement"].includes(m.kind)&&["in","out"].includes(m.direction)&&(m.accountId===null||validRef(m.accountId))&&(m.category===null||textOK(m.category)),"movement-state");if(m.kind==="settlement"){const o=find(s.obligations,m.obligationId);must(o&&o.direction===m.direction&&m.category===o.family,"settlement-state");}}}
 const ops=new Set();for(let i=0;i<s.audit.length;i++){const a=s.audit[i];must(a&&idOK(a.opId)&&!ops.has(a.opId)&&a.revision===i+1&&typeof a.command==="string","audit-state");ops.add(a.opId);}
-for(const o of s.obligations)must(remainingBig(s,o.id)>=0n,"overpaid-state");accountBalances(s);}
+for(const o of s.obligations)must(remainingBig(s,o.id)>=0n,"overpaid-state");accountBalances(s);must(analyzeLedger(domainLedger(s)).complete,"ledger-quality");}
 export function execute(s,c){
 try{validateState(s);const command=normalizeCommand(c);const old=s.audit.find(a=>a.opId===c.opId);if(old)return old.command===command?{status:"ALREADY_APPLIED",state:s,productionWriteAllowed:false}:deny("op-id-reused");
 if(c.expectedRevision!==s.revision)return {status:"CONFLICT",revision:s.revision,productionWriteAllowed:false};must(s.revision<Number.MAX_SAFE_INTEGER,"revision-overflow");

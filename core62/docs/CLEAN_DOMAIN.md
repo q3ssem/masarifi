@@ -5,3 +5,6 @@ Behavioral reimplementation, not copied legacy business code. New modules use in
 Domain is in-memory and not production storage. Revisions prevent stale writes only within the state passed to execute; actual cross-tab atomic persistence is not integrated. Commands validate full state and clone per operation; 500-command stress is a prototype throughput check, not a production performance claim. UI and legacy bridge unchanged. Production main unchanged. Legacy application is retained only as operational reference pending complete parity; no legacy implementation imported into domain.mjs. No real user data used.
 
 Executed 32/32 source-level JS assertions; 500 sequential commands 892 ms. Reproduce node core62/tests/domain.test.mjs. Next: isolated command UI, recurrence schedules, migration adapters and durable transaction integration, actual browser/real-device test. Release HOLD.
+
+## Alpha 3 follow-up
+Aggregate ledger quality must pass even for unlinked movements; prevents valid individual amounts from overflowing gross totals. Rerun 34/34 domain assertions, 9/9 operations model assertions. 500 sequential commands: 1436 ms in current JS execution environment. Not a browser or durable storage test.

@@ -1,9 +1,9 @@
 {
-  "passed": 32,
-  "total": 32,
+  "passed": 34,
+  "total": 34,
   "stress": {
     "commands": 500,
-    "ms": 892
+    "ms": 1436
   },
   "tests": [
     {
@@ -132,6 +132,14 @@
     },
     {
       "name": "500 sequential commands exact",
+      "pass": true
+    },
+    {
+      "name": "gross overflow without account blocked",
+      "pass": true
+    },
+    {
+      "name": "blocked aggregate overflow leaves state unchanged",
       "pass": true
     }
   ]
