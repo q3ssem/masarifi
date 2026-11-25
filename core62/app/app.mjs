@@ -100,7 +100,7 @@ if(action==="linked-purchase-note"){const candidates=moves.filter(m=>s.rules.som
 if(action==="edit"){const target=$("target");const load=()=>{const m=moves.find(m=>m.id===target.value);if(!m)return;const b=BigInt(m.amountMinor);$("amt").value=String(b/100n)+"."+String(b%100n).padStart(2,"0");$("direction").value=m.direction;$("date").value=m.date;$("category").value=m.category??"";$("incomeSource").value=m.metadata?.incomeSource??"";$("direction").dispatchEvent(new Event("change"));$("note").value=m.note;$("accountId").value=m.accountId??"";};target.addEventListener("change",load);load();}
 }
 function submit(e){e.preventDefault();const action=val("action"),id=w.nextId(action),date=val("date"),direction=val("direction"),a=()=>inputMinor(val("amt"));let type=action,f;
-try{switch(action){
+try{if(["edit","transfer","settle","confirm-settlement","pay-occurrence","contribution","investment","asset","asset-revalue","refund"].includes(action)&&date>localDate(new Date())){ $("message").textContent="لا يمكن تأكيد حركة مالية بتاريخ مستقبلي. استخدم الجدولة أو الحركة المخططة.";return;}switch(action){
 case "refund":f={id,movementId:val("target"),amountMinor:a(),date,accountId:val("accountId")||null,note:val("note")};if(date>localDate(new Date()))throw Error("future-refund");break;
 case "refund-void":f={id:val("target")};break;
 case "project":f={id,name:val("name"),limitMinor:a(),start:date,end:val("end")};break;

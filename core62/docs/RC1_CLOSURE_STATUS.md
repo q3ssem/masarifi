@@ -55,3 +55,6 @@ Tested commit eb987964a5e4bfda0e09546d7b1b829ad95632a7; Actions run 45601184443:
 
 ## RC1 visual evidence pass (in progress)
 Downloaded exact RC1.19 release artifact 15015711851 and independently verified archive SHA-256 and all 39 asset SHA-256 values. Local container Chromium navigation was blocked by environment policy (ERR_BLOCKED_BY_ADMINISTRATOR); no local screenshots claimed. Added CI screenshot witnesses for the packaged static app, synthetic data only, 2 layouts × 2 modes × 4 portrait/landscape viewport sizes × 7 sections = 112 per browser. Captures and geometry metrics are evidence for manual visual review, not physical device approval. No source application changes. Latest evidence job pending.
+
+## RC1 engineering baseline frozen; RC2 development authorized
+Owner requested immediate rigorous development toward RC2. RC1.19 automated baseline is immutable at eb987964a5e4bfda0e09546d7b1b829ad95632a7, run 45601184443, artifact 15015711851. Evidence-only run 45602408867 also passed. RC1 physical iPhone, manual visual review, complete legacy migration and production authorization remain open, carried forward as release gates, not blockers to development of RC2. No assertion of full RC1 release acceptance. RC1 screenshot run 45603547109 is still in progress when starting RC2. No main merge or publication.

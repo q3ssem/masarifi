@@ -22,5 +22,11 @@
     "approved": false
   },
   "productionReleaseAuthorized": false,
-  "mainMergeAuthorized": false
+  "mainMergeAuthorized": false,
+  "developmentTransition": {
+    "rc1AutomatedBaseline": "eb987964a5e4bfda0e09546d7b1b829ad95632a7",
+    "rc2DevelopmentAuthorized": true,
+    "fullRC1ReleaseApproval": false,
+    "physicalAcceptanceCarriedForward": true
+  }
 }
