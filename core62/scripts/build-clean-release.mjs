@@ -13,7 +13,7 @@ async function add(file){const rel=inside(file);if(picked.has(rel))return;picked
 await add(resolve(source,"app/index.html"));
 for(const rel of [...picked].sort()){const dest=resolve(out,rel);await mkdir(dirname(dest),{recursive:true});await copyFile(resolve(source,rel),dest);}
 const all=await addPwaShell(out,source,[...picked]);const assets=[];for(const rel of all.sort()){const buf=await readFile(resolve(out,rel));assets.push({path:rel,bytes:buf.length,sha256:createHash("sha256").update(buf).digest("hex")});}
-const manifest={version:"62.7.0-rc1.14-dev",entry:"app/index.html",releaseAuthorized:false,legacyMigrationComplete:false,assets};
+const manifest={version:"62.7.0-rc1.15-dev",entry:"app/index.html",releaseAuthorized:false,legacyMigrationComplete:false,assets};
 await writeFile(resolve(out,"build-manifest.json"),JSON.stringify(manifest,null,2)+"\n");
-await writeFile(resolve(out,"README.txt"),"Masarifi 62.7.0 RC1.14 development snapshot\nServe app/index.html on an isolated HTTPS origin or localhost. Preview only; synthetic data. Reference sync runtime only; no hosted production or full legacy migration. No production release authorized.\n");
+await writeFile(resolve(out,"README.txt"),"Masarifi 62.7.0 RC1.15 development snapshot\nServe app/index.html on an isolated HTTPS origin or localhost. Preview only; synthetic data. Reference sync runtime only; no hosted production or full legacy migration. No production release authorized.\n");
 console.log("Clean distribution: "+assets.length+" files, "+assets.reduce((n,x)=>n+x.bytes,0)+" bytes; no legacy runtime, tests, demo or docs.");
