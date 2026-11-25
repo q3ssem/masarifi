@@ -1,0 +1,12 @@
+import {webcrypto} from "node:crypto";
+import assert from "node:assert/strict";
+import {encryptBackup,decryptBackup} from "../src/secure-backup.mjs";
+const password="synthetic-only-strong-passphrase",plain='{"arabic":"مصاريف","amountMinor":12345}';
+const a=await encryptBackup(webcrypto,plain,password),b=await encryptBackup(webcrypto,plain,password);
+assert.equal(await decryptBackup(webcrypto,a,password),plain);
+assert.notEqual(a.salt,b.salt);assert.notEqual(a.iv,b.iv);
+await assert.rejects(decryptBackup(webcrypto,a,"wrong-password-12345"));
+await assert.rejects(decryptBackup(webcrypto,{...a,ciphertext:(a.ciphertext[0]==="0"?"1":"0")+a.ciphertext.slice(1)},password));
+await assert.rejects(decryptBackup(webcrypto,{...a,iterations:1},password));
+await assert.rejects(encryptBackup(webcrypto,plain,"short"));
+console.log("7 crypto assertions passed");
