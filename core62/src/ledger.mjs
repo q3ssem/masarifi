@@ -1,5 +1,5 @@
 import {safeMinor,isDate} from "./money.mjs";
-export const STATUSES=["confirmed","assumed","planned"];
-export const BUCKETS=STATUSES.flatMap(s=>[s+"In",s+"Out"]);
+export const STATUSES=Object.freeze(["confirmed","assumed","planned"]);
+export const BUCKETS=Object.freeze(STATUSES.flatMap(s=>[s+"In",s+"Out"]));
 export function validRow(r){return !!r&&typeof r.id==="string"&&r.id.trim().length>0&&isDate(r.date)&&Number.isSafeInteger(r.amountMinor)&&r.amountMinor!==0&&STATUSES.includes(r.status)&&typeof r.kind==="string"&&r.kind.trim().length>0&&(r.category===null||typeof r.category==="string");}
 export function analyzeLedger(rows){if(!Array.isArray(rows))throw new TypeError("rows-array");const sums=Object.fromEntries(BUCKETS.map(k=>[k,0n])),counts=Object.fromEntries(STATUSES.map(k=>[k,0])),issues=[],seen=new Set();let valid=0;for(let i=0;i<rows.length;i++){const r=rows[i];if(!validRow(r)){issues.push({index:i,code:"invalid-row"});continue;}const key=JSON.stringify([r.id,r.date,r.status,r.kind]);if(seen.has(key))issues.push({index:i,id:r.id,code:"duplicate"});seen.add(key);const bucket=r.status+(r.amountMinor>0?"In":"Out");sums[bucket]+=BigInt(Math.abs(r.amountMinor));counts[r.status]++;valid++;}const cents={};for(const k of BUCKETS){try{cents[k]=safeMinor(sums[k]);}catch{cents[k]=null;issues.push({bucket:k,code:"overflow"});}}return {cents,counts,issues,valid,count:rows.length,complete:issues.length===0};}

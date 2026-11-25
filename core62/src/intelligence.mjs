@@ -14,13 +14,13 @@ export function financialDNA(rows,month){
   return {status:"ANALYSIS_ONLY",month,incomeMinor:safeMinor(income),outflowMinor:safeMinor(total),netMinor:safeMinor(income-total),categories:[...out].map(([category,v])=>({category,amountMinor:safeMinor(v),shareBps:total?Number(v*10000n/total):0})).sort((a,b)=>b.amountMinor-a.amountMinor||(a.category<b.category?-1:a.category>b.category?1:0))};
 }
 export function anomalyHunter(rows,{asOf,minSamples=5,ratioBps=20000}={}){
-  if(!isDate(asOf)||!Number.isInteger(minSamples)||minSamples<3||!Number.isInteger(ratioBps)||ratioBps<10000)throw Error("anomaly-contract");
+  if(!isDate(asOf)||!Number.isInteger(minSamples)||minSamples<3||!Number.isSafeInteger(ratioBps)||ratioBps<10000||ratioBps>1000000)throw Error("anomaly-contract");
   const a=analyzeLedger(rows);if(!a.complete)return {status:"BLOCKED",issues:a.issues};
   const prior=new Map(),today=[];for(const r of rows){if(r.status!=="confirmed"||r.amountMinor>=0||r.kind==="transfer")continue;
     const k=r.category??"uncategorized";if(r.date<asOf){if(!prior.has(k))prior.set(k,[]);prior.get(k).push(-r.amountMinor);}else if(r.date===asOf)today.push(r);
   }
   const medians=new Map();for(const [k,v] of prior){if(v.length<minSamples)continue;v.sort((a,b)=>a-b);medians.set(k,{n:v.length,median2:BigInt(v[(v.length-1)>>1])+BigInt(v[v.length>>1])});}
-  const alerts=[];for(const r of today){const m=medians.get(r.category??"uncategorized");if(m&&BigInt(-r.amountMinor)*20000n>=m.median2*BigInt(ratioBps))alerts.push({id:r.id,amountMinor:-r.amountMinor,medianMinor:Number(m.median2/2n),samples:m.n,reason:"above-historical-median"});}
+  const alerts=[];for(const r of today){const m=medians.get(r.category??"uncategorized");if(m&&BigInt(-r.amountMinor)*20000n>=m.median2*BigInt(ratioBps))alerts.push({id:r.id,amountMinor:-r.amountMinor,medianMinor:Number(m.median2/2n),medianHalfHalalah:m.median2%2n===1n,samples:m.n,reason:"above-historical-median"});}
   return {status:"REVIEW_ONLY",alerts,notFraudDetermination:true};
 }
 export function decisionLab(rows,options,decision){

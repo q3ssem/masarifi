@@ -1,0 +1,134 @@
+{
+  "regression": [
+    {
+      "suite": "core",
+      "passed": 31,
+      "total": 31,
+      "elapsedMs": 248,
+      "failures": []
+    },
+    {
+      "suite": "data-shadow",
+      "passed": 28,
+      "total": 28,
+      "elapsedMs": 103,
+      "failures": []
+    },
+    {
+      "suite": "parity-vault",
+      "passed": 24,
+      "total": 24,
+      "elapsedMs": 658,
+      "failures": []
+    },
+    {
+      "suite": "lab",
+      "passed": 41,
+      "total": 41,
+      "elapsedMs": 259,
+      "failures": []
+    }
+  ],
+  "passed": 17,
+  "total": 17,
+  "stress": [
+    {
+      "rows": 100000,
+      "ms": 589,
+      "exact": true,
+      "oldCount": 100000,
+      "newCount": 100000
+    },
+    {
+      "rows": 250000,
+      "ms": 1632,
+      "exact": true,
+      "oldCount": 250000,
+      "newCount": 250000
+    },
+    {
+      "rows": 500000,
+      "ms": 3802,
+      "exact": true,
+      "oldCount": 500000,
+      "newCount": 500000
+    }
+  ],
+  "fuzz": {
+    "batches": 2000,
+    "rowsPerBatch": 32,
+    "ms": 450,
+    "exact": true
+  },
+  "tests": [
+    {
+      "name": "dashboard excludes internal transfers",
+      "pass": true
+    },
+    {
+      "name": "forecast excludes internal transfers",
+      "pass": true
+    },
+    {
+      "name": "envelope excludes internal transfers",
+      "pass": true
+    },
+    {
+      "name": "ledger still preserves original movement",
+      "pass": true
+    },
+    {
+      "name": "status contracts frozen",
+      "pass": true
+    },
+    {
+      "name": "invalid calendar month blocked",
+      "pass": true
+    },
+    {
+      "name": "equivalent doc order is idempotent",
+      "pass": true
+    },
+    {
+      "name": "sparse arrays blocked",
+      "pass": true
+    },
+    {
+      "name": "large aggregate snapshot blocked",
+      "pass": true
+    },
+    {
+      "name": "sync state queue limit enforced",
+      "pass": true
+    },
+    {
+      "name": "invalid acknowledgement state blocked",
+      "pass": true
+    },
+    {
+      "name": "half-halalah median explicitly marked",
+      "pass": true
+    },
+    {
+      "name": "memory history bounded",
+      "pass": true
+    },
+    {
+      "name": "legacy parity 100000",
+      "pass": true
+    },
+    {
+      "name": "legacy parity 250000",
+      "pass": true
+    },
+    {
+      "name": "legacy parity 500000",
+      "pass": true
+    },
+    {
+      "name": "2000 seeded parity batches",
+      "pass": true
+    }
+  ],
+  "environment": "JS execution environment; source function definitions, not real browser or Node module loader"
+}
