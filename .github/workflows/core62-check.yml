@@ -27,6 +27,16 @@ jobs:
           done
       - name: Verify temporary legacy bridge generation
         run: node core62/scripts/build-bridge.mjs --check
+      - name: Verify journal capacity and replay
+        run: node core62/tests/journal-capacity.mjs
+      - name: Assemble clean pre-RC distribution
+        run: node core62/scripts/build-clean-release.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-pre-rc
+          path: dist/masarifi62-pre-rc/
+          if-no-files-found: error
+          retention-days: 14
 
   browser:
     strategy:
