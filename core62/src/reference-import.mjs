@@ -1,0 +1,12 @@
+import {isDate,minorFromDecimal} from "./money.mjs";
+const key=x=>typeof x==="string"&&/^[A-Za-z0-9_-]{1,60}$/.test(x);
+const label=(x,n)=>typeof x==="string"&&x.trim()&&x.length<=n;
+const exact=(x,keys)=>!!x&&typeof x==="object"&&!Array.isArray(x)&&Object.keys(x).length===keys.length&&keys.every(k=>Object.hasOwn(x,k));
+const money=x=>{if(typeof x!=="number"||!Number.isFinite(x))throw Error("reference-amount");return minorFromDecimal(String(x));};
+const need=(x,c)=>{if(!x)throw Error(c);};
+export function validWish(x){return exact(x,["id","name","amountMinor","date","status","statusDate"])&&key(x.id)&&label(x.name,60)&&Number.isSafeInteger(x.amountMinor)&&x.amountMinor>0&&isDate(x.date)&&["pending","bought","skip"].includes(x.status)&&(x.statusDate===null||isDate(x.statusDate)&&x.statusDate>=x.date)&&(x.status!=="pending"||x.statusDate===null);}
+export function validAssetReference(x){return exact(x,["id","name","category","valueMinor","observedOn"])&&key(x.id)&&label(x.name,40)&&["cash","bank","gold","invest","car","home","other"].includes(x.category)&&Number.isSafeInteger(x.valueMinor)&&x.valueMinor>=0&&isDate(x.observedOn);}
+export function planReferenceMigration(prefs,{asOf}={}){try{need(isDate(asOf),"reference-date");const commands=[],ids=new Set();
+ if(prefs.wl!==undefined){need(Array.isArray(prefs.wl)&&prefs.wl.length<=100,"wish-list");for(const w of prefs.wl){need(exact(w,["id","n","a","d","s","sd"]),"wish-source");const x={id:w.id,name:w.n,amountMinor:money(w.a),date:w.d,status:w.s===""?"pending":w.s,statusDate:w.sd||null};need(validWish(x)&&!ids.has(x.id)&&x.date<=asOf&&(!x.statusDate||x.statusDate<=asOf),"wish-contract");ids.add(x.id);commands.push({type:"wish",fields:x});}}
+ ids.clear();if(prefs.nw!==undefined){const n=prefs.nw;need(exact(n,["a","h"])&&Array.isArray(n.a)&&n.a.length<=50&&n.h&&typeof n.h==="object"&&!Array.isArray(n.h)&&Object.keys(n.h).length<=36,"wealth-source");for(const a of n.a){need(exact(a,["id","n","t","v"]),"asset-source");const x={id:a.id,name:a.n,category:a.t,valueMinor:money(a.v),observedOn:asOf};need(validAssetReference(x)&&!ids.has(x.id),"asset-reference");ids.add(x.id);commands.push({type:"asset-reference",fields:x});}for(const [month,v] of Object.entries(n.h)){need(isDate(month+"-01")&&month<=asOf.slice(0,7),"wealth-month");commands.push({type:"wealth-history",fields:{month,netMinor:money(v)}});}}
+ return {status:"PREVIEW",commands};}catch(e){return {status:"BLOCKED",code:String(e.message),commands:[]};}}

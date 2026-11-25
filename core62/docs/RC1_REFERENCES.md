@@ -1,0 +1,2 @@
+# Wishes and legacy wealth references
+Typed wishes and status changes do not create expenses. Undated legacy assets preserved as observed references, and historical net wealth as signed monthly snapshots. References are deliberately excluded from new wealth totals until reconciled with wallets and investments; this is data preservation, not complete wealth parity. No invented valuation dates or account balances. Tests pending CI.
