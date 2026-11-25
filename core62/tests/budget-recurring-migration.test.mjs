@@ -10,6 +10,6 @@ assert.equal(s.view({...opts,month:"2027-01"}).budget.overallLimitMinor,200000);
 assert.equal(s.apply("domain",{type:"void",id:"n_1"}).status,"BLOCKED");assert.equal(s.apply("materialize",{scheduleId:"r_1",due:"2026-11-25"}).status,"BLOCKED");
 assert.equal(s.apply("budget",{month:"2026-12",category:"food",limitMinor:30000}).status,"APPLIED_SHADOW");assert.equal(s.view(opts).budget.items[0].remainingConfirmedMinor,20000);
 assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
-assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[]}),{asOf}).status,"BLOCKED");
+assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[]}),{asOf}).status,"IMPORT_PREVIEW");assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[{...raw.incomes[0],date:"2026-11-24"}]}),{asOf}).status,"BLOCKED");
 assert.equal(previewLegacy(JSON.stringify({...raw,incomes:[...raw.incomes,{...raw.incomes[0],id:"n_2"}]}),{asOf}).status,"BLOCKED");
 console.log("RC1 budget defaults, category identity and exact recurring-income matching passed.");

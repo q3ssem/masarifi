@@ -1,0 +1,2 @@
+# Atomic pay-now
+One journal command materializes scheduled due and settles in the same workspace transaction. Failure rolls both back, partial amounts supported, duplicate/overpayment blocked. UI offers direct pay/receive action with remaining amount prefill. Past unmatched virtual recurring income stays planned, matching original ledger behavior, but near manual matches still block import to avoid duplicate. Tests pending. No production data or deployment.

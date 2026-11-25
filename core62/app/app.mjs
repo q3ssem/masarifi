@@ -12,8 +12,8 @@ const amount=n=>{if(masked)return "••••";if(!Number.isSafeInteger(n))ret
 const categoryName=(id,x)=>new Map(categoryOptions(x?.categories??[])).get(id)??id;
 const sourceName=id=>new Map(sourceOptions([id])).get(id)??id;
 const types={debt:"دين",installment:"قسط",association:"جمعية",fixed:"ثابت",bnpl:"شراء آجل",income:"دخل متكرر",subscription:"اشتراك",buy:"شراء",sell:"بيع",dividend:"توزيعات",value:"تقييم"};
-const sections={overview:["الرئيسية",[]],cash:["الحسابات والحركات",["account","record","edit","transfer","void","archive"]],schedule:["الالتزامات والجدولة",["obligation","settle","confirm-settlement","debt-plan","rule","materialize"]],plan:["الميزانيات والأهداف",["budget","goal","contribution"]],wealth:["الاستثمارات والثروة",["holding","investment","asset"]],search:["البحث",[]],reports:["التقارير والبيانات",[]]};
-const actions={account:"حساب جديد",record:"تسجيل حركة",edit:"تعديل حركة",transfer:"تحويل داخلي",void:"عكس حركة",archive:"أرشفة حساب",obligation:"التزام يدوي",settle:"سداد أو قبض","confirm-settlement":"تأكيد دفعة تقديرية","debt-plan":"خطة سداد شهرية",rule:"جدولة متكررة",materialize:"تثبيت استحقاق",budget:"ميزانية فئة",goal:"هدف ادخاري",contribution:"ادخار أو سحب",holding:"استثمار جديد",investment:"حركة استثمار",asset:"أصل أو ممتلكات"};
+const sections={overview:["الرئيسية",[]],cash:["الحسابات والحركات",["account","record","edit","transfer","void","archive"]],schedule:["الالتزامات والجدولة",["obligation","settle","confirm-settlement","debt-plan","rule","materialize","pay-occurrence"]],plan:["الميزانيات والأهداف",["budget","goal","contribution"]],wealth:["الاستثمارات والثروة",["holding","investment","asset"]],search:["البحث",[]],reports:["التقارير والبيانات",[]]};
+const actions={account:"حساب جديد",record:"تسجيل حركة",edit:"تعديل حركة",transfer:"تحويل داخلي",void:"عكس حركة",archive:"أرشفة حساب",obligation:"التزام يدوي",settle:"سداد أو قبض","confirm-settlement":"تأكيد دفعة تقديرية","debt-plan":"خطة سداد شهرية",rule:"جدولة متكررة",materialize:"تثبيت استحقاق","pay-occurrence":"سدّد الآن / اقبض الآن",budget:"ميزانية فئة",goal:"هدف ادخاري",contribution:"ادخار أو سحب",holding:"استثمار جديد",investment:"حركة استثمار",asset:"أصل أو ممتلكات"};
 let section="overview",query="",last=null;
 const selectOpts=(x,opts)=>{x.replaceChildren(...opts.map(([v,t])=>{const o=node("option",t);o.value=v;return o;}));};
 selectOpts($("theme"),THEMES.map(t=>[t[0],t[1]]));const appearance=deviceAppearance(THEMES.map(t=>t[0]));const initialAppearance=appearance.read();for(const id of ["theme","mode","layout"]){$(id).value=initialAppearance[id];document.documentElement.dataset[id]=initialAppearance[id];}
@@ -65,6 +65,7 @@ if(action==="obligation"||action==="rule"){field("family","النوع",{opts:Obj
 if(action==="debt-plan"){field("target","الدين",{opts:(last?.obligations??[]).filter(o=>o.family==="debt"&&o.direction==="out").map(o=>[o.id,o.name])});amt();}
 if(action==="confirm-settlement"){field("target","الدفعة التقديرية",{opts:moves.filter(m=>m.kind==="settlement"&&m.estimateReason&&!m.voided).map(m=>[m.id,m.note+" · "+m.date+" · "+amount(m.amountMinor)])});date();acct();}
 if(action==="settle"){field("target","الالتزام",{opts:(last?.obligations??[]).filter(o=>o.remainingMinor>0).map(o=>[o.id,o.name+" · "+amount(o.remainingMinor)])});amt();date();acct();note();}
+if(action==="pay-occurrence"){const candidates=(last?.occurrences??[]).filter(o=>!(last?.obligations??[]).some(x=>x.id===o.id&&x.remainingMinor===0));field("target","الاستحقاق",{opts:candidates.map(o=>[o.id,o.name+" · "+o.due])});amt();date();acct();note();const fill=()=>{const o=candidates.find(o=>o.id===$("target").value);if(!o)return;const left=(last?.obligations??[]).find(x=>x.id===o.id)?.remainingMinor??o.amountMinor;$("amt").value=(left/100).toFixed(2);$("note").value=o.name;};$("target").addEventListener("change",fill);fill();}
 if(action==="materialize")field("target","الاستحقاق",{opts:(last?.occurrences??[]).map(o=>[o.id,o.name+" · "+o.due])});
 if(action==="budget"){field("category","الفئة",{opts:categoryOptions(s.categories,[...moves.map(m=>m.category),...s.limits.map(b=>b.category),...(s.budgetDefaults??[]).map(b=>b.category)])});amt();}
 if(action==="goal"){name();amt();date();}
@@ -84,6 +85,7 @@ case "obligation":f={id,family:val("family"),direction,amountMinor:a(),due:date,
 case "confirm-settlement":f={id:val("target"),date,accountId:val("accountId")||null};break;
 case "settle":f={id,obligationId:val("target"),amountMinor:a(),date,accountId:val("accountId")||null,note:val("note")};break;
 case "rule":f={id,kind:val("family"),direction,amountMinor:a(),start:date,day:Number(val("day")),everyMonths:Number(val("interval")),count:val("count")===""?null:Number(val("count")),end:null,name:val("name")};break;
+case "pay-occurrence":{const o=(last?.occurrences??[]).find(x=>x.id===val("target"));if(!o)throw Error("occurrence");f={scheduleId:o.scheduleId,due:o.due,id,amountMinor:a(),date,accountId:val("accountId")||null,note:val("note")};break;}
 case "materialize":{const o=last?.occurrences.find(o=>o.id===val("target"));if(!o)throw Error("occurrence");f={scheduleId:o.scheduleId,due:o.due};break;}
 case "budget":f={month:val("month"),category:val("category"),limitMinor:a()};break;
 case "debt-plan":f={obligationId:val("target"),monthlyMinor:a()};break;
