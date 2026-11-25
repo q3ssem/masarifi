@@ -1,0 +1,31 @@
+name: Vendor pinned Arabic fonts
+on:
+  push:
+    branches: ['work/masarifi-62-core']
+    paths: ['core62/scripts/vendor-arabic-fonts.mjs']
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/masarifi-62-core
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch pinned upstream fonts and licenses
+        run: node core62/scripts/vendor-arabic-fonts.mjs
+      - name: Commit verified font assets to development only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git add core62/app/*.ttf core62/app/*-OFL.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "Vendor verified OFL Arabic font assets (Tajawal, Cairo, IBM Plex)"
+          git push origin HEAD:refs/heads/work/masarifi-62-core
