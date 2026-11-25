@@ -22,8 +22,12 @@ try{
  await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();
  await page.locator("#action").selectOption("account");await page.locator("#name").fill("Offline synthetic");await page.locator("#form button[type=submit]").click();await page.locator("#message").getByText(/تم التنفيذ/).waitFor();
  await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#saveLocal").click();await page.locator("#dataStatus").getByText(/تمت معاملة الحفظ/).waitFor({timeout:30000});
- await context.setOffline(true);await page.reload();await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#openLocal").click();await page.locator("#dataStatus").getByText(/تم فتح الخزنة/).waitFor({timeout:30000});
+ // Cut the real HTTP origin, not just a browser automation network flag.
+ // Chromium and WebKit must both recover from the cache with no reachable server.
+ server.closeAllConnections();await new Promise(r=>server.close(r));server=null;
+ await assert.rejects(fetch(origin+"/app/index.html"));
+ await page.reload();await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#openLocal").click();await page.locator("#dataStatus").getByText(/تم فتح الخزنة/).waitFor({timeout:30000});
  await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();await page.locator("#view").getByText("Offline synthetic",{exact:true}).waitFor();
  const api=await page.evaluate(async()=>{try{return (await fetch("/v1/vault")).status;}catch{return "NETWORK_UNAVAILABLE";}});assert.equal(api,"NETWORK_UNAVAILABLE");
- await context.close();console.log("Packaged shell offline reload and encrypted vault restoration passed; no sync API caching.");
+ await context.close();console.log("Packaged shell reload with origin actually stopped, encrypted vault restoration, and unavailable sync API passed.");
 }finally{if(browser)await browser.close();if(server){server.closeAllConnections();await new Promise(r=>server.close(r));}await rm(root,{recursive:true,force:true});}
