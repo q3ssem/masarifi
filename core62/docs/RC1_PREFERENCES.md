@@ -1,0 +1,2 @@
+# Exported preference defaults
+The actual v61.8.1 export always includes a number of inactive feature defaults. Exact known default objects are allowed as no-ops; changed order, non-default features and unknown nonempty fields continue to block. Salary day and savings target use typed commands and editable settings, stored with financial journal. Savings target is informational and not an automatic cash transfer. Synthetic full default preference fixture; CI pending. Active legacy features not implemented are not silently discarded. No production migration.
