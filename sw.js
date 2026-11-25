@@ -1,4 +1,4 @@
-var V = 'masarifi-v82';
+var V = 'masarifi-v83';
 var CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-180.png'];
 var ROOT = new URL('./', self.registration.scope);
 var URLS = CORE.map(function(p){return new URL(p,ROOT).href;});
