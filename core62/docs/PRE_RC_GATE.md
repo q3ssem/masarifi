@@ -17,3 +17,6 @@ P0: full legacy metadata, payment assumptions, wallet links, historical valuatio
 P1: complete old feature coverage (reports/export variations, SMS import, split bills, refunds, renewals, languages and accessibility); PWA installation/offline/reload and upgrade testing on actual iPhone/iPad; independent security review and storage quota/eviction/crash testing; investment/wallet reconciliation.
 
 Next release may be called RC only after a new verified gate report closes every launch blocker. No timeline or readiness percentage inferred from unit test counts.
+
+## RC1 continuation
+Verified run 45587704238 succeeded in all three jobs including durable SQLite adapter; wallet anchor migration unit and Chromium passed in run 45588554180. New typed metadata and informational wallet history preserve supported details; UI now exposes them, pending latest CI. No real migration or cloud deployment; actual legacy prefs including recurring income, association, budget defaults, investment flows and historical assumed payments still need mapping. HOLD remains.

@@ -4,7 +4,7 @@ export function validRecordMetadata(m,direction){if(!m||typeof m!=="object"||Arr
  if(direction==="in"&&ks.some(k=>k!=="incomeSource"))return false;
  if(Object.hasOwn(m,"tag")&&!text(m.tag,20))return false;
  if(Object.hasOwn(m,"currency")!==Object.hasOwn(m,"originalMinor"))return false;
- if(Object.hasOwn(m,"currency")&&(!/^[A-Z]{3}$/.test(m.currency)||m.currency==="SAR"||!Number.isSafeInteger(m.originalMinor)||m.originalMinor<=0))return false;
+ if(Object.hasOwn(m,"currency")&&(typeof m.currency!=="string"||!/^[A-Z]{3}$/.test(m.currency)||m.currency==="SAR"||!Number.isSafeInteger(m.originalMinor)||m.originalMinor<=0))return false;
  if(Object.hasOwn(m,"purchaseProvider")&&!["tabby","tamara"].includes(m.purchaseProvider))return false;
  if(Object.hasOwn(m,"mood")&&!["happy","calm","bored","stress","rush","occ"].includes(m.mood))return false;
  if(Object.hasOwn(m,"needClass")&&!["y","m","n","s"].includes(m.needClass))return false;
