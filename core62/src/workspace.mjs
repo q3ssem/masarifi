@@ -17,7 +17,7 @@ export function createWorkspace(){
  function apply(type,fields,expected=state.revision){
   if(expected!==state.revision)return {status:"CONFLICT",revision:state.revision,productionWriteAllowed:false};
   try{const n=clone(state),f=clone(fields);let outcome;
-   const contracts={rule:["id","kind","direction","amountMinor","start","day","everyMonths","count","end","name"],materialize:["scheduleId","due"],budget:["month","category","limitMinor"],goal:["id","name","targetMinor","due"],contribution:["id","goalId","date","amountMinor"],holding:["id","name","category"],investment:["id","holdingId","date","type","amountMinor",...(f?.type==="sell"?["basisRemovedMinor"]:[])],asset:["id","name","valueMinor","valuedOn"]};
+   const contracts={rule:["id","kind","direction","amountMinor","start","day","everyMonths","count","end","name",...(f&&Object.hasOwn(f,"category")?["category"]:[])],materialize:["scheduleId","due"],budget:["month","category","limitMinor"],goal:["id","name","targetMinor","due"],contribution:["id","goalId","date","amountMinor"],holding:["id","name","category"],investment:["id","holdingId","date","type","amountMinor",...(f?.type==="sell"?["basisRemovedMinor"]:[])],asset:["id","name","valueMinor","valuedOn"]};
    if(!f||typeof f!=="object"||Array.isArray(f))return error("operation-fields");
    if(type==="domain"&&(Object.hasOwn(f,"opId")||Object.hasOwn(f,"expectedRevision")))return error("reserved-command-fields");
    if(type!=="domain"&&(!Object.hasOwn(contracts,type)||Object.keys(f).length!==contracts[type].length||!contracts[type].every(k=>Object.hasOwn(f,k))))return error("operation-fields");

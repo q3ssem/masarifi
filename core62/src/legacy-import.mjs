@@ -5,7 +5,6 @@ import {expandSchedules} from "./schedule.mjs";
 const families=["expenses","incomes","insts","debts","goals","fixeds"];
 const nonempty=x=>x!==null&&x!==undefined&&x!==false&&x!==0&&x!==""&&(Array.isArray(x)?x.length>0:typeof x==="object"?Object.keys(x).length>0:true);
 export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.length>JOURNAL_MAX_BYTES||utf8Bytes(text)>JOURNAL_MAX_BYTES||!isDate(asOf))throw Error("legacy-size-or-date");const raw=JSON.parse(text);if(!raw||raw.app!=="masarifi"||raw.version!==2||raw.enc===1||!families.every(k=>Array.isArray(raw[k])))throw Error("unsupported-legacy-format");const issues=[],commands=[],counts=Object.fromEntries(families.map(k=>[k,raw[k].length])),seen=new Set();
- for(const k of ["fixeds"])if(raw[k].length)issues.push({path:k,count:raw[k].length,code:"requires-specialized-mapping"});
  for(const k of ["budget","cats","cbud","rates","prefs","audit59"])if(nonempty(raw[k]))issues.push({path:k,code:"requires-metadata-mapping"});
  for(const k of Object.keys(raw))if(!["app","version","exportedAt",...families,"budget","cats","cbud","rates","prefs","audit59"].includes(k))issues.push({path:k,code:"unknown-field"});
  for(const key of ["expenses","incomes"])for(let i=0;i<raw[key].length;i++){const e=raw[key][i],dir=key==="expenses"?"out":"in";try{if(!e||typeof e.id!=="string"||!(/^[A-Za-z0-9_-]{3,60}$/).test(e.id)||seen.has(e.id)||!isDate(e.date)||e.date>asOf||typeof e.amount!=="number"||!Number.isFinite(e.amount)||e.amount<=0||typeof e.note!=="string"||e.note.length>160)throw Error("record-contract");const amountMinor=minorFromDecimal(String(e.amount));const allowed=["id","amount","date","note",...(dir==="out"?["cat"]:[])];for(const k of Object.keys(e))if(!allowed.includes(k)&&nonempty(e[k]))throw Error("unmapped-record-metadata:"+k);if(dir==="out"&&(typeof e.cat!=="string"||!e.cat.trim()))throw Error("category");seen.add(e.id);commands.push({type:"domain",fields:{type:"record",id:e.id,direction:dir,amountMinor,date:e.date,category:dir==="out"?e.cat:null,note:e.note,accountId:null}});}catch(e){issues.push({path:key+"["+i+"]",code:String(e.message)});}}
@@ -46,6 +45,21 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
  for(let i=0;i<raw.goals.length;i++)group("goals",i,(g,out)=>{
    require(g&&originalId(g.id)&&!seen.has(g.id)&&typeof g.name==="string"&&g.name.trim()&&isDate(g.deadline+"-01"),"goal-contract");knownFields(g,["id","name","target","saved","deadline"]);
    require(g.saved===0,"goal-savings-date-unknown");out.push({type:"goal",fields:{id:g.id,name:g.name,targetMinor:strictAmount(g.target),due:g.deadline+"-01"}});seen.add(g.id);
+ });
+
+ for(let i=0;i<raw.fixeds.length;i++)group("fixeds",i,(f,out)=>{
+   require(f&&originalId(f.id)&&!seen.has(f.id)&&typeof f.name==="string"&&f.name.trim()&&f.name.length<=160&&typeof f.cat==="string"&&f.cat.trim()&&f.cat.length<=160&&isDate(f.start+"-01")&&f.trackFrom===f.start&&Array.isArray(f.paidMonths)&&Array.isArray(f.paidOn),"fixed-tracked-contract");
+   knownFields(f,["id","name","amount","cat","start","end","trackFrom","paidMonths","paidOn"]);
+   require(!f.end||isDate(f.end+"-01")&&f.end>=f.start,"fixed-end");
+   const amountMinor=strictAmount(f.amount),end=f.end?f.end+"-01":null,r={id:f.id,kind:"fixed",direction:"out",amountMinor,start:f.start+"-01",day:1,everyMonths:1,count:null,end,name:f.name,category:f.cat};
+   const paid=new Map();
+   for(const p of f.paidOn){require(p&&isDate(p.m+"-01")&&isDate(p.d)&&p.d<=asOf&&p.m>=f.start&&(!f.end||p.m<=f.end)&&!paid.has(p.m),"fixed-payment");knownFields(p,["m","d"]);paid.set(p.m,p.d);}
+   require(f.paidMonths.every(m=>paid.has(m))&&new Set(f.paidMonths).size===f.paidMonths.length,"fixed-payment-date-unknown");
+   const current=asOf.slice(0,7)+"-01",to=end&&end<current?end:current;
+   if(r.start<=to){const past=expandSchedules([r],{from:r.start,to});require(past.every(o=>o.due>=current||paid.has(o.due.slice(0,7))),"fixed-past-unpaid-needs-review");}
+   out.push({type:"rule",fields:r});
+   for(const [m,d] of paid){const due=m+"-01";out.push({type:"materialize",fields:{scheduleId:r.id,due}},domain({type:"settle",id:"legacy:"+f.id+":"+m,obligationId:"sch:"+f.id+":"+due,amountMinor,date:d,accountId:null,note:f.name}));}
+   seen.add(f.id);
  });
  if(commands.length>JOURNAL_MAX_COMMANDS)issues.push({path:"records",code:"journal-limit"});return {status:issues.length?"BLOCKED":"IMPORT_PREVIEW",counts,commands,issues,sourcePreserved:true,productionWriteAllowed:false};}
 export function importIntoEmpty(preview){if(preview?.status!=="IMPORT_PREVIEW"||!Array.isArray(preview.commands)||!Array.isArray(preview.issues)||preview.issues.length)throw Error("import-blocked");return createJournalSession({format:"masarifi62-journal",version:1,serial:0,commands:preview.commands});}
