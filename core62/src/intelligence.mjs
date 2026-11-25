@@ -7,8 +7,8 @@ export function financialDNA(rows,month){
   const a=analyzeLedger(rows);if(!a.complete)return {status:"BLOCKED",issues:a.issues};
   const out=new Map();let total=0n,income=0n;
   for(const r of rows){if(r.status!=="confirmed"||!r.date.startsWith(month+"-"))continue;
-    if(r.amountMinor>0){income+=BigInt(r.amountMinor);continue;}
     if(r.kind==="transfer")continue;
+    if(r.amountMinor>0){income+=BigInt(r.amountMinor);continue;}
     const k=r.category??"uncategorized",v=BigInt(-r.amountMinor);total+=v;out.set(k,(out.get(k)||0n)+v);
   }
   return {status:"ANALYSIS_ONLY",month,incomeMinor:safeMinor(income),outflowMinor:safeMinor(total),netMinor:safeMinor(income-total),categories:[...out].map(([category,v])=>({category,amountMinor:safeMinor(v),shareBps:total?Number(v*10000n/total):0})).sort((a,b)=>b.amountMinor-a.amountMinor||(a.category<b.category?-1:a.category>b.category?1:0))};

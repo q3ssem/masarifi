@@ -51,6 +51,8 @@ check("ack replay harmless",()=>enqueue(ack.state,op).status==="ALREADY_ACKNOWLE
 check("stale enqueue conflict",()=>enqueue(ack.state,{...op,id:"op2"}).status==="CONFLICT");
 const big=Array.from({length:100000},(_,i)=>({id:"s"+i,date:"2026-12-01",amountMinor:i%2?103:-101,status:"confirmed",kind:i%2?"income":"expense",category:i%2?null:"food"}));const start=Date.now(),dna=financialDNA(big,"2026-12"),elapsed=Date.now()-start;
 check("100k analytics exact",()=>dna.incomeMinor===5150000&&dna.outflowMinor===5050000&&dna.netMinor===100000);
+check("positive transfer excluded",()=>financialDNA([...rows,{id:"t-in",date:"2026-12-01",amountMinor:10000,status:"confirmed",kind:"transfer",category:null}],"2026-12").incomeMinor===650000);
+check("acknowledged ID cannot be reused with changed data",()=>enqueue(ack.state,{...op,documents:[doc("a",3)]}).status==="CONFLICT");
 const result={passed:results.filter(x=>x.pass).length,total:results.length,elapsedMs:elapsed,syntheticRows:100000,tests:results};
 
 console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;
