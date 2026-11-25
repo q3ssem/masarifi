@@ -26,3 +26,6 @@ RC1.14 follow-up: overview and reports distinguish refund cash from ordinary inc
 
 ## RC1.15 targeted parity
 RC1.14 run 45597293495 passed all three jobs. Added dated, append-only asset valuations used as-of the report date, without generating cash movements or duplicate assets. Added narrowly scoped linked BNPL description correction preserving amount, account, category, provider, first-payment identity and schedule; financial restructuring remains deliberately blocked. Latest CI pending. Actual migration, physical iOS and production environment remain release blockers.
+
+## RC1.16 reconciliation and closure
+RC1.15 unit job passed in run 45597743459; browser results were still pending when this increment was prepared. Added normalized non-transfer row identity reconciliation (id/date/status/kind/amount/category) as a separate aggregate diagnostic and optional strict CLI mode. No fuzzy automatic remap. Exact identity does not prove notes, account links, transfers, or investment parity. Legacy UI preview exposes the six cash buckets and an explicit synthetic-only confirmation; blocked projections cannot be applied. Actual legacy backup and independently exported source rows are still required. No main merge or data change. Latest CI required.
