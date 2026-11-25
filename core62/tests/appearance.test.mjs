@@ -12,3 +12,6 @@ console.log("Dual layout device preference allowlist passed.");
 assert.deepEqual(normalizeAppearance({style:"invalid",motion:"invalid"},ids),{layout:"classic",theme:ids[0],mode:"light",style:"original",motion:"ios"});assert.equal(a.save({style:"android",motion:"off"}),true);assert.equal(a.read().style,"android");assert.equal(a.read().motion,"off");
 
 for(const style of ["paper","mono"]){assert.equal(a.save({style,motion:"spring"}),true);assert.equal(a.read().style,style);assert.equal(a.read().motion,"spring");}
+
+import {THEMES,themeTokens} from "../src/ui-model.mjs";
+assert.equal(THEMES.length,12);assert.equal(new Set(THEMES.map(t=>t[0])).size,12);for(const t of THEMES)for(const mode of ["light","dark"]){const vars=themeTokens(t[0],mode);for(const k of ["--page","--panel","--accent","--action","--ink","--muted","--border"])assert.ok(vars[k]);assert.equal(normalizeAppearance({theme:t[0]},THEMES.map(x=>x[0])).theme,t[0]);}
