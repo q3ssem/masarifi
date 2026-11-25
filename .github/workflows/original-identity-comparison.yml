@@ -1,0 +1,27 @@
+name: Original identity comparison
+on:
+  push:
+    branches: ['work/masarifi-62-core']
+    paths: ['core62/tests/identity-comparison.mjs', 'core62/app/**']
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: git fetch --no-tags --depth=1 origin b6b03894d2ebf166d0e255b8587859a3bd12aedf
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps webkit
+      - run: node core62/tests/identity-comparison.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-vs-candidate
+          path: dist/identity-comparison/
+          if-no-files-found: warn
+          retention-days: 14
