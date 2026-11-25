@@ -5,7 +5,7 @@ import {resolve,join} from "node:path";
 import {createHash} from "node:crypto";
 const base="7ab060eb7b224d0acf5db558b1d71a745a178fd7";
 const root=resolve(process.argv[2]??"dist/masarifi62-pre-rc");
-const allowed=new Set(["core62/app/app.css","core62/app/index.html","core62/scripts/build-clean-release.mjs","core62/tests/historical-upgrade.mjs","core62/docs/RC3_LOCAL_ACCEPTANCE.md",".github/workflows/core62-check.yml","core62/tests/visual-acceptance.mjs","core62/tests/final-release-gate.mjs","core62/app/app.mjs","core62/tests/browser-release.mjs","core62/tests/identity-comparison.mjs","core62/src/secure-backup.mjs","core62/src/search.mjs","core62/tests/secure-backup.test.mjs","core62/tests/audit-02.test.mjs"]);
+const allowed=new Set(["core62/app/app.css","core62/app/index.html","core62/scripts/build-clean-release.mjs","core62/tests/historical-upgrade.mjs","core62/docs/RC3_LOCAL_ACCEPTANCE.md",".github/workflows/core62-check.yml","core62/tests/visual-acceptance.mjs","core62/tests/final-release-gate.mjs","core62/app/app.mjs","core62/tests/browser-release.mjs","core62/tests/identity-comparison.mjs","core62/src/secure-backup.mjs","core62/src/search.mjs","core62/tests/secure-backup.test.mjs","core62/tests/audit-02.test.mjs","core62/tests/audit-03-stress.mjs","core62/tests/audit-03.test.mjs","core62/tests/audit-03-browser.mjs"]);
 const changed=execFileSync("git",["diff","--name-only","--no-renames",base,"HEAD"],{encoding:"utf8"}).trim().split("\n").filter(Boolean);
 assert.ok(changed.length>0);for(const path of changed)assert.ok(allowed.has(path),"Unexpected file changed: "+path);
 // Explicitly allow only these two display-label changes to the application controller.

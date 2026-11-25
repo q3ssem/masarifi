@@ -25,6 +25,13 @@ jobs:
             node "$f"
             echo "::endgroup::"
           done
+      - name: Retain isolated Node stress results
+        uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-audit03-node
+          path: dist/audit-03/node.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Verify temporary legacy bridge generation
         run: node core62/scripts/build-bridge.mjs --check
       - name: Verify journal capacity and replay
@@ -67,6 +74,17 @@ jobs:
         run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Install browser
         run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Run isolated search, encrypted backup and autosave stress
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/audit-03-browser.mjs
+      - name: Retain isolated browser stress results
+        uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-audit03-${{ matrix.engine }}
+          path: dist/audit-03/${{ matrix.engine }}.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Browser app and encrypted IndexedDB checks
         env:
           BROWSER_ENGINE: ${{ matrix.engine }}
