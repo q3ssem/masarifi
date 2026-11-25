@@ -5,7 +5,7 @@ import {readFile,mkdir,writeFile,mkdtemp,rm} from "node:fs/promises";
 import {execFileSync} from "node:child_process";
 import {tmpdir} from "node:os";
 import {resolve,join,extname} from "node:path";
-import {chromium,webkit} from "playwright";
+import {chromium,webkit,devices} from "playwright";
 const engine=process.env.BROWSER_ENGINE==="webkit"?"webkit":"chromium",out=resolve("dist/visual-"+engine),root=await mkdtemp(join(tmpdir(),"masarifi-visual-")),dist=join(root,"app-package");
 await mkdir(out,{recursive:true});
 let browser,server;
@@ -177,6 +177,37 @@ try{
   assert.equal(motionMetrics.length,40);
   await writeFile(join(out,"motion-polish-metrics.json"),JSON.stringify({engine,scope:"real Playwright clicks and animation contracts; elapsed time includes automation overhead, not device FPS or touch latency",cases:motionMetrics.length,motionMetrics},null,2));
  }finally{await motionPage.close();}
+ // Final mobile witness: iPhone viewport, DPR, touch and mobile context, not real iOS hardware.
+ const mobileMetrics=[];
+ const mobile=await browser.newContext({...devices["iPhone 13"],defaultBrowserType:undefined});
+ try{
+  const phone=await mobile.newPage();
+  phone.on("pageerror",e=>errors.push(String(e)));
+  await phone.goto("http://127.0.0.1:"+server.address().port+"/app/index.html");
+  assert.equal(await phone.evaluate(()=>navigator.maxTouchPoints>0),true);
+  for(const mode of ["light","dark"]){
+   await choose(phone,"mode",mode);await phone.locator("#closeSettings").tap();
+   for(const direction of ["Income","Expense"]){
+    await phone.locator("#quick"+direction).tap();
+    const d=phone.locator("#entryDialog");assert.equal(await d.evaluate(e=>e.open),true);
+    await d.locator("#amt").fill(direction==="Income"?"123.45":"12.34");
+    if(direction==="Expense")await d.locator("#categoryChoices [data-choice=food]").tap();
+    await d.locator("#date").fill("2026-11-25");
+    const note="اختبار لمس نهائي "+mode+" "+direction;
+    await d.locator("#note").fill(note);
+    const geometry=await d.evaluate(root=>{const a=root.querySelector("#date").getBoundingClientRect(),b=root.querySelector("#accountId").getBoundingClientRect();return {gap:b.top-a.bottom,sameWidth:Math.abs(a.width-b.width)<=1,overflow:root.scrollWidth>root.clientWidth+1,touch:navigator.maxTouchPoints,viewport:innerWidth,dpr:devicePixelRatio};});
+    assert.ok(geometry.gap>=8&&geometry.sameWidth&&!geometry.overflow,JSON.stringify(geometry));
+    await d.locator("#accountId").scrollIntoViewIfNeeded();
+    const file="iphone13-touch-"+mode+"-"+direction.toLowerCase()+".png";await phone.screenshot({path:join(out,file),animations:"disabled"});
+    await d.locator("#submitOperation").tap();assert.equal(await d.evaluate(e=>e.open),false);
+    await phone.locator("#entryNotice").getByText(/تم التنفيذ/).waitFor();
+    await phone.locator("#view").getByText(note,{exact:true}).waitFor();
+    mobileMetrics.push({file,mode,direction,...geometry,saved:true});
+   }
+  }
+  assert.equal(mobileMetrics.length,4);
+  await writeFile(join(out,"iphone-touch-metrics.json"),JSON.stringify({engine,scope:"Playwright iPhone 13 mobile emulation; native iOS date picker paint and actual device not verified",cases:mobileMetrics.length,mobileMetrics},null,2));
+ }finally{await mobile.close();}
  // Final focused witness: long amounts stay within their cards at narrow width, without altering engine data.
  const narrow=await context.newPage();
  try{

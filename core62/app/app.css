@@ -652,3 +652,11 @@ html[data-motion="off"] .bottom-sheet[open]{animation:none!important}
  html[data-motion] .bottom-sheet[open]{animation:none!important}
  html[data-motion] :is(button,.home-link,.home-row){transition:none!important}
 }
+
+/* RC3.27 — mobile native-control containment also applies outside quick-entry sheets. */
+@media(max-width:600px){
+ html[data-style] #fields>label:has(>input[type="date"]),html[data-style] #fields>label[data-field="accountId"]{grid-column:1/-1;min-inline-size:0;grid-template-columns:minmax(0,1fr)}
+ html[data-style] #fields>label>:is(input[type="date"],select#accountId){display:block;box-sizing:border-box;inline-size:100%;min-inline-size:0;max-inline-size:100%;min-block-size:48px;margin:0;font-size:16px}
+ html[data-style] #fields input[type="date"]{-webkit-appearance:none;appearance:none;direction:ltr;text-align:center}
+ html[data-style] #fields input[type="date"]::-webkit-date-and-time-value{min-width:0;max-width:100%;margin:0;text-align:center}
+}
