@@ -1,4 +1,4 @@
-# RC1 closure status — LOCAL ONLY / HOLD pending final verification
+# RC1 closure status — LOCAL ONLY / AUTOMATED PASS / HOLD physical acceptance
 
 ## Governing scope — owner-approved
 The owner explicitly requires a local-only version now; all Internet-dependent features are deferred. This section supersedes earlier historical release gates below. No cloud sync, online account, server-side financial storage, remote backup, live bank connection, live exchange-rate service, network-dependent notifications or production financial server is required for RC1. Do not add such features during closure. Preserve the separated experimental cloud code outside the release package.
@@ -15,7 +15,7 @@ Local application scope: financial engine, accounts, expenses/income, obligation
 
 Baseline main: b6b03894d2ebf166d0e255b8587859a3bd12aedf.
 RC1.17 verified all jobs in run 45598543717. RC1.18 commit aa8388d3b5ccf85ee03ef6a495e98a6ba725f281: unit PASS, browser checks pending in run 45600614780 at scope update.
-Current decision: HOLD for local verification only; Internet features are not blockers.
+Current decision: RC1.19 automated engineering gate PASS. Full local RC1 closure remains HOLD pending physical iPhone acceptance and final local feature/visual review. Real-data migration is separately unapproved. Internet features are not blockers.
 
 ## Historical engineering evidence (not current scope)
 
@@ -49,3 +49,6 @@ RC1.17 run 45598543717 passed all jobs, including static-only offline and encryp
 
 ## RC1.19 — local closure QA
 RC1.18 run 45600614780 completed SUCCESS for all three jobs, including two-package upgrade and offline write/reload. Removed obsolete cloud wording from the notice, added navigation aria-controls, keyboard quick-entry and visible-control naming checks, and a browser guard against fetch/XHR/WebSocket/EventSource traffic. These are basic accessibility checks, not full WCAG certification or visual review. Added physical iPhone acceptance checklist. Latest CI pending. Local engineering candidate only; physical device evidence and real migration approval remain distinct and unverified. No main changes or deployment.
+
+## RC1.19 verified evidence freeze
+Tested commit eb987964a5e4bfda0e09546d7b1b829ad95632a7; Actions run 45601184443: all 3 jobs completed success. 45 *.test.mjs files passed (including retained reference/legacy tests, not 45 individual assertions); 672 responsive layout checks per browser, 1,344 total automated checks, not visual inspection. Both browser jobs passed keyboard/label/network regression, independent encrypted backup restore, static-only package upgrade and offline write/reload. Build: 39 assets, 304743 bytes, 30 reachable JS modules; artifact 15015711851 (14-day retention). Mixed synthetic journal: 20,000 commands, 2,120 ms build and 2,186 ms replay on CI, 3,466,045 bytes; not physical-device performance. See RC1_LOCAL_EVIDENCE.json. No source or runtime changes in this evidence-only commit. Full RC1 closure and production release are not authorized. Physical acceptance checklist RC1_IPHONE_ACCEPTANCE.md is unexecuted. The application is a test candidate, not a production release. Remaining legacy-specific unsupported fields and actual-data reconciliation must not be presented as approved migration.
