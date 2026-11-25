@@ -1,0 +1,70 @@
+{
+  "version": "62.7.0-rc3.5-local-dev",
+  "testedCommit": "de7cf51a84856bdf5f04f0060fcc6b28978d3435",
+  "decision": "RC3_LOCAL_AUTOMATED_PASS_FREEZE",
+  "releaseDecision": "HOLD_PHYSICAL_ACCEPTANCE_AND_MANUAL_REVIEW",
+  "ci": {
+    "runId": 45619256928,
+    "unit": {
+      "jobId": 139222718803,
+      "status": "PASS"
+    },
+    "chromium": {
+      "jobId": 139222719263,
+      "status": "PASS",
+      "geometryChecks": 672,
+      "screenshots": 112
+    },
+    "webkit": {
+      "jobId": 139222719275,
+      "status": "PASS",
+      "geometryChecks": 672,
+      "screenshots": 112
+    }
+  },
+  "historicalUpgrade": {
+    "from": [
+      "62.7.0-rc1.19-local-dev",
+      "62.7.0-rc2.10-local-dev"
+    ],
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "successfulCombinations": 4,
+    "corruptUpdateRejection": "PASS",
+    "offlineWriteAndReopen": "PASS",
+    "encryptedBackupRestore": "PASS"
+  },
+  "storageFault": "PASS_INJECTED_IDB_FAILURE_NOT_PHYSICAL_QUOTA",
+  "package": {
+    "assets": 39,
+    "assetBytes": 317098,
+    "archiveBytes": 182087,
+    "artifactId": 15023188837,
+    "archiveSha256": "1dfa6a373338fe1af152283b83c01d176aaa11ecc02a5c9ba4781d53cabecdf9",
+    "manifestSha256": "2d2044fa7b892ba5513442b0c0b4f141f0283393ea621522cb8141ad721e1179",
+    "negativeCasesPassed": 9,
+    "reproducible": true,
+    "independentDownloadedArchiveAndAssetHashVerification": "PASS"
+  },
+  "capacity": {
+    "commands": 20000,
+    "rows": 19980,
+    "buildMs": 3287,
+    "replayMs": 3742,
+    "viewSearchMs": 349,
+    "scope": "synthetic CI, not physical device"
+  },
+  "visual": {
+    "sampleReview": "28 Chromium top-of-screen images at 390x844, both layouts and modes; no obvious blocking issue observed in sample",
+    "fullManualReview": "NOT_EXECUTED",
+    "chromiumArtifact": 15024002265,
+    "webkitArtifact": 15022619236
+  },
+  "cloud": "DEFERRED",
+  "physicalIPhone": "NOT_EXECUTED",
+  "legacyMigration": "NOT_APPROVED",
+  "mainVerified": "b6b03894d2ebf166d0e255b8587859a3bd12aedf",
+  "releaseAuthorized": false
+}

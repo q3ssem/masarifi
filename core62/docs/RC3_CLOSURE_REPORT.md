@@ -1,0 +1,13 @@
+# RC3.5 engineering closure and release handoff
+Tested commit: de7cf51a84856bdf5f04f0060fcc6b28978d3435. CI 45619256928: all three jobs succeeded. Decision RC3_LOCAL_AUTOMATED_PASS_FREEZE. Production remains HOLD_PHYSICAL_ACCEPTANCE_AND_MANUAL_REVIEW. Freeze runtime; no RC4 or new features absent an evidenced blocking defect.
+Independent downloaded ZIP SHA-256 and all 39 asset hashes matched the manifest and CI. Four historical upgrade combinations passed, including rejection of corrupted candidate shell, subsequent good update, portable encrypted restoration, origin shutdown and offline entry. Browser-injected IndexedDB failure preserved the existing encrypted head; manual retry and reopened entry passed. This is a fault injection, not a physically full device.
+Manual sample review: 28 cropped top-of-screen Chromium images at 390x844, both layouts and light/dark modes; no obvious blocking issue observed in that sample. This does not constitute full manual visual/accessibility review.
+## Final acceptance procedure (isolated test origin only)
+1. Serve the exact candidate on isolated HTTPS; install on a physical iPhone from Safari. Confirm RC3.5 footer and controlling service worker. Never use the existing production origin for this test.
+2. Create synthetic wallet, income, expense, partial installment payment, monthly budget and planned expense. Save encrypted, export encrypted backup, close and reopen; compare exact amounts.
+3. Turn airplane mode on; close/reopen the installed app, unlock and add a synthetic entry. Save, close/reopen and verify it.
+4. Restore the encrypted export in a separate test context. Check wrong password and corrupt backup rejection without overwriting current vault.
+5. Check portrait/landscape, both layouts and modes, narrow controls, VoiceOver, visible keyboard and recovery flows. Record device/iOS version, candidate hash, actual outcomes and defects. Check storage pressure only in disposable synthetic context; never delete real user data.
+6. On the isolated origin test RC2.10 to RC3.5 upgrade with synthetic encrypted data. Confirm no loss and no duplicate entry. Browser evidence already exists but is not physical-device evidence.
+7. Resolve only P0/P1 defects found, repeat affected checks, record explicit owner release authorization. No automatic merge or deployment. Actual v2 legacy migration separately requires independent source reconciliation before using real data.
+No cloud or financial server requirement. Main verified unchanged at b6b03894d2ebf166d0e255b8587859a3bd12aedf. No launch date promised. This commit records evidence only, not a new runtime candidate.
