@@ -1,5 +1,5 @@
 {
-  "version": "62.7.0-rc3.12-local-dev",
+  "version": "62.7.0-rc3.21-local-dev",
   "entry": "app/index.html",
   "releaseAuthorized": false,
   "legacyMigrationComplete": false,
@@ -7,14 +7,54 @@
   "storage": "local-encrypted",
   "assets": [
     {
+      "path": "app/Cairo-OFL.txt",
+      "bytes": 4473,
+      "sha256": "a4554e1799d42e1405924b61eb0e0722ae1623b1f1f07f995348f96c496362a9"
+    },
+    {
+      "path": "app/Cairo-Variable.ttf",
+      "bytes": 599548,
+      "sha256": "667c987182391c91f4e57a2f455b1794fb5e3ee6ca4ef3383e86bb690fa9c964"
+    },
+    {
+      "path": "app/IBMPlexSansArabic-Bold.ttf",
+      "bytes": 246992,
+      "sha256": "691e0c891a38637ae6bbdb69700f8042cb0724a137bee615068ffdb92244f61f"
+    },
+    {
+      "path": "app/IBMPlexSansArabic-OFL.txt",
+      "bytes": 4456,
+      "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+    },
+    {
+      "path": "app/IBMPlexSansArabic-Regular.ttf",
+      "bytes": 235924,
+      "sha256": "6f611412270a132bbac838da9259d4c68569b4175f3b3b8fa3fa36a30b56dab9"
+    },
+    {
+      "path": "app/Tajawal-Bold.ttf",
+      "bytes": 59988,
+      "sha256": "0342ab6b74b6bd1b4b5bf7beda45a9734a2b3147a31e8a3a45b6a3417a52d9d7"
+    },
+    {
+      "path": "app/Tajawal-OFL.txt",
+      "bytes": 4464,
+      "sha256": "9b584984f9db0ee30347391a76eff9c0a6b03dc450c3c6afe3757a2cb3a4db87"
+    },
+    {
+      "path": "app/Tajawal-Regular.ttf",
+      "bytes": 60364,
+      "sha256": "6882892da3e03527d5db2bbab3b48bde6ef2e878a43f522d1a4eebda90010a19"
+    },
+    {
       "path": "app/app.css",
-      "bytes": 33709,
-      "sha256": "03dccc86a05cec47328220ed8dc3a19be534f3196329af8a27b6546ac0a06d30"
+      "bytes": 65596,
+      "sha256": "6419a37fe868126ed11f0ba1662d8d0a06a89623383dbd8692e0a3ad8f34a822"
     },
     {
       "path": "app/app.mjs",
-      "bytes": 59957,
-      "sha256": "0a72a0ce4de13f12dd6298050ef81bf3eac056f489393c832e3f552e63f17e52"
+      "bytes": 75725,
+      "sha256": "207e937dbc76925f56d1a39d4f1246d8086999fb4ed4c1b5ece750b109b8e381"
     },
     {
       "path": "app/app.webmanifest",
@@ -23,8 +63,8 @@
     },
     {
       "path": "app/appearance.mjs",
-      "bytes": 1002,
-      "sha256": "7f7317869803251965c4c682917b63988a37a9bce9764e439e410608cc3799de"
+      "bytes": 1077,
+      "sha256": "9f1ad10b05870f747db4e9a2a61d7d66c1fcdd350c95f51648332bf4060e7dc9"
     },
     {
       "path": "app/catalog.mjs",
@@ -53,13 +93,13 @@
     },
     {
       "path": "app/index.html",
-      "bytes": 11065,
-      "sha256": "16e8c7f91c3ce31c507071c2b436d0a0b56f6410aeb1f6272583324720057ca6"
+      "bytes": 12973,
+      "sha256": "b0b4382e4dc3e85e7b4eb54d8a595907f6e614191cf7ff237e4442fe7b11f440"
     },
     {
       "path": "app/offline-worker.mjs",
-      "bytes": 5479,
-      "sha256": "9cacb64cf4fbc948404c1accba3d2c8837b0f439d1380b17bb3ecb715f30ed08"
+      "bytes": 6384,
+      "sha256": "1b696ad8cb32ef54ea81d52e7c407ed11509639d755884980729ebfb52256b2b"
     },
     {
       "path": "app/offline.mjs",
@@ -168,13 +208,13 @@
     },
     {
       "path": "src/search.mjs",
-      "bytes": 1667,
-      "sha256": "9582416ed2f49eb3c62de30c5a6f77960640df185632e789b7db35b7217b7dbc"
+      "bytes": 1758,
+      "sha256": "83dce07e8a17017a941467c587dd40c027c8b02d7087cacf6b66590824074bf3"
     },
     {
       "path": "src/secure-backup.mjs",
-      "bytes": 2740,
-      "sha256": "bdfa30ca999a55ee23b5e49ff9749e9d5058768321785068349e8f5d686851d0"
+      "bytes": 3045,
+      "sha256": "307a3a770120bcf9a004aa90642175a2988050aec8a29e624195686b48264ff8"
     },
     {
       "path": "src/text-limits.mjs",
