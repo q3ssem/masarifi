@@ -1,0 +1,2 @@
+# Typed migration metadata
+Preserves ordinary income source, expense tag, original currency/amount, purchase provider, mood, need classification and source timestamp under strict schemas. Historical wallet event entries are separate informational audit commands, never applied to balances. Unknown metadata and unsupported links continue blocking migration. Original currency is informational; no exchange-rate inference. Record edits preserve existing metadata; direction changes that invalidate it are rejected. Node CI required; no production migration.

@@ -1,3 +1,4 @@
+import {validHistoricalWalletEvent} from "./record-metadata.mjs";
 import {isDate,minorFromDecimal} from "./money.mjs";
 import {execute,executeRecordBatch,emptyDomain,accountBalances,obligationStatus,domainLedger} from "./domain.mjs";
 import {expandSchedules,materializeOccurrence,scheduledLedger} from "./schedule.mjs";
@@ -11,13 +12,13 @@ const positive=x=>Number.isSafeInteger(x)&&x>0;
 const error=code=>({status:"BLOCKED",code,productionWriteAllowed:false});
 const monthEnd=m=>{if(!isDate(m+"-01"))throw Error("month");for(let d=31;d>=28;d--){const v=m+"-"+d;if(isDate(v))return v;}};
 export function createWorkspace(){
- let state={revision:0,domain:emptyDomain(),rules:[],limits:[],goals:[],contributions:[],holdings:[],events:[],assets:[]},serial=0;
+ let state={revision:0,domain:emptyDomain(),rules:[],limits:[],goals:[],contributions:[],holdings:[],events:[],assets:[],walletHistory:[]},serial=0;
  const snapshot=()=>clone(state);
  const nextId=prefix=>prefix+"_"+(++serial);
  function apply(type,fields,expected=state.revision){
   if(expected!==state.revision)return {status:"CONFLICT",revision:state.revision,productionWriteAllowed:false};
   try{const n=clone(state),f=clone(fields);let outcome;
-   const contracts={rule:["id","kind","direction","amountMinor","start","day","everyMonths","count","end","name",...(f&&Object.hasOwn(f,"category")?["category"]:[])],materialize:["scheduleId","due"],budget:["month","category","limitMinor"],goal:["id","name","targetMinor","due"],contribution:["id","goalId","date","amountMinor"],holding:["id","name","category"],investment:["id","holdingId","date","type","amountMinor",...(f?.type==="sell"?["basisRemovedMinor"]:[])],asset:["id","name","valueMinor","valuedOn"]};
+   const contracts={rule:["id","kind","direction","amountMinor","start","day","everyMonths","count","end","name",...(f&&Object.hasOwn(f,"category")?["category"]:[])],materialize:["scheduleId","due"],budget:["month","category","limitMinor"],goal:["id","name","targetMinor","due"],contribution:["id","goalId","date","amountMinor"],holding:["id","name","category"],investment:["id","holdingId","date","type","amountMinor",...(f?.type==="sell"?["basisRemovedMinor"]:[])],asset:["id","name","valueMinor","valuedOn"],"wallet-history":["id","date","kind","detail","ref","beforeMinor","afterMinor","origin"]};
    if(!f||typeof f!=="object"||Array.isArray(f))return error("operation-fields");
    if(type==="domain"&&(Object.hasOwn(f,"opId")||Object.hasOwn(f,"expectedRevision")))return error("reserved-command-fields");
    if(type!=="domain"&&(!Object.hasOwn(contracts,type)||Object.keys(f).length!==contracts[type].length||!contracts[type].every(k=>Object.hasOwn(f,k))))return error("operation-fields");
@@ -30,6 +31,7 @@ export function createWorkspace(){
    else if(type==="holding"){if(!validKey(f.id)||n.holdings.some(x=>x.id===f.id)||n.assets.some(a=>a.id===f.id)||n.domain.accounts.some(a=>a.id===f.id))return error("holding-id");n.holdings.push(f);portfolioReport(n.holdings,n.events,{asOf:"9999-12-31"});}
    else if(type==="investment"){n.events.push(f);const p=portfolioReport(n.holdings,n.events,{asOf:"9999-12-31"});if(p.status==="BLOCKED")return error(p.code);}
    else if(type==="asset"){if(!validKey(f.id)||n.assets.some(x=>x.id===f.id)||!isDate(f.valuedOn)||!Number.isSafeInteger(f.valueMinor)||f.valueMinor<0||typeof f.name!=="string"||!f.name.trim()||n.domain.accounts.some(a=>a.id===f.id)||n.holdings.some(h=>h.id===f.id))return error("asset-contract");n.assets.push(f);}
+   else if(type==="wallet-history"){if(!validHistoricalWalletEvent(f)||!isDate(f.date)||n.walletHistory.length>=1000||n.walletHistory.some(h=>h.id===f.id))return error("wallet-history-contract");n.walletHistory.push(f);}
    else return error("unknown-operation");
    n.revision++;state=n;return {status:"APPLIED_SHADOW",revision:n.revision,productionWriteAllowed:false};
   }catch(e){return error(String(e.message||"invalid-operation"));}
@@ -48,9 +50,9 @@ export function createWorkspace(){
   let occurrences=[],projection;
   try{occurrences=expandSchedules(n.rules,{from,to});projection=scheduledLedger(n.domain,occurrences);}catch(e){projection=error(String(e.message));}
   const p=portfolioReport(n.holdings,n.events,{asOf}),wealth=wealthSnapshot(n.domain,p,n.assets.filter(a=>a.valuedOn<=asOf),{asOf});
-  const notes=new Map(n.domain.movements.map(m=>[m.id,m.note]));const actual=domainLedger(n.domain).map(r=>({...r,note:notes.get(r.id)??""}));
+  const notes=new Map(n.domain.movements.map(m=>[m.id,m]));const actual=domainLedger(n.domain).map(r=>({...r,note:notes.get(r.id)?.note??"",metadata:notes.get(r.id)?.metadata??null}));
   const search=searchMovements(actual,query,{limit:100});
-  return {revision:n.revision,accounts:accountBalances(n.domain).map(a=>({...a,name:n.domain.accounts.find(x=>x.id===a.id).name})),obligations:obligationStatus(n.domain).map(a=>({...a,name:n.domain.obligations.find(x=>x.id===a.id).name})),movements:n.domain.movements,occurrences:occurrences.filter(o=>o.due<=through).slice(0,200),occurrenceCount:occurrences.length,projection,forecast:projection.status==="PREVIEW_ONLY"?forecast(projection.rows,{openingMinor,asOf,through}):projection,budget:projection.status==="PREVIEW_ONLY"?budgetOverview(projection.rows,month,n.limits.filter(l=>l.month===month)):projection,goals:n.goals.map(g=>({...g,...goalProgress(g,n.contributions.filter(c=>c.goalId===g.id),{asOf})})),portfolio:p,wealth,search,auditCount:n.domain.audit.length};
+  return {revision:n.revision,accounts:accountBalances(n.domain).map(a=>({...a,name:n.domain.accounts.find(x=>x.id===a.id).name})),obligations:obligationStatus(n.domain).map(a=>({...a,name:n.domain.obligations.find(x=>x.id===a.id).name})),movements:n.domain.movements,occurrences:occurrences.filter(o=>o.due<=through).slice(0,200),occurrenceCount:occurrences.length,projection,forecast:projection.status==="PREVIEW_ONLY"?forecast(projection.rows,{openingMinor,asOf,through}):projection,budget:projection.status==="PREVIEW_ONLY"?budgetOverview(projection.rows,month,n.limits.filter(l=>l.month===month)):projection,goals:n.goals.map(g=>({...g,...goalProgress(g,n.contributions.filter(c=>c.goalId===g.id),{asOf})})),portfolio:p,wealth,search,walletHistory:n.walletHistory,auditCount:n.domain.audit.length};
  }
  return Object.freeze({snapshot,apply,applyRecords,nextId,view});
 }

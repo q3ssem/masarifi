@@ -17,7 +17,7 @@ const old={app:"masarifi",version:2,expenses:[{id:"e_1",amount:12.34,cat:"food",
 const lp=previewLegacy(JSON.stringify(old),{asOf});check("simple legacy mapping",()=>lp.status==="IMPORT_PREVIEW"&&importIntoEmpty(lp).snapshot().domain.movements[0].amountMinor===1234);
 const blocked=previewLegacy(JSON.stringify({...old,prefs:{wallet59:{accounts:[{id:"a"}]}}}),{asOf});check("unsupported wallet blocks migration",()=>blocked.status==="BLOCKED"&&throws(()=>importIntoEmpty(blocked)));
 check("future legacy record blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],date:"2027-01-01"}]}),{asOf}).status==="BLOCKED");
-check("unmapped legacy metadata blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],tag:"project"}]}),{asOf}).status==="BLOCKED");
+check("unmapped legacy metadata blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],unmappedField:"project"}]}),{asOf}).status==="BLOCKED");
 const env={format:"masarifi62-backup",version:1,kdf:"PBKDF2-SHA256",iterations:600000,cipher:"AES-256-GCM",salt:"0".repeat(32),iv:"0".repeat(24),ciphertext:"0".repeat(32)};const a=vaultTransition(null,0,env);check("vault first write",()=>a.status==="SAVED"&&a.next.generation===1);
 check("vault CAS stale writer",()=>vaultTransition(a.next,0,env).status==="CONFLICT");
 check("vault previous revision",()=>vaultTransition(a.next,1,{...env,iv:"1".repeat(24)}).next.previous===env);
