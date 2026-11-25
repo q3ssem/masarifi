@@ -23,13 +23,14 @@ export async function addPwaShell(out,source,paths){
  const shellPaths=[...paths,"app/app.webmanifest","app/offline.mjs",...icons.map(x=>"app/icon-"+x+".png")].sort();
  const entries=await Promise.all(shellPaths.map(async p=>({path:"../"+p,hash:sha(await readFile(resolve(out,p)))})));
  const version=sha(JSON.stringify(entries)).slice(0,24);
- const worker=`const PREFIX="masarifi62-shell-",CACHE=PREFIX+${JSON.stringify(version)};
+ const worker=`const PREFIX="masarifi62-shell-"+encodeURIComponent(self.registration.scope)+"-",CACHE=PREFIX+${JSON.stringify(version)};
  const ENTRIES=${JSON.stringify(entries)};
  const urls=new Map(ENTRIES.map(e=>[new URL(e.path,self.location.href).href,e.hash]));
  const hex=b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,"0")).join("");
- self.addEventListener("install",event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{for(const [url,hash] of urls){const response=await fetch(url,{cache:"no-store",credentials:"omit",redirect:"error"});if(!response.ok||hex(await crypto.subtle.digest("SHA-256",await response.clone().arrayBuffer()))!==hash)throw Error("shell-integrity");await cache.put(url,response);}}catch(error){await caches.delete(CACHE);throw error;}})()));
+ const verified=async(url,hash)=>{const response=await fetch(url,{cache:"no-store",credentials:"omit",redirect:"error"});if(!response.ok||hex(await crypto.subtle.digest("SHA-256",await response.clone().arrayBuffer()))!==hash)throw Error("shell-integrity");return response;};
+ self.addEventListener("install",event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{for(const [url,hash] of urls){const response=await verified(url,hash);await cache.put(url,response);}}catch(error){await caches.delete(CACHE);throw error;}})()));
  self.addEventListener("activate",event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith(PREFIX)&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
- self.addEventListener("fetch",event=>{const r=event.request;if(r.method!=="GET"||!urls.has(r.url))return;event.respondWith((async()=>{const cache=await caches.open(CACHE);const response=await cache.match(r.url);if(!response)throw Error("shell-cache-missing");return response;})());});
+ self.addEventListener("fetch",event=>{const r=event.request;if(r.method!=="GET"||!urls.has(r.url))return;event.respondWith((async()=>{const cache=await caches.open(CACHE);const response=await cache.match(r.url);if(response)return response;const fresh=await verified(r.url,urls.get(r.url));await cache.put(r.url,fresh.clone());return fresh;})());});
  `;
  await writeFile(resolve(out,"app/offline-worker.mjs"),worker);
  return [...shellPaths,"app/offline-worker.mjs"];
