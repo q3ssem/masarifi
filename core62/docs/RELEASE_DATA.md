@@ -6,3 +6,6 @@ Separate IndexedDB journal database stores AES-GCM ciphertext from existing secu
 
 ## Alpha 3 follow-up
 Prior GitHub run 45584250652 completed the full Node unit suite and clean-dependency check successfully; its final bridge-generation check failed (stale inline source). Regenerated bridge from canonical files, kept the check active. Existing encrypted head must decrypt with the entered password before overwrite; rejects accidental password changes. Added actual Node Web Crypto integration suite with in-memory CAS adapter, plus a real Chromium job (browser job execution status must be checked; not claimed passed). Legacy migration still deliberately blocked for unsupported data. No main merge.
+
+## Alpha 4 runner correction
+GitHub Actions run 45584477362: unit job 139102453873 succeeded (clean graph, all standalone Node suites including encrypted journal integration, bridge freshness). Browser job 139102455305 failed before browser assertions because Playwright 1.56.1 did not support the runner's Ubuntu 26.04. Pin browser job to Ubuntu 24.04; rerun pending. No browser success claim. Main unchanged.
