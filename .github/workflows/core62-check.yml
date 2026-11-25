@@ -32,6 +32,17 @@ jobs:
           path: dist/audit-03/node.json
           if-no-files-found: error
           retention-days: 14
+      - name: Run domain and vault state pressure
+        run: node core62/tests/audit-04-domain.mjs
+      - name: Measure isolated retained memory
+        run: node --expose-gc core62/tests/audit-04-memory.mjs
+      - name: Retain domain and memory witnesses
+        uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-audit04-node
+          path: dist/audit-04/
+          if-no-files-found: error
+          retention-days: 14
       - name: Verify temporary legacy bridge generation
         run: node core62/scripts/build-bridge.mjs --check
       - name: Verify journal capacity and replay
@@ -122,4 +133,29 @@ jobs:
           name: masarifi62-visual-${{ matrix.engine }}
           path: dist/visual-${{ matrix.engine }}/
           if-no-files-found: warn
+          retention-days: 14
+
+  vault-stress:
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Stress actual isolated IndexedDB and encrypted recovery
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/audit-04-browser.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-audit04-${{ matrix.engine }}
+          path: dist/audit-04/${{ matrix.engine }}.json
+          if-no-files-found: error
           retention-days: 14

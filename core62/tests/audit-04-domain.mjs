@@ -1,0 +1,30 @@
+import assert from "node:assert/strict";
+import {emptyDomain,execute,executeRecordBatch,accountBalances,obligationStatus,domainLedger} from "../src/domain.mjs";
+import {analyzeLedger} from "../src/ledger.mjs";
+import {vaultTransition} from "../src/journal-store.mjs";
+import {mkdir,writeFile} from "node:fs/promises";
+let state=emptyDomain();const cmd=(type,opId,expectedRevision,fields)=>({type,opId,expectedRevision,...fields});
+function apply(c){const r=execute(state,c);assert.equal(r.status,"APPLIED_SHADOW",r.code);state=r.state;}
+apply(cmd("account","setup1",0,{id:"cash",name:"cash",openingMinor:10000000,openingDate:"2026-12-01"}));
+apply(cmd("account","setup2",1,{id:"bank",name:"bank",openingMinor:20000000,openingDate:"2026-12-01"}));
+const records=Array.from({length:20000},(_,i)=>cmd("record","bulk"+i,i+2,{id:"m"+i,direction:i%2?"in":"out",amountMinor:i%2?213:101,date:"2026-12-02",category:i%2?null:"food",note:"synthetic",accountId:i%2?"bank":"cash"}));
+let start=performance.now();const batch=executeRecordBatch(state,records),batchMs=Math.round(performance.now()-start);
+assert.equal(batch.status,"APPLIED_SHADOW",batch.code);state=batch.state;assert.equal(state.revision,20002);
+const balances=accountBalances(state);assert.deepEqual(balances.map(x=>x.balanceMinor),[8990000,22130000]);
+const totals=analyzeLedger(domainLedger(state));assert.ok(totals.complete);assert.equal(totals.cents.confirmedIn,2130000);assert.equal(totals.cents.confirmedOut,1010000);
+const duplicate=(id,opId,revision)=>cmd("record",opId,revision,{id,direction:"out",amountMinor:99,date:"2026-12-02",category:"food",note:"synthetic",accountId:null});
+const invalid=executeRecordBatch(state,[duplicate("new1","reject",state.revision),duplicate("m1","reject2",state.revision+1)]);assert.equal(invalid.status,"BLOCKED");assert.equal(state.revision,20002);assert.ok(!state.movements.some(x=>x.id==="new1"));
+apply(cmd("obligation","debt1",state.revision,{id:"deb",family:"debt",direction:"out",amountMinor:10000,due:"2026-12-31",name:"debt"}));
+const payment=cmd("settle","pay1",state.revision,{id:"p1",obligationId:"deb",amountMinor:10000,date:"2026-12-03",accountId:"cash",note:"synthetic"});
+apply(payment);assert.equal(execute(state,payment).status,"ALREADY_APPLIED");
+assert.equal(execute(state,{...payment,id:"p2",opId:"pay2",expectedRevision:state.revision,amountMinor:1}).status,"BLOCKED");
+assert.equal(obligationStatus(state)[0].remainingMinor,0);
+apply(cmd("void","voidpay",state.revision,{id:"p1"}));assert.equal(obligationStatus(state)[0].remainingMinor,10000);assert.deepEqual(accountBalances(state),balances);
+const envelope=i=>({format:"masarifi62-backup",version:1,kdf:"PBKDF2-SHA256",iterations:600000,cipher:"AES-256-GCM",salt:i.toString(16).padStart(32,"0"),iv:i.toString(16).padStart(24,"0"),ciphertext:"00".repeat(16)});
+let head=null;start=performance.now();
+for(let i=1;i<=10000;i++){const gen=head?.generation??0,a=vaultTransition(head,gen,envelope(i));assert.equal(a.status,"SAVED");assert.equal(vaultTransition(a.next,gen,envelope(i+10000)).status,"CONFLICT");head=a.next;}
+assert.equal(head.generation,10000);assert.deepEqual(head.previous,envelope(9999));
+const restored=vaultTransition(head,10000,head.previous,{recover:true});assert.equal(restored.status,"SAVED");assert.deepEqual(restored.next.quarantine,envelope(10000));assert.deepEqual(restored.next.envelope,envelope(9999));
+assert.equal(vaultTransition(restored.next,10000,envelope(30000)).status,"CONFLICT");assert.equal(vaultTransition(head,10000,{...envelope(1),ciphertext:"x"}).status,"BLOCKED");
+const evidence={domainRecords:records.length,domainRevision:state.revision,batchMs,balances,totals:totals.cents,vaultAccepted:10000,vaultConflicts:10000,vaultFinalGeneration:restored.next.generation,vaultMs:Math.round(performance.now()-start),scope:"domain batch above journal count is intentional; vaultTransition only, synthetic structural envelopes; no physical device or actual IndexedDB"};
+await mkdir("dist/audit-04",{recursive:true});await writeFile("dist/audit-04/domain.json",JSON.stringify(evidence,null,2)+"\n");console.log(JSON.stringify(evidence,null,2));
