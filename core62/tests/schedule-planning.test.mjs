@@ -47,5 +47,9 @@ check("negative savings blocked",()=>goalProgress(g,[cs[1]],{asOf:"2026-12-15"})
 check("duplicate contribution blocked",()=>throws(()=>goalProgress(g,[cs[0],cs[0]],{asOf:"2026-12-15"})));
 const big=Array.from({length:1000},(_,i)=>rule("stress"+i,{count:12}));const start=Date.now(),many=expandSchedules(big,window),ms=Date.now()-start;
 check("12000 occurrences unique",()=>many.length===12000&&new Set(many.map(x=>x.id)).size===12000);
+let manual=emptyDomain();manual=execute(manual,{type:"obligation",opId:"manual-op",expectedRevision:0,id:"manual",family:"debt",direction:"out",amountMinor:3210,due:"2026-02-15",name:"manual"}).state;
+check("manual outstanding obligation included",()=>scheduledLedger(manual,[]).quality.cents.plannedOut===3210);
+check("missing materialized occurrence blocks forecast",()=>scheduledLedger(s,[]).code==="missing-materialized-occurrence");
+check("manual and scheduled obligations counted once",()=>{const mixed=execute(s,{type:"obligation",opId:"manual-mixed",expectedRevision:s.revision,id:"manual",family:"debt",direction:"out",amountMinor:3210,due:"2026-02-15",name:"manual"}).state;return scheduledLedger(mixed,[x]).quality.cents.plannedOut===9211;});
 const result={passed:tests.filter(x=>x.pass).length,total:tests.length,stress:{occurrences:many.length,ms},tests};
 console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

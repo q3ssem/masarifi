@@ -1,9 +1,9 @@
 {
-  "passed": 30,
-  "total": 30,
+  "passed": 33,
+  "total": 33,
   "stress": {
     "occurrences": 12000,
-    "ms": 28
+    "ms": 29
   },
   "tests": [
     {
@@ -124,6 +124,18 @@
     },
     {
       "name": "12000 occurrences unique",
+      "pass": true
+    },
+    {
+      "name": "manual outstanding obligation included",
+      "pass": true
+    },
+    {
+      "name": "missing materialized occurrence blocks forecast",
+      "pass": true
+    },
+    {
+      "name": "manual and scheduled obligations counted once",
       "pass": true
     }
   ]
