@@ -1,3 +1,4 @@
+async function choose(p,id,value){const select=p.locator("#"+id);if(await select.isVisible()){await select.selectOption(value);return;}if(id==="action"){await p.locator("#openOperations").click();await p.locator("#operationDialog [data-operation="+JSON.stringify(value)+"]").click();}else await p.locator("#"+id+"Choices [data-choice="+JSON.stringify(value)+"]").click();}
 import assert from "node:assert/strict";
 import {mkdtemp,rm,readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
@@ -16,7 +17,7 @@ const mime={".html":"text/html; charset=utf-8",".mjs":"text/javascript; charset=
 async function build(src,dest){execFileSync(process.execPath,[resolve(src,"core62/scripts/build-clean-release.mjs"),dest],{stdio:"inherit"});const m=JSON.parse(await readFile(join(dest,"build-manifest.json"),"utf8"));assert.equal(m.cloudSync,false);assert.equal(m.releaseAuthorized,false);const files=new Map();for(const a of m.assets){const body=await readFile(join(dest,a.path));assert.equal(sha(body),a.sha256);files.set("/"+a.path,body);}return {m,files};}
 let browser;
 try{
- const next=await build(process.cwd(),join(root,"rc3"));assert.equal(next.m.version,"62.7.0-rc3.8-local-dev");
+ const next=await build(process.cwd(),join(root,"rc3"));assert.equal(next.m.version,"62.7.0-rc3.9-local-dev");
  browser=await (engine==="webkit"?webkit:chromium).launch({headless:true});
  for(const [i,src] of roots.entries()){
  const old=await build(src,join(root,"old"+i));assert.equal(old.m.version,expectedVersions[i]);
@@ -28,12 +29,12 @@ try{
  const errors=[];const watch=p=>p.on("pageerror",e=>errors.push(String(e)));watch(page);
  const cash=async p=>{await p.locator("#moreToggle").click();await p.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();};
  const reports=async p=>{await p.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();};
- const enter=async(p,action,fields)=>{await p.locator("#action").selectOption(action);for(const [k,v] of Object.entries(fields)){const el=p.locator("#"+k);if(await el.evaluate(e=>e.tagName)==="SELECT")await el.selectOption(v);else await el.fill(v);}await p.locator("#form button[type=submit]").click();await p.locator("#message").getByText(/تم التنفيذ/).waitFor({timeout:30000});};
+ const enter=async(p,action,fields)=>{await choose(p,"action",action);for(const [k,v] of Object.entries(fields)){const el=p.locator("#"+k);if(await el.evaluate(e=>e.tagName)==="SELECT")await choose(p,k,v);else await el.fill(v);}await p.locator("#form button[type=submit]").click();await p.locator("#message").getByText(/تم التنفيذ/).waitFor({timeout:30000});};
  const save=async p=>{await reports(p);await p.locator("#vaultPassword").fill(password);await p.locator("#saveLocal").click();await p.locator("#dataStatus").getByText(/تمت معاملة الحفظ/).waitFor({timeout:30000});};
  const open=async p=>{await reports(p);await p.locator("#vaultPassword").fill(password);await p.locator("#openLocal").click();await p.locator("#dataStatus").getByText(/تم فتح الخزنة/).waitFor({timeout:30000});};
  const inspect=async p=>p.evaluate(async pw=>{const {openJournalStore,loadEncrypted}=await import("/src/journal-store.mjs");const store=await openJournalStore(indexedDB);try{const x=await loadEncrypted(store,crypto,pw);if(x.status!=="LOADED")throw Error("vault unavailable");const s=x.session.snapshot();const account=s.domain.accounts[0];const balance=await import("/src/domain.mjs").then(m=>m.accountBalances(s.domain)[0].balanceMinor);return {generation:x.generation,journal:x.session.exportJournal(),balance,accountId:account.id,records:s.domain.movements.map(m=>({id:m.id,amount:m.amountMinor,direction:m.direction,note:m.note})),planned:s.plannedRecords.map(m=>({id:m.id,amount:m.amountMinor,note:m.note}))};}finally{store.close();}},password);
- await page.goto(url);await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{},{timeout:60000});assert.ok(!(await page.title()).includes("RC3.8"));
- await cash(page);await enter(page,"account",{name:"Historical wallet",initial:"1000"});await page.locator("#action").selectOption("record");const accountId=await page.locator("#accountId option").filter({hasText:"Historical wallet"}).getAttribute("value");assert.ok(accountId);
+ await page.goto(url);await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{},{timeout:60000});assert.ok(!(await page.title()).includes("RC3.9"));
+ await cash(page);await enter(page,"account",{name:"Historical wallet",initial:"1000"});await choose(page,"action","record");const accountId=await page.locator("#accountId option").filter({hasText:"Historical wallet"}).getAttribute("value");assert.ok(accountId);
  await enter(page,"record",{direction:"out",amt:"12.34",note:"Historical expense",category:"food",accountId});
  await enter(page,"record",{direction:"in",amt:"20.00",note:"Historical income",accountId});
  const tomorrow=await page.evaluate(()=>{const d=new Date();d.setDate(d.getDate()+1);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");});
@@ -44,11 +45,11 @@ try{
  // integrity validation without taking over or deleting the active old shell.
  const damaged=new Map(next.files),bad=Buffer.from(damaged.get("/app/app.mjs"));bad[0]^=1;damaged.set("/app/app.mjs",bad);files=damaged;
  const failed=await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();return new Promise(resolve=>{let done=false;const end=v=>{if(!done){done=true;clearTimeout(timer);resolve(v);}};const timer=setTimeout(()=>end("timeout"),30000);r.addEventListener("updatefound",()=>{const worker=r.installing;if(!worker)return;const check=()=>{if(worker.state==="redundant")end("redundant");if(worker.state==="installed"||worker.state==="activated")end("unexpected-install");};worker.addEventListener("statechange",check);check();},{once:true});r.update().catch(()=>end("update-rejected"));});});
- assert.ok(["redundant","update-rejected"].includes(failed),"damaged update must fail: "+failed);assert.ok(!(await page.title()).includes("RC3.8"));assert.deepEqual(await inspect(page),before);
+ assert.ok(["redundant","update-rejected"].includes(failed),"damaged update must fail: "+failed);assert.ok(!(await page.title()).includes("RC3.9"));assert.deepEqual(await inspect(page),before);
  files=next.files;await page.evaluate(async()=>{const registration=await navigator.serviceWorker.getRegistration();await registration.update();});
- await page.waitForFunction(async()=>!!(await navigator.serviceWorker.getRegistration())?.waiting,{},{timeout:60000});assert.ok(!(await page.title()).includes("RC3.8"));
- await page.close();for(let attempt=0;attempt<30;attempt++){page=await context.newPage();watch(page);await page.goto(url);if((await page.title()).includes("RC3.8"))break;await page.close();await new Promise(r=>setTimeout(r,250));}
- assert.match(await page.title(),/RC3\.8/);await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{},{timeout:60000});
+ await page.waitForFunction(async()=>!!(await navigator.serviceWorker.getRegistration())?.waiting,{},{timeout:60000});assert.ok(!(await page.title()).includes("RC3.9"));
+ await page.close();for(let attempt=0;attempt<30;attempt++){page=await context.newPage();watch(page);await page.goto(url);if((await page.title()).includes("RC3.9"))break;await page.close();await new Promise(r=>setTimeout(r,250));}
+ assert.match(await page.title(),/RC3\.9/);await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{},{timeout:60000});
  await open(page);assert.deepEqual(await inspect(page),before);
  // The actual old encrypted file must also restore in a fresh RC3 context.
  portable=await browser.newContext({viewport:{width:390,height:844}});const fresh=await portable.newPage();watch(fresh);await fresh.goto(url);await reports(fresh);
