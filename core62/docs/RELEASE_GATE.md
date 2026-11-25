@@ -11,3 +11,6 @@ Reran 124 prior pure JS assertions and 17 new assertions, including 100000, 2500
 - Backup coverage of IndexedDB and cloud; real migration rollback rehearsal. Existing production data must never be overwritten before all gates.
 
 Decision: HOLD, no main merge. No actual user data touched. Run node core62/tests/hardening.test.mjs and the previous test files independently.
+
+## Runtime follow-up
+Re-executed the Node v22.16.0 Web Crypto suite: 7/7 passed, verified matching blobs 01ef8cea03c40f59d0e177e8bfeca22d1abdf58a and 440ecba7f75dbc87a12865afb3d88eb3383fb865. Chromium 144.0.7559.96 launched; navigation to local test fixture was rejected with ERR_BLOCKED_BY_ADMINISTRATOR (also on an intercepted synthetic fixture). No browser assertions executed. IndexedDB, actual rendering, cross-tab and crash/quota gates remain NOT EXECUTED. Source files for the vault matched blobs 8f9b2b35a350f0cefe832920219766e952420012 and 6ca7df3e46168ea63d65e96b2789b874a85eeb54. Release decision remains HOLD.
