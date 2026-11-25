@@ -570,3 +570,40 @@ html[data-style] #operationDialog .operation-tile{min-block-size:54px;white-spac
  html[data-style] .bottom-sheet{scroll-padding-block:12px}
  html[data-style] .entry-sheet #fields :is(input,select,button){scroll-margin-block:12px}
 }
+
+/* RC3.24 — card/list containment and financial typography, preserving existing finishes. */
+html[data-style] :is(.identity-hero,.home-rows,.expense-day,.finance-card,.financial-rows,.metric,.search-results){min-inline-size:0;max-inline-size:100%;box-sizing:border-box}
+html[data-style] .identity-hero .hero-main{min-inline-size:0;max-inline-size:100%}
+html[data-style] :is(.hero-total,.hero-subtotal,.finance-value,.wealth-fact-value,.search-result-amount){min-inline-size:0;max-inline-size:100%;flex-wrap:wrap;overflow-wrap:anywhere}
+html[data-style] .amount-label .amount-digits{min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere;white-space:normal}
+html[data-style] .identity-hero .hero-sum>div{min-inline-size:0;overflow-wrap:anywhere}
+html[data-style] .home-row{grid-template-columns:34px minmax(0,1fr) fit-content(42%);column-gap:9px;align-items:center;min-block-size:56px}
+html[data-style] .home-row:has(.home-edit-mark){grid-template-columns:34px minmax(0,1fr) fit-content(40%) 18px}
+html[data-style] :is(.home-row-label,.home-row-value,.finance-card-title,.finance-card-meta>*,.wealth-facts>div,.metric-head,.metric-head>small,.metric>strong){min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere}
+html[data-style] .home-row-value{white-space:normal;line-height:1.35;unicode-bidi:isolate}
+html[data-style] .home-row-label>span{display:block;line-height:1.45}
+html[data-style] .home-icon{inline-size:32px;block-size:32px;flex:none}
+html[data-style] .home-edit-mark{inline-size:18px;min-inline-size:18px}
+html[data-style] .expense-day-heading{flex-wrap:wrap;min-inline-size:0;overflow-wrap:anywhere}
+html[data-style] .home-link span{min-inline-size:0;overflow-wrap:anywhere}
+html[data-style] .home-link svg{flex:none}
+html[data-style] .finance-card-head{grid-template-columns:36px minmax(0,1fr) fit-content(42%);gap:8px}
+html[data-style] .finance-card-meta{align-items:flex-start}
+html[data-style] .finance-action{min-block-size:48px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+html[data-style] .financial-rows>.line,html[data-style] .wealth-history .line{display:grid;grid-template-columns:minmax(0,1fr) fit-content(46%);gap:8px;align-items:start}
+html[data-style] :is(.financial-rows,.wealth-history) .line>*{min-inline-size:0;max-inline-size:100%;overflow-wrap:anywhere}
+html[data-style] :is(.financial-rows,.wealth-history) .line>strong{text-align:end;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+html[data-style] .metric-head .choice-icon{flex:none}
+html[data-style] .metric>strong{display:block;line-height:1.4;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+html[data-style] .search-result{grid-template-columns:32px minmax(0,1fr) fit-content(42%);gap:8px}
+html[data-style] .search-result-label{min-inline-size:0;overflow-wrap:anywhere}
+@media(max-width:360px){
+ html[data-style] .home-row{grid-template-columns:28px minmax(0,1fr) fit-content(40%);gap:6px}
+ html[data-style] .home-row:has(.home-edit-mark){grid-template-columns:28px minmax(0,1fr) fit-content(38%) 16px}
+ html[data-style] .home-icon{inline-size:28px;block-size:28px}
+ html[data-style] .home-edit-mark{inline-size:16px;min-inline-size:16px}
+ html[data-style] .finance-card-head{grid-template-columns:30px minmax(0,1fr) fit-content(40%);gap:6px}
+ html[data-style] .finance-card .choice-icon{inline-size:30px;block-size:30px}
+ html[data-style] .search-result{grid-template-columns:28px minmax(0,1fr) fit-content(40%);gap:6px}
+ html[data-style] .identity-hero .hero-sum{gap:6px}
+}

@@ -92,6 +92,30 @@ try{
  }
  assert.equal(sheetMetrics.length,40);
  await writeFile(join(out,"sheet-polish-metrics.json"),JSON.stringify({engine,scope:"viewport and real Playwright actionability, not physical iOS keyboard or touch verification",cases:sheetMetrics.length,sheetMetrics},null,2));
+ // RC3.24: populate the actual financial UI with long names and amounts, not fabricated DOM cards.
+ const cardMetrics=[];
+ await page.setViewportSize({width:390,height:844});
+ await nav(sections[1]);await submit("record",{direction:"out",amt:"12345678.91",note:"مصروف تجريبي طويل لاختبار المساحة والتفاف الوصف بدون قص",category:"food"});
+ await submit("record",{direction:"in",amt:"98765432.10",note:"دخل تجريبي طويل لاختبار اتساع الأرقام مع العنوان"});
+ for(const style of ["original","glass","android","paper","mono"]){
+  await page.setViewportSize({width:390,height:844});if(await page.locator("#settingsPanel").isHidden())await page.locator("#openSettings").click();
+  await choose(page,"layout","classic");await choose(page,"style",style);await choose(page,"mode","light");await choose(page,"motion","off");await page.locator("#closeSettings").click();
+  for(const width of [320,390,430])for(const [i,section] of [[0,sections[0]],[6,sections[6]]]){
+   await page.setViewportSize({width,height:844});await nav(section);await page.evaluate(()=>{window.scrollTo(0,0);return document.fonts.ready;});
+   const geometry=await page.evaluate(()=>{
+    const rect=e=>e.getBoundingClientRect(),visible=e=>e.getClientRects().length>0,inside=(a,b)=>a.left>=b.left-1&&a.right<=b.right+1;
+    const groups=[...document.querySelectorAll("#view :is(.home-row,.finance-card-head,.search-result,.hero-sum,.financial-rows>.line,.wealth-history .line,.metric)")].filter(visible);
+    const violations=[];
+    for(const g of groups){const p=rect(g),items=[...g.children].filter(visible);for(const e of items){if(!inside(rect(e),p)||e.scrollWidth>e.clientWidth+2)violations.push({group:g.className,child:e.className||e.tagName,text:e.textContent.slice(0,60)});}}
+    const sums=[...document.querySelectorAll("#view .amount-digits")].filter(visible);for(const e of sums){if(!inside(rect(e),rect(e.parentElement))||e.scrollWidth>e.clientWidth+2)violations.push({group:"amount",text:e.textContent});}
+    return {groups:groups.length,amounts:sums.length,overflow:document.documentElement.scrollWidth>innerWidth,violations};
+   });
+   assert.ok(geometry.groups>0&&!geometry.overflow&&!geometry.violations.length,JSON.stringify({style,width,section,geometry}));
+   const file="card-polish-"+style+"-"+width+"-"+i+".png";await page.screenshot({path:join(out,file),fullPage:true,animations:"disabled"});cardMetrics.push({file,style,width,section,...geometry});
+  }
+ }
+ assert.equal(cardMetrics.length,30);
+ await writeFile(join(out,"card-polish-metrics.json"),JSON.stringify({engine,scope:"actual synthetic financial entries and live card geometry; physical-device appearance pending",cases:cardMetrics.length,cardMetrics},null,2));
  // Final focused witness: long amounts stay within their cards at narrow width, without altering engine data.
  const narrow=await context.newPage();
  try{
