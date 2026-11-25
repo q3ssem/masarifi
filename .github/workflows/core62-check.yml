@@ -62,3 +62,15 @@ jobs:
         env:
           BROWSER_ENGINE: ${{ matrix.engine }}
         run: node core62/tests/offline-release.mjs
+
+      - name: Capture local visual acceptance evidence
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/visual-acceptance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: masarifi62-visual-${{ matrix.engine }}
+          path: dist/visual-${{ matrix.engine }}/
+          if-no-files-found: warn
+          retention-days: 14
