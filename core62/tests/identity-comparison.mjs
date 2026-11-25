@@ -28,6 +28,8 @@ try{
  await b.goto(origin+"/app/index.html");await b.evaluate(()=>document.fonts.ready);
  for(const [id,amt,note,choice,group] of [["quickIncome","5000","دخل تجريبي","salary","incomeSource"],["quickExpense","125","مصروف تجريبي","food","category"]]){await b.locator("#"+id).click();await b.locator("#amt").fill(amt);await b.locator("#"+group+"Choices [data-choice="+JSON.stringify(choice)+"]").click();await b.locator("#date").fill(date);await b.locator("#note").fill(note);await b.locator("#submitOperation").click();await b.locator("#entryNotice").getByText(/تم التنفيذ/).waitFor();}
  async function shot(p,name){await p.evaluate(()=>document.fonts.ready);await p.screenshot({path:join(out,name+".png"),animations:"disabled"});}
+ // Wait for the real entry success notice to disappear; do not hide app elements artificially.
+ await b.locator("#entryNotice").waitFor({state:"hidden",timeout:10000});
  await a.evaluate(()=>window.scrollTo(0,0));await b.evaluate(()=>window.scrollTo(0,0));await shot(a,"01-legacy-home");await shot(b,"01-candidate-home");
  for(const [name,legacyAction,newAction] of [["income","income","quickIncome"],["expense","addexp","quickExpense"]]){await a.locator('#view [data-act="'+legacyAction+'"]').click();await a.locator("#sheet").waitFor();await b.locator("#"+newAction).click();await shot(a,"02-legacy-"+name);await shot(b,"02-candidate-"+name);await b.locator("#closeEditor").click();await a.keyboard.press("Escape");if(await a.locator("#scrim").isVisible()){await a.locator("#sheet button[aria-label]").first().click();}await a.locator("#scrim").waitFor({state:"hidden"});}
  await a.locator('#tabs [data-tab="more"]').click();await b.locator("#moreToggle").click();await shot(a,"03-legacy-more");await shot(b,"03-candidate-more");

@@ -43,6 +43,13 @@ jobs:
           path: dist/masarifi62-pre-rc/
           if-no-files-found: error
           retention-days: 14
+      - name: Retain final release gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: masarifi62-final-release-evidence
+          path: dist/final-release-evidence.json
+          if-no-files-found: error
+          retention-days: 14
 
   browser:
     strategy:
