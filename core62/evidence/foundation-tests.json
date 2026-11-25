@@ -1,0 +1,131 @@
+{
+  "passed": 31,
+  "total": 31,
+  "elapsedMs": 288,
+  "tests": [
+    {
+      "name": "exact 0.1 + 0.2",
+      "pass": true
+    },
+    {
+      "name": "confirmed inflow",
+      "pass": true
+    },
+    {
+      "name": "assumed separate",
+      "pass": true
+    },
+    {
+      "name": "planned separate",
+      "pass": true
+    },
+    {
+      "name": "complete ledger",
+      "pass": true
+    },
+    {
+      "name": "strict decimal",
+      "pass": true
+    },
+    {
+      "name": "reject overprecision",
+      "pass": true
+    },
+    {
+      "name": "reject scientific notation",
+      "pass": true
+    },
+    {
+      "name": "reject overflow",
+      "pass": true
+    },
+    {
+      "name": "calendar validation",
+      "pass": true
+    },
+    {
+      "name": "duplicate blocked",
+      "pass": true
+    },
+    {
+      "name": "duplicate total preserved for investigation",
+      "pass": true
+    },
+    {
+      "name": "distinct status same id not duplicate",
+      "pass": true
+    },
+    {
+      "name": "invalid dates rejected",
+      "pass": true
+    },
+    {
+      "name": "invalid amount rejected",
+      "pass": true
+    },
+    {
+      "name": "zero rejected",
+      "pass": true
+    },
+    {
+      "name": "overflow null not misleading partial",
+      "pass": true
+    },
+    {
+      "name": "read only legacy adapter",
+      "pass": true
+    },
+    {
+      "name": "legacy parity gate",
+      "pass": true
+    },
+    {
+      "name": "parity mismatch gate",
+      "pass": true
+    },
+    {
+      "name": "missing parity evidence blocks",
+      "pass": true
+    },
+    {
+      "name": "forecast excludes actual and assumed",
+      "pass": true
+    },
+    {
+      "name": "first deficit and trough",
+      "pass": true
+    },
+    {
+      "name": "stress scenario",
+      "pass": true
+    },
+    {
+      "name": "overdue plans visible",
+      "pass": true
+    },
+    {
+      "name": "forecast fail closed",
+      "pass": true
+    },
+    {
+      "name": "forecast rejects invalid range",
+      "pass": true
+    },
+    {
+      "name": "envelope separates confirmed vs planned",
+      "pass": true
+    },
+    {
+      "name": "no mutation",
+      "pass": true
+    },
+    {
+      "name": "empty ledger valid",
+      "pass": true
+    },
+    {
+      "name": "100k deterministic exact aggregation",
+      "pass": true
+    }
+  ]
+}
