@@ -215,3 +215,49 @@ html[data-style="glass"] .entry-sheet #editor .editor-head,html[data-style="glas
 @media(max-height:480px){.entry-sheet .entry-submit,.entry-sheet #editor .editor-head{position:static}.bottom-sheet{max-height:96dvh}}
 @media(prefers-reduced-motion:reduce){html button:active:not(:disabled){transform:none!important}html .bottom-sheet[open]{animation:none!important}}
 @media print{.entry-submit,#entryNotice,.section-actions{display:none!important}}
+
+/* RC3.13: locally licensed Arabic typography; no CDN or network dependency. */
+@font-face{font-family:"Masarifi Tajawal";src:url("./Tajawal-Regular.ttf") format("truetype");font-weight:400 500;font-style:normal;font-display:swap}
+@font-face{font-family:"Masarifi Tajawal";src:url("./Tajawal-Bold.ttf") format("truetype");font-weight:600 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Masarifi Cairo";src:url("./Cairo-Variable.ttf") format("truetype");font-weight:200 1000;font-style:normal;font-display:swap}
+@font-face{font-family:"Masarifi Plex";src:url("./IBMPlexSansArabic-Regular.ttf") format("truetype");font-weight:400 500;font-style:normal;font-display:swap}
+@font-face{font-family:"Masarifi Plex";src:url("./IBMPlexSansArabic-Bold.ttf") format("truetype");font-weight:600 900;font-style:normal;font-display:swap}
+html[data-font="tajawal"]{--app-font:"Masarifi Tajawal",system-ui,-apple-system,Tahoma,sans-serif}
+html[data-font="cairo"]{--app-font:"Masarifi Cairo",system-ui,-apple-system,Tahoma,sans-serif}
+html[data-font="plex"]{--app-font:"Masarifi Plex",system-ui,-apple-system,Tahoma,sans-serif}
+html[data-font="system"]{--app-font:system-ui,-apple-system,Tahoma,sans-serif}
+html[data-font] body,html[data-font][data-layout] body,html[data-font] dialog{font-family:var(--app-font);line-height:1.5}
+html[data-font] input,html[data-font] select,html[data-font] button{font-family:inherit}
+.appearance-font .appearance-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.appearance-font .appearance-choice{min-height:76px}
+.font-sample{font-size:19px;font-weight:700;min-width:0;width:100%;height:auto;min-height:32px;line-height:1.3;background:transparent;color:var(--choice-ink)}
+.font-sample[data-font-sample="tajawal"]{font-family:"Masarifi Tajawal",sans-serif}
+.font-sample[data-font-sample="cairo"]{font-family:"Masarifi Cairo",sans-serif}
+.font-sample[data-font-sample="plex"]{font-family:"Masarifi Plex",sans-serif}
+.font-sample[data-font-sample="system"]{font-family:system-ui,-apple-system,sans-serif}
+/* Real iPhone evidence: reduce crowded source tiles and eliminate date/account overlap. */
+.entry-sheet{--entry-surface:var(--choice-surface)}
+html[data-style="paper"] .entry-sheet{--entry-surface:var(--paper-card)}
+html[data-style="mono"] .entry-sheet{--entry-surface:var(--mono-card)}
+html[data-style="android"] .entry-sheet{--entry-surface:var(--android-surface)}
+html[data-style] .entry-sheet #editor,html[data-style] .entry-sheet #editor .editor-head,html[data-style] .entry-sheet .entry-submit{background:var(--entry-surface)}
+.entry-sheet #editor{padding-inline:14px;padding-top:10px}
+.entry-sheet #editor .editor-head{padding:4px 0 7px;border-bottom:1px solid var(--choice-outline);margin-bottom:10px}
+.entry-sheet #editorTitle{font-size:20px;line-height:1.35}
+.entry-sheet #fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:10px;align-items:start;min-width:0}
+.entry-sheet #fields>label,.entry-sheet #fields>.choice-field{min-width:0;min-inline-size:0;width:100%;max-width:100%}
+.entry-sheet #fields>label input,.entry-sheet #fields>label select{display:block;min-width:0;min-inline-size:0;width:100%;inline-size:100%;max-width:100%;max-inline-size:100%;box-sizing:border-box;font-size:16px;line-height:1.35}
+.entry-sheet #fields>label[data-field="date"] input{appearance:none;-webkit-appearance:none;text-align:start;padding-inline:8px}
+.entry-sheet input[type=date]::-webkit-date-and-time-value{text-align:start;min-width:0;margin:0}
+.entry-sheet #fields label[data-field="date"],.entry-sheet #fields label[data-field="accountId"]{overflow:hidden}
+.entry-sheet #fields>label[data-field="amt"]{grid-column:1/-1}
+.entry-sheet #fields #amt{font-size:30px;min-height:54px}
+.entry-sheet .choice-label,.entry-sheet #fields label{font-size:14px;line-height:1.4;font-weight:700}
+.entry-sheet .choice-grid{gap:7px;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.entry-sheet .choice-grid .choice-chip{padding:7px 4px;min-height:58px;gap:3px;line-height:1.3;font-size:13px;border-radius:13px}
+.entry-sheet .choice-grid .choice-chip .choice-icon{width:28px;height:28px;border-radius:9px}
+.entry-sheet .choice-grid .choice-chip .choice-icon svg{width:17px;height:17px}
+.entry-sheet .choice-grid .choice-chip>span:last-child{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.entry-sheet #directionChoices,.entry-sheet #accountTypeChoices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.entry-sheet .entry-submit{padding-top:8px}
+@media(max-width:350px){.entry-sheet #editor{padding-inline:10px}.entry-sheet #fields{grid-template-columns:minmax(0,1fr);row-gap:8px}.entry-sheet .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.entry-sheet .choice-grid .choice-chip{font-size:12px}.entry-sheet #fields #amt{font-size:27px}}

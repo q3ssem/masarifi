@@ -13,7 +13,7 @@ try{
  const copy=join(root,"negative");
  async function rejects(label,mutate){await rm(copy,{recursive:true,force:true});await cp(original,copy,{recursive:true});await mutate(copy);await assert.rejects(verifyLocalRelease(copy),undefined,label);console.log("Rejected: "+label);}
  await rejects("modified asset",async p=>{const file=join(p,"app/app.mjs");const b=await readFile(file);b[0]^=1;await writeFile(file,b);});
- await rejects("missing asset",p=>unlink(join(p,"app/app.mjs")));
+ await rejects("missing asset",p=>unlink(join(p,"app/app.mjs")));await rejects("missing local font",p=>unlink(join(p,"app/Tajawal-Regular.ttf")));
  await rejects("unlisted asset",p=>writeFile(join(p,"app/unlisted.mjs"),"export {};"));
  async function modify(p,change){const file=join(p,"build-manifest.json"),m=JSON.parse(await readFile(file,"utf8"));change(m);await writeFile(file,JSON.stringify(m));}
  await rejects("duplicate manifest path",p=>modify(p,m=>m.assets.push(m.assets[0])));
@@ -22,5 +22,5 @@ try{
  await rejects("unsupported release version",p=>modify(p,m=>m.version="62.7.0-rc99.0-local-dev"));
  await rejects("unauthorized release flag",p=>modify(p,m=>m.releaseAuthorized=true));
  await rejects("inconsistent worker inventory",async p=>{const file=join(p,"app/offline-worker.mjs"),old=await readFile(file,"utf8"),next=old.replace(/const ENTRIES=\[[^\n]+\];/,"const ENTRIES=[];");assert.notEqual(old,next);await writeFile(file,next);const {createHash}=await import("node:crypto");await modify(p,m=>{const a=m.assets.find(a=>a.path==="app/offline-worker.mjs");a.bytes=Buffer.byteLength(next);a.sha256=createHash("sha256").update(next).digest("hex");});});
- console.log(JSON.stringify({status:"PACKAGE_INTEGRITY_PASS",...first,reproducible:true,negativeCases:9}));
+ console.log(JSON.stringify({status:"PACKAGE_INTEGRITY_PASS",...first,reproducible:true,negativeCases:10}));
 }finally{await rm(root,{recursive:true,force:true});}
