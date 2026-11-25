@@ -1,0 +1,18 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {accountBalances} from "../src/domain.mjs";
+import {parseJournal} from "../src/journal.mjs";
+const asOf="2026-12-31",base={app:"masarifi",version:2,expenses:[{id:"e_1",amount:12.34,cat:"food",note:"اختبار",date:"2026-12-02",ts:123}],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{}};
+const account=(id,balance,archived=false)=>({id,name:id,type:"bank",start:"2026-11-01",opening:100,anchor:"2026-12-01",balance,archived});
+const w={accounts:[account("a_1",1000),account("a_2",200,true)],links:[{key:"e_1|2026-12-02|-12.34|123|expense",account:"a_1",date:"2026-12-02"}],transfers:[{id:"t_1",from:"a_1",to:"a_2",date:"2026-12-03",amount:50,note:"",void:false},{id:"t_2",from:"a_1",to:"a_2",date:"2026-12-04",amount:3,note:"",void:true}],history:[]};
+const preview=w=>previewLegacy(JSON.stringify({...base,prefs:{wallet59:w}}),{asOf});
+const p=preview(w);assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p),snap=s.snapshot();
+assert.deepEqual(accountBalances(snap.domain),[{id:"a_1",balanceMinor:93766,archived:false},{id:"a_2",balanceMinor:25000,archived:true}]);
+assert.equal(snap.domain.movements[0].sourceTimestamp,123);assert.equal(snap.domain.audit.some(x=>x.before?.openingMinor===10000&&x.after?.openingMinor===100000),true);
+assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),snap);
+assert.equal(preview({...w,links:[{...w.links[0],key:"unknown"}]}).status,"BLOCKED");
+assert.equal(preview({...w,history:[{id:"h"}]}).status,"BLOCKED");
+assert.equal(preview({...w,transfers:[{...w.transfers[0],date:"2026-11-20"}]}).status,"BLOCKED");
+assert.throws(()=>importIntoEmpty({...p,walletBalances:[{id:"a_1",balanceMinor:1}]}),/wallet-parity/);
+const simple=importIntoEmpty(previewLegacy(JSON.stringify(base),{asOf}));assert.equal(simple.snapshot().domain.movements[0].sourceTimestamp,123);
+console.log("RC1 wallet migration: anchor, exact balances, links, timestamps, void, archive, replay and fail-closed checks passed.");
