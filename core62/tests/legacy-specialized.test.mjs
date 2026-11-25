@@ -12,10 +12,10 @@ check("installment actual payment dates",()=>s.domain.movements.filter(x=>x.obli
 check("confirmed sums and outstanding match",()=>v.projection.quality.cents.confirmedOut===50000&&v.projection.quality.cents.plannedOut===130000);
 check("goal target and explicit deadline",()=>s.goals[0].targetMinor===100000&&s.goals[0].due==="2027-06-01");
 check("reject debt overpaid",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,pays:[{a:1001,d:"2026-12-01"}]}]}),{asOf}).status==="BLOCKED");
-check("reject monthly debt",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,plan:"monthly",monthly:100}]}),{asOf}).status==="BLOCKED");
+check("accept monthly debt",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,plan:"monthly",monthly:100}]}),{asOf}).status==="IMPORT_PREVIEW");
 check("reject estimated installment history",()=>previewLegacy(JSON.stringify({...base,insts:[{...inst,paidBase:1}]}),{asOf}).status==="BLOCKED");
 check("reject automatic installment history",()=>previewLegacy(JSON.stringify({...base,insts:[{...inst,trackPayments:false,mode:"auto"}]}),{asOf}).status==="BLOCKED");
-check("reject savings without date",()=>previewLegacy(JSON.stringify({...base,goals:[{...goal,saved:50}]}),{asOf}).status==="BLOCKED");
+check("accept savings as opening balance",()=>previewLegacy(JSON.stringify({...base,goals:[{...goal,saved:50}]}),{asOf}).status==="IMPORT_PREVIEW");
 check("preserve payment timestamps",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,pays:[{...debt.pays[0],ts:123}]}]}),{asOf}).status==="IMPORT_PREVIEW");
 check("source unchanged",()=>JSON.stringify(JSON.parse(source))===source&&p.sourcePreserved);
 const result={passed:checks.filter(c=>c.pass).length,total:checks.length,checks};

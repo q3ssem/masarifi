@@ -28,12 +28,12 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
  function knownFields(o,allowed){for(const k of Object.keys(o))if(!allowed.includes(k)&&nonempty(o[k]))throw Error("unmapped-record-metadata:"+k);}
  for(let i=0;i<raw.debts.length;i++)group("debts",i,(d,out)=>{
    require(d&&originalId(d.id)&&!seen.has(d.id)&&["owe","owed"].includes(d.dir)&&isDate(d.due)&&typeof d.who==="string"&&d.who.trim()&&d.who.length<=160&&Array.isArray(d.pays),"debt-contract");
-   require((d.plan===undefined||d.plan==="due")&&!nonempty(d.monthly),"monthly-debt-requires-mapping");
+   require((d.plan===undefined||d.plan==="due")&&!nonempty(d.monthly)||d.plan==="monthly"&&d.dir==="owe"&&typeof d.monthly==="number"&&d.monthly>0,"debt-plan-contract");
    knownFields(d,["id","who","dir","amount","due","plan","monthly","pays"]);
    const a=strictAmount(d.amount),direction=d.dir==="owe"?"out":"in";let paid=0n;
    out.push(domain({type:"obligation",id:d.id,family:"debt",direction,amountMinor:a,due:d.due,name:d.who}));
    d.pays.forEach((p,k)=>{require(p&&isDate(p.d)&&p.d<=asOf,"payment-date");knownFields(p,["a","d","ts"]);require(p.ts===undefined||Number.isSafeInteger(p.ts)&&p.ts>=0,"payment-timestamp");const v=strictAmount(p.a);paid+=BigInt(v);out.push(domain({type:"settle",id:"legacy:"+d.id+":"+k,obligationId:d.id,amountMinor:v,date:p.d,accountId:null,note:d.who,...(p.ts!==undefined?{sourceTimestamp:p.ts}:{})}));});
-   require(paid<=BigInt(a),"overpayment");seen.add(d.id);
+   require(paid<=BigInt(a),"overpayment");if(d.plan==="monthly")out.push({type:"debt-plan",fields:{obligationId:d.id,monthlyMinor:strictAmount(d.monthly)}});seen.add(d.id);
  });
  for(let i=0;i<raw.insts.length;i++)group("insts",i,(x,out)=>{
    require(x&&originalId(x.id)&&!seen.has(x.id)&&typeof x.name==="string"&&x.name.trim()&&isDate(x.start+"-01")&&Number.isInteger(x.months)&&x.months>=1&&x.months<=360&&Number.isInteger(x.day)&&x.day>=1&&x.day<=31&&Array.isArray(x.paidOn),"installment-contract");
@@ -54,7 +54,7 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
  });
  for(let i=0;i<raw.goals.length;i++)group("goals",i,(g,out)=>{
    require(g&&originalId(g.id)&&!seen.has(g.id)&&typeof g.name==="string"&&g.name.trim()&&isDate(g.deadline+"-01"),"goal-contract");knownFields(g,["id","name","target","saved","deadline"]);
-   require(g.saved===0,"goal-savings-date-unknown");out.push({type:"goal",fields:{id:g.id,name:g.name,targetMinor:strictAmount(g.target),due:g.deadline+"-01"}});seen.add(g.id);
+   require(typeof g.saved==="number"&&Number.isFinite(g.saved)&&g.saved>=0,"goal-savings-contract");out.push({type:"goal",fields:{id:g.id,name:g.name,targetMinor:strictAmount(g.target),due:g.deadline+"-01",...(g.saved>0?{openingSavedMinor:strictAmount(g.saved),openingAsOf:asOf}:{})}});seen.add(g.id);
  });
 
  for(let i=0;i<raw.fixeds.length;i++)group("fixeds",i,(f,out)=>{
