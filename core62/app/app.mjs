@@ -19,7 +19,7 @@ let section="overview",query="",last=null;
 const selectOpts=(x,opts)=>{x.replaceChildren(...opts.map(([v,t])=>{const o=node("option",t);o.value=v;return o;}));};
 selectOpts($("theme"),THEMES.map(t=>[t[0],t[1]]));const appearance=deviceAppearance(THEMES.map(t=>t[0]));const initialAppearance=appearance.read();for(const id of ["theme","mode","layout"]){$(id).value=initialAppearance[id];document.documentElement.dataset[id]=initialAppearance[id];}
 const primary=[["overview","الرئيسية"],["schedule","الالتزامات"],["reports","التقارير"]];
-const more=node("button","المزيد");more.type="button";more.id="moreToggle";more.setAttribute("aria-expanded","false");
+const more=node("button","المزيد");more.type="button";more.id="moreToggle";more.setAttribute("aria-expanded","false");more.setAttribute("aria-controls","moreNav");
 function showMore(open){$("moreNav").hidden=!open;more.setAttribute("aria-expanded",String(open));}
 more.addEventListener("click",()=>showMore($("moreNav").hidden));
 function navButton(id,label){const b=node("button",label);b.type="button";b.dataset.section=id;b.setAttribute("aria-label",sections[id][0]);b.addEventListener("click",()=>navigate(id));return b;}
