@@ -10,3 +10,6 @@ RC3.0 run 45618088093 passed all three jobs, including four real historical-upgr
 
 ## RC3.5 verified freeze
 All three jobs in run 45619256928 completed successfully for de7cf51a84856bdf5f04f0060fcc6b28978d3435. Engineering automated gate PASS. See RC3_CLOSURE_REPORT.md and RC3_LOCAL_EVIDENCE.json. No new runtime changes. Release remains blocked by physical acceptance and full manual review; legacy migration separate.
+
+## RC3.6 — targeted final polish, not a new development cycle
+Based on frozen RC3.5 de7cf51a84856bdf5f04f0060fcc6b28978d3435 / successful CI 45619256928. Quick income/expense entry now defaults to the actual local day, not the selected analysis date; the analysis selection stays intact. Failed autosave now exposes a persistent cross-section warning and direct vault action, cleared only after the current revision is saved or reopened. Added regression checks for both. No financial contract, journal format, legacy migration or cloud changes. RC3.6 is a separate candidate; CI pending, RC3.5 remains the last verified fallback. Physical acceptance and manual review remain required. No main merge/deployment.
