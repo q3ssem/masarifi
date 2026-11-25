@@ -1,9 +1,10 @@
 import {isDate,minorFromDecimal} from "./money.mjs";
-import {createJournalSession,JOURNAL_MAX_COMMANDS} from "./journal.mjs";
+import {createJournalSession} from "./journal.mjs";
+import {JOURNAL_MAX_COMMANDS,JOURNAL_MAX_BYTES,utf8Bytes} from "./text-limits.mjs";
 import {expandSchedules} from "./schedule.mjs";
 const families=["expenses","incomes","insts","debts","goals","fixeds"];
 const nonempty=x=>x!==null&&x!==undefined&&x!==false&&x!==0&&x!==""&&(Array.isArray(x)?x.length>0:typeof x==="object"?Object.keys(x).length>0:true);
-export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.length>8*1024*1024||!isDate(asOf))throw Error("legacy-size-or-date");const raw=JSON.parse(text);if(!raw||raw.app!=="masarifi"||raw.version!==2||raw.enc===1||!families.every(k=>Array.isArray(raw[k])))throw Error("unsupported-legacy-format");const issues=[],commands=[],counts=Object.fromEntries(families.map(k=>[k,raw[k].length])),seen=new Set();
+export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.length>JOURNAL_MAX_BYTES||utf8Bytes(text)>JOURNAL_MAX_BYTES||!isDate(asOf))throw Error("legacy-size-or-date");const raw=JSON.parse(text);if(!raw||raw.app!=="masarifi"||raw.version!==2||raw.enc===1||!families.every(k=>Array.isArray(raw[k])))throw Error("unsupported-legacy-format");const issues=[],commands=[],counts=Object.fromEntries(families.map(k=>[k,raw[k].length])),seen=new Set();
  for(const k of ["fixeds"])if(raw[k].length)issues.push({path:k,count:raw[k].length,code:"requires-specialized-mapping"});
  for(const k of ["budget","cats","cbud","rates","prefs","audit59"])if(nonempty(raw[k]))issues.push({path:k,code:"requires-metadata-mapping"});
  for(const k of Object.keys(raw))if(!["app","version","exportedAt",...families,"budget","cats","cbud","rates","prefs","audit59"].includes(k))issues.push({path:k,code:"unknown-field"});

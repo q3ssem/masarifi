@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import {JOURNAL_MAX_COMMANDS,JOURNAL_MAX_BYTES,utf8Bytes} from "../src/text-limits.mjs";
+import {reportCSV,previewCSV,parseCSV} from "../src/reporting.mjs";
+import {importIntoEmpty} from "../src/legacy-import.mjs";
+const header="id,date,direction,amount,category,note,status,kind",asOf="2026-12-31";
+const rows=Array.from({length:JOURNAL_MAX_COMMANDS},(_,i)=>"x_"+i+",2026-12-01,out,1.01,food,اختبار,confirmed,expense");
+const csv=header+"\r\n"+rows.join("\r\n"),start=performance.now(),p=previewCSV(csv,{asOf});
+assert.equal(p.status,"IMPORT_PREVIEW");assert.equal(p.sourceRows,JOURNAL_MAX_COMMANDS);
+const s=importIntoEmpty(p);assert.equal(s.journalInfo().commands,JOURNAL_MAX_COMMANDS);
+assert.equal(s.snapshot().domain.movements[0].amountMinor,101);
+assert.throws(()=>parseCSV(csv+"\r\n"+rows[0]),/csv-limit/);
+assert.throws(()=>parseCSV("ع".repeat(JOURNAL_MAX_BYTES/2+1)),/csv-size/);
+assert.equal(utf8Bytes("ع😀a"),Buffer.byteLength("ع😀a"));
+assert.equal(previewCSV(header+"\nfoo,2026-12-01,in,1.00,food,note,confirmed,income",{asOf}).status,"BLOCKED");
+assert.equal(utf8Bytes(JSON.stringify(s.exportJournal())),s.journalInfo().bytes);
+console.log(JSON.stringify({status:"CSV_CAPACITY_VERIFIED",rows:JOURNAL_MAX_COMMANDS,ms:Math.round(performance.now()-start),bytes:Buffer.byteLength(csv),exact:true}));
