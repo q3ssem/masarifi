@@ -406,3 +406,16 @@ html[data-layout="classic"] .report-hero{margin-bottom:12px}
 html[data-style="glass"] .finance-card{border-radius:22px;background:color-mix(in srgb,var(--choice-surface) 92%,transparent)}
 html[data-style="android"] .finance-card{background:var(--android-surface);border-radius:24px;border-color:transparent}
 @media(max-width:350px){.finance-card{padding:10px}.finance-card-head{grid-template-columns:30px minmax(0,1fr) minmax(0,auto);gap:6px}.finance-card .choice-icon{width:30px;height:30px}.finance-value{font-size:17px}.finance-card-title small{font-size:11px}}
+
+/* RC3.18 — contextual chrome, wallet and budget cards using current engine outputs. */
+.quick-bar[hidden]{display:none!important}
+.account-card .finance-action,.budget-card .finance-action{background:var(--identity-soft);color:var(--ink);border:1px solid var(--border);font-weight:600}
+.forecast-card{background:var(--panel)}
+.forecast-card .finance-card-meta{display:grid;grid-template-columns:1fr;gap:7px;border-top:1px solid var(--border);padding-top:10px}
+.report-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
+.report-tool{min-height:48px;border-radius:12px;white-space:normal;font-size:13px;padding-inline:8px}
+.report-tool:last-child{background:var(--identity-surface);color:var(--ink);border:1px solid var(--border)}
+html[data-layout="classic"][data-style="original"] .report-hero .hero-sum{gap:5px}
+html[data-layout="classic"][data-style="original"] .report-hero{margin-top:4px}
+html[data-layout="classic"] .financial-rows .line{overflow-wrap:anywhere}
+@media(max-width:350px){.report-tools{grid-template-columns:1fr}.finance-card-meta{gap:4px 8px}}
