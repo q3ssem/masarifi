@@ -500,3 +500,27 @@ html[data-layout="classic"] .search-result{grid-template-columns:32px minmax(0,1
 html[data-layout="classic"] :is(.finance-value,.search-result-amount) .amount-digits{min-width:0;overflow-wrap:anywhere;max-width:100%}
 @media(max-width:360px){html[data-layout="classic"] .finance-card-head{grid-template-columns:30px minmax(0,1fr) fit-content(43%)}html[data-layout="classic"] .search-result{grid-template-columns:28px minmax(0,1fr) fit-content(43%)}}
 @media(prefers-reduced-motion:reduce){html :is(.finance-action,.report-tool,.search-filter,.settings-row,.hub-tile,.appearance-choice):active{transform:none!important}}
+
+/* RC3.22 — physical iPhone feedback: native date/select must never share a cramped row. */
+html[data-style] .entry-sheet #fields{gap:12px;align-items:start}
+html[data-style] .entry-sheet #fields>label:is([data-field="date"],[data-field="accountId"]){
+ display:grid;grid-template-columns:minmax(0,1fr);gap:6px;min-inline-size:0;max-inline-size:100%;overflow:visible
+}
+html[data-style] .entry-sheet #fields>label:is([data-field="date"],[data-field="accountId"])>:is(input,select){
+ display:block;box-sizing:border-box;inline-size:100%;width:100%;min-inline-size:0;min-width:0;max-inline-size:100%;max-width:100%;
+ block-size:48px;min-block-size:48px;margin:0;padding-block:8px;padding-inline:12px;font-size:16px;line-height:1.35;justify-self:stretch
+}
+html[data-style] .entry-sheet #fields input[type="date"]{
+ appearance:none;-webkit-appearance:none;direction:ltr;text-align:center
+}
+html[data-style] .entry-sheet #fields input[type="date"]::-webkit-date-and-time-value{
+ min-width:0;max-width:100%;margin:0;text-align:center
+}
+html[data-style] .entry-sheet #fields select#accountId{text-overflow:ellipsis}
+@media(max-width:600px){
+ html[data-style] .entry-sheet #fields>label:is([data-field="date"],[data-field="accountId"]){grid-column:1/-1}
+ html[data-style] .entry-sheet #fields{row-gap:12px}
+ html .search-date-fields{grid-template-columns:minmax(0,1fr);gap:12px}
+ html .search-date-fields>label{grid-template-columns:minmax(0,1fr);min-inline-size:0}
+ html .search-date-fields input[type="date"]{inline-size:100%;min-inline-size:0;max-inline-size:100%;margin:0;direction:ltr;text-align:center}
+}
