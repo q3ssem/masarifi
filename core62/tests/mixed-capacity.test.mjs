@@ -1,0 +1,5 @@
+import assert from "node:assert/strict";
+import {createJournalSession,parseJournal,JOURNAL_MAX_COMMANDS} from "../src/journal.mjs";
+const j=createJournalSession(),start=performance.now();
+for(let block=0;block<20;block++){const rows=Array.from({length:999},(_,i)=>({type:"record",id:"mixed_"+block+"_"+i,direction:i%3?"out":"in",amountMinor:101,date:"2026-12-01",category:i%3?"food":null,note:"synthetic",accountId:null}));assert.equal(j.applyRecords(rows).status,"APPLIED_SHADOW");assert.equal(j.apply("budget",{month:"2026-12",category:"food",limitMinor:block*100}).status,"APPLIED_SHADOW");}
+assert.equal(j.journalInfo().commands,JOURNAL_MAX_COMMANDS);const elapsed=Math.round(performance.now()-start),json=JSON.stringify(j.exportJournal()),t=performance.now();assert.deepEqual(parseJournal(json).snapshot(),j.snapshot());assert.equal(j.apply("reminder",{id:"extra",name:"blocked",due:"2026-12-01"}).code,"journal-limit");console.log(JSON.stringify({commands:JOURNAL_MAX_COMMANDS,buildMs:elapsed,replayMs:Math.round(performance.now()-t),bytes:Buffer.byteLength(json),scope:"20 batches separated by budget operations; not device or arbitrary interleaving stress"}));
