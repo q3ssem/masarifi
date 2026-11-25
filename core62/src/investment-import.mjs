@@ -1,0 +1,24 @@
+import {isDate,minorFromDecimal,safeMinor} from "./money.mjs";
+const key=v=>typeof v==="string"&&/^[A-Za-z0-9_-]{1,64}$/.test(v);
+const text=(v,n)=>typeof v==="string"&&v.length<=n;
+const types=["stock","fund","sukuk","deposit","realestate","cash","other"];
+const keys=(o,allowed)=>o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).every(k=>allowed.includes(k));
+const need=(v,c)=>{if(!v)throw Error(c);};
+const empty=v=>v===undefined||v===null||v===""||v===0||v===false||typeof v==="object"&&Object.keys(v).length===0;
+function money(v){need(typeof v==="number"&&Number.isFinite(v)&&v>=0,"investment-amount");return minorFromDecimal(String(v));}
+function rate(v){const n=money(v??0);need(n<=10000,"investment-rate");return n;}
+export function validHoldingMetadata(x){return keys(x,["annualReturnBps","feeBps","maturity","goalId","note","sourceTimestamp"])&&Object.keys(x).length===6&&Number.isInteger(x.annualReturnBps)&&x.annualReturnBps>=0&&x.annualReturnBps<=10000&&Number.isInteger(x.feeBps)&&x.feeBps>=0&&x.feeBps<=1000&&(x.maturity===null||isDate(x.maturity))&&(x.goalId===null||key(x.goalId))&&text(x.note,300)&&Number.isSafeInteger(x.sourceTimestamp)&&x.sourceTimestamp>=0;}
+export function validInvestmentPolicy(x){return keys(x,["inflationBps","safeRateBps","targets"])&&Object.keys(x).length===3&&[x.inflationBps,x.safeRateBps].every(n=>Number.isSafeInteger(n)&&n>=0&&n<=3000)&&Array.isArray(x.targets)&&x.targets.length<=types.length&&new Set(x.targets.map(t=>t.category)).size===x.targets.length&&x.targets.every(t=>keys(t,["category","weightBps"])&&types.includes(t.category)&&Number.isSafeInteger(t.weightBps)&&t.weightBps>=0&&t.weightBps<=10000);}
+export function planInvestmentMigration(iv,{asOf,goalIds=[]}={}){
+ try{need(isDate(asOf)&&keys(iv,["h","tx","vh","dca","tgt","inf","safe","cool"])&&Array.isArray(iv.h)&&iv.h.length<=60&&Array.isArray(iv.tx)&&iv.tx.length<=1500,"investment-contract");
+ need(empty(iv.cool)&&(!iv.dca||keys(iv.dca,["a","h","m"])&&empty(iv.dca.a)&&empty(iv.dca.h)&&empty(iv.dca.m)),"investment-dca-needs-mapping");
+ const holdings=new Map(),ids=new Set(),commands=[];
+ for(const h of iv.h){need(keys(h,["id","n","t","cost","val","r","fee","mat","g","note","rev","ts"])&&key(h.id)&&!holdings.has(h.id)&&text(h.n,40)&&h.n.trim()&&types.includes(h.t)&&isDate(h.rev)&&h.rev<=asOf,"investment-holding");
+ const metadata={annualReturnBps:rate(h.r),feeBps:rate(h.fee),maturity:h.mat||null,goalId:h.g||null,note:h.note??"",sourceTimestamp:h.ts??0};need(validHoldingMetadata(metadata)&&(!metadata.goalId||goalIds.includes(metadata.goalId)),"investment-metadata");holdings.set(h.id,{h,basis:money(h.cost),market:money(h.val),metadata,transactions:[]});}
+ for(const t of iv.tx){need(keys(t,["h","d","k","a","id","ts"])&&holdings.has(t.h)&&key(t.id)&&!ids.has(t.id)&&isDate(t.d)&&t.d<=asOf&&["buy","div"].includes(t.k)&&(t.ts===undefined||Number.isSafeInteger(t.ts)&&t.ts>=0),"investment-history-or-sale-basis");const a=money(t.a);need(a>0,"investment-zero");ids.add(t.id);holdings.get(t.h).transactions.push({id:t.id,holdingId:t.h,date:t.d,type:t.k==="div"?"dividend":"buy",amountMinor:a,...(t.ts!==undefined?{sourceTimestamp:t.ts}:{})});}
+ for(const [id,x] of holdings){const sum=x.transactions.filter(t=>t.type==="buy").reduce((s,t)=>s+BigInt(t.amountMinor),0n);need(sum===BigInt(x.basis)&&x.transactions.every(t=>t.date<=x.h.rev),"investment-basis-or-valuation-history");commands.push({type:"holding",fields:{id,name:x.h.n,category:x.h.t,metadata:x.metadata}});for(const tx of x.transactions.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id)))commands.push({type:"investment",fields:tx});const valuationId="legacy-value:"+id;need(!ids.has(valuationId),"investment-id");commands.push({type:"investment",fields:{id:valuationId,holdingId:id,date:x.h.rev,type:"value",amountMinor:x.market}});}
+ const targets=Object.entries(iv.tgt??{}).map(([category,v])=>({category,weightBps:rate(v)})),policy={inflationBps:rate(iv.inf??2),safeRateBps:rate(iv.safe??5),targets};need(validInvestmentPolicy(policy),"investment-policy");commands.push({type:"investment-policy",fields:policy});
+ const snapshots=[];need(iv.vh===undefined||iv.vh&&typeof iv.vh==="object"&&!Array.isArray(iv.vh)&&Object.keys(iv.vh).length<=60,"investment-history");for(const [month,v] of Object.entries(iv.vh??{})){need(isDate(month+"-01")&&month<=asOf.slice(0,7)&&keys(v,["v","c"]),"investment-snapshot");snapshots.push({type:"investment-snapshot",fields:{month,marketMinor:money(v.v),basisMinor:money(v.c)}});}
+ return {status:"PREVIEW",commands:[...commands,...snapshots],basisMinor:safeMinor([...holdings.values()].reduce((s,x)=>s+BigInt(x.basis),0n)),marketMinor:safeMinor([...holdings.values()].reduce((s,x)=>s+BigInt(x.market),0n))};
+ }catch(e){return {status:"BLOCKED",code:String(e.message),commands:[]};}
+}

@@ -1,0 +1,2 @@
+# Investment migration
+Supports dated valuations, buys with fully matching remaining basis, dividends, holding metadata, target allocation policy, and monthly valuation history. Investment flows remain separate from household cash. Rejects sales without cost basis, missing dates, incompatible history, active DCA/cooldown, unresolved wallet links. Does not infer tax or investment return. Node CI pending. Full legacy migration still blocked.
