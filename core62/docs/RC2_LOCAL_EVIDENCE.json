@@ -1,0 +1,55 @@
+{
+  "version": "62.7.0-rc2.10-local-dev",
+  "testedCommit": "5fd6ca9853e20ca20313f5d836de8bfaa0651397",
+  "decision": "RC2_LOCAL_AUTOMATED_PASS_FREEZE",
+  "releaseDecision": "HOLD_PHYSICAL_ACCEPTANCE",
+  "ci": {
+    "runId": 45611891492,
+    "unit": {
+      "jobId": 139197269934,
+      "testFiles": 47,
+      "status": "PASS"
+    },
+    "chromium": {
+      "jobId": 139197269859,
+      "geometryChecks": 672,
+      "screenshots": 112,
+      "status": "PASS"
+    },
+    "webkit": {
+      "jobId": 139197269424,
+      "geometryChecks": 672,
+      "screenshots": 112,
+      "status": "PASS"
+    }
+  },
+  "package": {
+    "assets": 39,
+    "assetBytes": 316484,
+    "archiveBytes": 181900,
+    "artifactId": 15019814364,
+    "archiveSha256": "33f8a02244349c4da10fcf1e9e715754d0675966833ef88c28644cfcbd354b3d",
+    "manifestSha256": "d0b265cd659c80fb27d10a3d1b3f98d3a6e1881f1209d615ebf88ca9ad1e36c2",
+    "reproducible": true,
+    "negativeCasesPassed": 8,
+    "releaseAuthorized": false
+  },
+  "capacity": {
+    "commands": 20000,
+    "rows": 19980,
+    "buildMs": 1989,
+    "replayMs": 2168,
+    "viewSearchMs": 206,
+    "scope": "synthetic CI workload, not physical device or arbitrary workload"
+  },
+  "visualArtifacts": {
+    "chromium": 15019822855,
+    "webkit": 15021000405,
+    "manualFullReview": "NOT_EXECUTED"
+  },
+  "cloudFeatures": "DEFERRED",
+  "physicalIPhone": "NOT_EXECUTED",
+  "legacyMigration": "NOT_APPROVED",
+  "mainVerified": "b6b03894d2ebf166d0e255b8587859a3bd12aedf",
+  "productionReleaseAuthorized": false
+}

@@ -22,3 +22,6 @@ RC2.3 corrected run 45606718977 passed all three jobs. RC2.4: single-pass exact 
 
 ## RC2.10 — local release freeze and independent package QA
 RC2.9 run 45610267979 passed unit, Chromium, WebKit, including visual capture. Evidence: 47 test files; 20,000 commands, 19,980 projected rows, 328 ms view/search on CI (not device); 39 assets, 316,484 bytes; package artifact 15019542980. Intermediate RC2.3 failure was corrected and verified in 45606718977. RC2.10 adds independent local package verification before artifact upload, exact file inventory and SHA-256, PWA shell inventory consistency, deterministic rebuild comparison and eight negative corruption/scope cases. No new application functionality or journal commands. Latest RC2.10 CI must pass before automated closure; manual visual review and real iPhone acceptance remain open; migration separate and not approved. No main merge or publication.
+
+## RC2.10 verified closure decision
+All three jobs passed in run 45611891492. Candidate frozen at 5fd6ca9853e20ca20313f5d836de8bfaa0651397. See RC2_CLOSURE_REPORT.md and RC2_LOCAL_EVIDENCE.json. Automated closure PASS; production HOLD pending physical acceptance and final manual review. No runtime changes.
