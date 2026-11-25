@@ -1,0 +1,2 @@
+# RC1 autosave
+Explicit session-only opt-in, encrypted CAS save serialized, coalesces edits, stops on conflict/error. Manual data actions suspend autosave; no password stored at rest. An in-flight save may complete after stop; no guarantee on abrupt OS termination. 7 source-level assertions executed; browser auto-save/reload regression added, pending CI. Fixed stale import apply guard for file and date. No production change.
