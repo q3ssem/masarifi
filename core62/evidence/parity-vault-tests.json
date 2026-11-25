@@ -1,0 +1,104 @@
+{
+  "passed": 24,
+  "total": 24,
+  "elapsedMs": 577,
+  "syntheticRows": 100000,
+  "tests": [
+    {
+      "name": "actual legacy ledgerMonth projection parity",
+      "pass": true
+    },
+    {
+      "name": "all six legacy buckets",
+      "pass": true
+    },
+    {
+      "name": "all feature kinds",
+      "pass": true
+    },
+    {
+      "name": "row count",
+      "pass": true
+    },
+    {
+      "name": "row amount drift",
+      "pass": true
+    },
+    {
+      "name": "metadata drift without total drift",
+      "pass": true
+    },
+    {
+      "name": "same total reordered rows",
+      "pass": true
+    },
+    {
+      "name": "missing row",
+      "pass": true
+    },
+    {
+      "name": "duplicate blocks actual parity",
+      "pass": true
+    },
+    {
+      "name": "invalid date blocks",
+      "pass": true
+    },
+    {
+      "name": "zero blocks",
+      "pass": true
+    },
+    {
+      "name": "empty projection",
+      "pass": true
+    },
+    {
+      "name": "always read-only",
+      "pass": true
+    },
+    {
+      "name": "100k actual legacy vs new projection",
+      "pass": true
+    },
+    {
+      "name": "new revision",
+      "pass": true
+    },
+    {
+      "name": "stale revision",
+      "pass": true
+    },
+    {
+      "name": "unsafe stage blocked",
+      "pass": true
+    },
+    {
+      "name": "rollback creates revision",
+      "pass": true
+    },
+    {
+      "name": "rollback restores empty",
+      "pass": true
+    },
+    {
+      "name": "unknown target",
+      "pass": true
+    },
+    {
+      "name": "bounded history",
+      "pass": true
+    },
+    {
+      "name": "pruned revision blocked",
+      "pass": true
+    },
+    {
+      "name": "invalid vault blocked",
+      "pass": true
+    },
+    {
+      "name": "never mutate incoming state",
+      "pass": true
+    }
+  ]
+}

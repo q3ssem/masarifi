@@ -1,0 +1,36 @@
+import {legacyRows} from "../src/migration.mjs";
+import {rowParity,gate} from "../src/projection-parity.mjs";
+import {emptyVault,advanceVault} from "../src/persistent-shadow.mjs";
+import {fin618Analyze,projectFixture} from "./fixtures/legacy6181-projection.mjs";
+const results=[];function check(name,fn){try{if(fn()!==true)throw Error("assertion");results.push({name,pass:true});}catch(e){results.push({name,pass:false,error:String(e)});}}
+const e=(id,amount,date,extra={})=>({id,amount,date,cat:"food",ts:0,...extra});
+const f={future:[e("future",10,"2026-12-20")],out:[e("expense",123.45,"2026-12-01"),e("inst",50,"2026-12-02",{inst:"i"}),e("debt",25,"2026-12-03",{debt:"d"}),e("assoc",33,"2026-12-04",{jm:"a"}),e("fixed",9,"2026-12-05",{fid:"f",assumed:true}),e("bnpl",11,"2026-12-06",{bnin:"b"})],in:[e("salary",1000,"2026-12-01"),e("repeat",200,"2026-12-20",{rid:"r"}),e("estimate",15,"2026-12-02",{assumed:true})],plan:[e("due",70,"2026-12-30",{inst:"i"})],debts:[{dir:"owed",id:"owed",who:"synthetic",pays:[{d:"2026-12-03",a:19}]}]};
+const rows=projectFixture(f), converted=legacyRows(rows), old=fin618Analyze(rows),g=gate(rows,converted,old);
+check("actual legacy ledgerMonth projection parity",()=>g.status==="PROJECTION_PARITY_OK");
+check("all six legacy buckets",()=>old.cents.confirmedIn===101900&&old.cents.confirmedOut===24245&&old.cents.assumedIn===1500&&old.cents.assumedOut===900&&old.cents.plannedIn===20000&&old.cents.plannedOut===8000);
+check("all feature kinds",()=>["expense","income","debt","association","fixed","bnpl","installment"].every(k=>rows.some(x=>x.kind===k)));
+check("row count",()=>rows.length===12);
+check("row amount drift",()=>gate(rows,converted.map((r,i)=>i===0?{...r,amountMinor:r.amountMinor+1}:r),old).status==="BLOCKED");
+check("metadata drift without total drift",()=>gate(rows,converted.map((r,i)=>i===0?{...r,kind:"changed"}:r),old).status==="BLOCKED");
+check("same total reordered rows",()=>gate(rows,[...converted].reverse(),old).status==="BLOCKED");
+check("missing row",()=>gate(rows,converted.slice(1),old).status==="BLOCKED");
+const dup=[rows[0],rows[0]];check("duplicate blocks actual parity",()=>gate(dup,legacyRows(dup),fin618Analyze(dup)).status==="BLOCKED");
+const bad=[{...rows[0],d:"2026-02-30"}];check("invalid date blocks",()=>gate(bad,legacyRows(bad),fin618Analyze(bad)).status==="BLOCKED");
+const zeros=[{...rows[0],a:0}];check("zero blocks",()=>gate(zeros,legacyRows(zeros),fin618Analyze(zeros)).status==="BLOCKED");
+check("empty projection",()=>gate([],[],fin618Analyze([])).status==="PROJECTION_PARITY_OK");
+check("always read-only",()=>g.writeAllowed===false);
+const large=Array.from({length:100000},(_,i)=>({id:"synthetic:"+i,d:"2026-12-01",a:i%2?1.03:-1.01,status:"confirmed",kind:i%2?"income":"expense",category:i%2?null:"food"}));const start=Date.now();const stress=gate(large,legacyRows(large),fin618Analyze(large));const elapsed=Date.now()-start;check("100k actual legacy vs new projection",()=>stress.status==="PROJECTION_PARITY_OK"&&stress.totals.actual.cents.confirmedIn===5150000);
+const stage={status:"STAGED_READ_ONLY",schema:1,productionWriteAllowed:false,source:{status:"CAPTURED",schema:1,entries:[["masarifi.v2","synthetic"]]}};
+let state=emptyVault();const command={type:"stage",stage,expectedRevision:0};const a=advanceVault(state,command);check("new revision",()=>a.next.revision===1&&a.result.productionWriteAllowed===false);state=a.next;
+check("stale revision",()=>advanceVault(state,command).result.status==="CONFLICT");
+check("unsafe stage blocked",()=>advanceVault(state,{...command,expectedRevision:1,stage:{...stage,productionWriteAllowed:true}}).result.status==="BLOCKED");
+check("rollback creates revision",()=>advanceVault(state,{type:"rollback",targetRevision:0,expectedRevision:1}).next.revision===2);
+check("rollback restores empty",()=>advanceVault(state,{type:"rollback",targetRevision:0,expectedRevision:1}).next.snapshot===null);
+check("unknown target",()=>advanceVault(state,{type:"rollback",targetRevision:99,expectedRevision:1}).result.code==="unknown-revision");
+for(let i=0;i<7;i++)state=advanceVault(state,{...command,expectedRevision:state.revision}).next;
+check("bounded history",()=>state.history.length===4&&state.history[0].revision===state.revision-3);
+check("pruned revision blocked",()=>advanceVault(state,{type:"rollback",targetRevision:0,expectedRevision:state.revision}).result.code==="unknown-revision");
+check("invalid vault blocked",()=>advanceVault({...state,snapshot:null},{...command,expectedRevision:state.revision}).result.code==="invalid-vault");
+check("never mutate incoming state",()=>a.next.history.length===2&&a.next.revision===1);
+
+const result={passed:results.filter(x=>x.pass).length,total:results.length,elapsedMs:elapsed,tests:results};console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;
