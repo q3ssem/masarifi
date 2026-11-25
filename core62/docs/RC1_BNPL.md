@@ -1,0 +1,2 @@
+# Linked BNPL migration
+Supports explicit Tabby/Tamara first expense link with same category/provider, subsequent scheduled installments and estimated/confirmed settlement history. First payment remains one ordinary transaction, not recreated. Linked first payment cannot be edited or voided until a safe linked editing workflow exists. Missing/ambiguous links and unsupported legacy variants remain blocked. Node CI pending; no real migration.

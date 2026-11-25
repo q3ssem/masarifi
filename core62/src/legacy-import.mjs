@@ -38,10 +38,10 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
  });
  for(let i=0;i<raw.insts.length;i++)group("insts",i,(x,out)=>{
    require(x&&originalId(x.id)&&!seen.has(x.id)&&typeof x.name==="string"&&x.name.trim()&&isDate(x.start+"-01")&&Number.isInteger(x.months)&&x.months>=1&&x.months<=360&&Number.isInteger(x.day)&&x.day>=1&&x.day<=31&&Array.isArray(x.paidOn),"installment-contract");
-   require(!nonempty(x.bn)&&!nonempty(x.ex)&&!nonempty(x.cat),"installment-special-metadata");
+   const bn=nonempty(x.bn);require(!bn?!nonempty(x.ex)&&!nonempty(x.cat):["tabby","tamara"].includes(x.bn)&&originalId(x.ex)&&typeof x.cat==="string"&&x.cat.trim(),"installment-special-metadata");if(bn){const first=ordinary.find(m=>m.id===x.ex);require(first&&first.direction==="out"&&first.metadata?.purchaseProvider===x.bn&&first.category===x.cat&&first.date<x.start+"-01","bnpl-first-payment-link");}require(x.ts===undefined||Number.isSafeInteger(x.ts)&&x.ts>=0,"installment-timestamp");
    require((x.paidBase===undefined||Number.isInteger(x.paidBase)&&x.paidBase>=0&&x.paidBase<=x.months)&&(x.paid===undefined||Number.isInteger(x.paid)&&x.paid>=0&&x.paid<=x.months)&&["manual","auto"].includes(x.mode),"installment-payment-mode");
-   knownFields(x,["id","name","amount","months","start","day","mode","paid","paidBase","trackPayments","paidOn","bn","cat","ex"]);
-   const amountMinor=strictAmount(x.amount),r={id:x.id,kind:"installment",direction:"out",amountMinor,start:x.start+"-01",day:x.day,everyMonths:1,count:x.months,end:null,name:x.name};
+   knownFields(x,["id","name","amount","months","start","day","mode","paid","paidBase","trackPayments","paidOn","bn","cat","ex","ts"]);
+   const amountMinor=strictAmount(x.amount),r={id:x.id,kind:bn?"bnpl":"installment",direction:"out",amountMinor,start:x.start+"-01",day:x.day,everyMonths:1,count:x.months,end:null,name:x.name,...(bn?{category:x.cat,purchaseProvider:x.bn,firstMovementId:x.ex}:{}),...(x.ts!==undefined?{sourceTimestamp:x.ts}:{})};
    require(x.months<=120,"long-schedule-requires-review");
    const y=Number(x.start.slice(0,4)),month=Number(x.start.slice(5,7)),last=y*12+month-1+x.months-1,ey=Math.floor(last/12),em=last%12+1;
    require(ey<=9999,"schedule-range");
