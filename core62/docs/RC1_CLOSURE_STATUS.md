@@ -21,3 +21,5 @@ RC1.12 run 45596475155: unit and Chromium PASS; WebKit standard UI PASS (672 res
 
 ## RC1.14 final audit increment
 Added explicit partial/full refund linkage to an existing expense, cumulative cap, audited reversal and gross cash reporting with a separate refund metric. Existing expense remains gross; refund does not reduce category budgets or project totals automatically. Refunds are journal-backed; legacy refund mapping remains blocked. Added private read-only legacy audit CLI combining strict preview, replay and independent monthly reconciliation; no real backup was used. Latest CI required. WebKit physical offline, production hosting and actual source-data validation remain open.
+
+RC1.14 follow-up: overview and reports distinguish refund cash from ordinary income; unified all-period gross inflow is explicitly labelled. Added executable synthetic CLI match/mismatch/source-preservation test. User-owned data remains untouched. Final release gate remains HOLD until latest CI, physical iOS, independently exported actual data and production hosting are verified.
