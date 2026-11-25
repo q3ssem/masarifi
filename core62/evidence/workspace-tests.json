@@ -1,0 +1,102 @@
+{
+  "passed": 24,
+  "total": 24,
+  "tests": [
+    {
+      "name": "isolated clean state",
+      "pass": true
+    },
+    {
+      "name": "account through unified controller",
+      "pass": true
+    },
+    {
+      "name": "expense through controller",
+      "pass": true
+    },
+    {
+      "name": "stale workspace command blocked",
+      "pass": true
+    },
+    {
+      "name": "budget through controller",
+      "pass": true
+    },
+    {
+      "name": "rule through controller",
+      "pass": true
+    },
+    {
+      "name": "duplicate rule rejected",
+      "pass": true
+    },
+    {
+      "name": "projection integrated",
+      "pass": true
+    },
+    {
+      "name": "search integrated",
+      "pass": true
+    },
+    {
+      "name": "materialization through controller",
+      "pass": true
+    },
+    {
+      "name": "materialization idempotent",
+      "pass": true
+    },
+    {
+      "name": "scheduled payment linked once",
+      "pass": true
+    },
+    {
+      "name": "goal through controller",
+      "pass": true
+    },
+    {
+      "name": "goal contribution isolated from cash",
+      "pass": true
+    },
+    {
+      "name": "negative goal history blocked",
+      "pass": true
+    },
+    {
+      "name": "holding through controller",
+      "pass": true
+    },
+    {
+      "name": "wealth incomplete until marked",
+      "pass": true
+    },
+    {
+      "name": "buy event",
+      "pass": true
+    },
+    {
+      "name": "valuation event",
+      "pass": true
+    },
+    {
+      "name": "asset event",
+      "pass": true
+    },
+    {
+      "name": "wealth integrated",
+      "pass": true
+    },
+    {
+      "name": "snapshot detached",
+      "pass": true
+    },
+    {
+      "name": "all production writes forbidden",
+      "pass": true
+    },
+    {
+      "name": "other session unchanged",
+      "pass": true
+    }
+  ]
+}
