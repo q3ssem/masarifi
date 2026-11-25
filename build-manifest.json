@@ -1,5 +1,5 @@
 {
-  "version": "62.7.0-rc3.21-local-dev",
+  "version": "62.7.0-rc3.27-local-dev",
   "entry": "app/index.html",
   "releaseAuthorized": false,
   "legacyMigrationComplete": false,
@@ -48,13 +48,13 @@
     },
     {
       "path": "app/app.css",
-      "bytes": 65596,
-      "sha256": "6419a37fe868126ed11f0ba1662d8d0a06a89623383dbd8692e0a3ad8f34a822"
+      "bytes": 77886,
+      "sha256": "9e7692f0822da28d22ce9c93a224607717b377aba18f22660c8935508cd18c47"
     },
     {
       "path": "app/app.mjs",
-      "bytes": 75725,
-      "sha256": "207e937dbc76925f56d1a39d4f1246d8086999fb4ed4c1b5ece750b109b8e381"
+      "bytes": 75588,
+      "sha256": "8f10f27d1fbd78d53c95d2453b6acbadb9d565375eeffb545a07da2d53eaf30f"
     },
     {
       "path": "app/app.webmanifest",
@@ -94,12 +94,12 @@
     {
       "path": "app/index.html",
       "bytes": 12973,
-      "sha256": "b0b4382e4dc3e85e7b4eb54d8a595907f6e614191cf7ff237e4442fe7b11f440"
+      "sha256": "9f4f2b93e87496454d482902de87b59629718554416f0fd7ba4ef0458d373496"
     },
     {
       "path": "app/offline-worker.mjs",
       "bytes": 6384,
-      "sha256": "1b696ad8cb32ef54ea81d52e7c407ed11509639d755884980729ebfb52256b2b"
+      "sha256": "60b105accdae580e843e6d293f84909fdb023f3e0fe01e3a2755cb1a26407855"
     },
     {
       "path": "app/offline.mjs",
