@@ -27,3 +27,18 @@ jobs:
           done
       - name: Verify temporary legacy bridge generation
         run: node core62/scripts/build-bridge.mjs --check
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependency
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser app and encrypted IndexedDB checks
+        run: node core62/tests/browser-release.mjs

@@ -1,0 +1,26 @@
+import assert from "node:assert/strict";
+import {webcrypto} from "node:crypto";
+import {createJournalSession,parseJournal} from "../src/journal.mjs";
+import {monthlyReport} from "../src/reporting.mjs";
+import {vaultTransition,saveEncrypted,loadEncrypted} from "../src/journal-store.mjs";
+const j=createJournalSession(),date="2026-12-01",opts={month:"2026-12",asOf:"2026-12-15",through:"2026-12-31",openingMinor:100000};
+function send(type,fields){assert.equal(j.apply(type,fields).status,"APPLIED_SHADOW");}
+send("domain",{type:"account",id:j.nextId("account"),name:"حساب",openingMinor:100000,openingDate:date});const account=j.snapshot().domain.accounts[0].id;
+send("domain",{type:"record",id:j.nextId("expense"),direction:"out",amountMinor:2000,date,category:"food",note:"وجبة",accountId:account});
+send("rule",{id:"salary",kind:"income",direction:"in",amountMinor:50000,start:date,day:25,everyMonths:1,count:2,end:null,name:"راتب"});
+send("materialize",{scheduleId:"salary",due:"2026-12-25"});
+send("domain",{type:"settle",id:j.nextId("receive"),obligationId:"sch:salary:2026-12-25",amountMinor:10000,date:"2026-12-14",accountId:account,note:"قبض"});
+send("budget",{month:"2026-12",category:"food",limitMinor:10000});
+send("goal",{id:"goal",name:"هدف",targetMinor:100000,due:"2027-03-01"});send("contribution",{id:"g1",goalId:"goal",date,amountMinor:10000});
+send("holding",{id:"h",name:"استثمار",category:"stock"});send("investment",{id:"b",holdingId:"h",date,type:"buy",amountMinor:10000});send("investment",{id:"v",holdingId:"h",date,type:"value",amountMinor:15000});send("asset",{id:"car",name:"أصل",valueMinor:50000,valuedOn:date});
+const restored=parseJournal(JSON.stringify(j.exportJournal()));assert.deepEqual(restored.snapshot(),j.snapshot());assert.deepEqual(restored.view(opts),j.view(opts));
+assert.deepEqual(monthlyReport(restored.view(opts).projection.rows,opts.month),monthlyReport(j.view(opts).projection.rows,opts.month));
+let head=null;const store={read:async()=>structuredClone(head),save:async(expected,envelope)=>{const r=vaultTransition(head,expected,envelope);if(r.status==="SAVED")head=structuredClone(r.next);return r;}};
+const pw="synthetic-strong-passphrase";const saved=await saveEncrypted(store,webcrypto,j,pw,0);assert.equal(saved.status,"SAVED");assert.equal(head.generation,1);assert.equal(JSON.stringify(head).includes("وجبة"),false);
+const loaded=await loadEncrypted(store,webcrypto,pw);assert.deepEqual(loaded.session.snapshot(),j.snapshot());
+await assert.rejects(loadEncrypted(store,webcrypto,"wrong-strong-passphrase"));
+assert.equal((await saveEncrypted(store,webcrypto,j,pw,0)).status,"CONFLICT");
+send("budget",{month:"2026-12",category:"other",limitMinor:50});assert.equal((await saveEncrypted(store,webcrypto,j,pw,1)).status,"SAVED");
+assert.deepEqual((await loadEncrypted(store,webcrypto,pw,{previous:true})).session.snapshot(),restored.snapshot());
+const bad=structuredClone(head);bad.envelope.ciphertext=(bad.envelope.ciphertext[0]==="0"?"1":"0")+bad.envelope.ciphertext.slice(1);await assert.rejects(loadEncrypted({read:async()=>bad},webcrypto,pw));assert.equal(head.generation,2);
+console.log("Encrypted journal integration passed: multi-engine replay, report parity, ciphertext-only mock store, wrong password, stale CAS, previous revision and tamper rejection.");
