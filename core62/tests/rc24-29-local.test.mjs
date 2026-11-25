@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import {createJournalSession,parseJournal} from "../src/journal.mjs";
+import {budgetOverview} from "../src/planning.mjs";
+import {envelope} from "../src/projections.mjs";
+import {searchMovements} from "../src/search.mjs";
+const j=createJournalSession(),apply=(type,fields)=>{const r=j.apply(type,fields);assert.equal(r.status,"APPLIED_SHADOW",JSON.stringify(r));};
+const record=(id,date,amountMinor,direction="out")=>apply("domain",{type:"record",id,direction,amountMinor,date,category:direction==="out"?"food":null,note:id,accountId:null});
+record("old","2026-11-01",1000);record("new","2026-12-01",2000);record("salary","2026-12-01",10000,"in");
+apply("budget-default",{category:null,limitMinor:20000});apply("budget-overall",{month:"2026-12",limitMinor:5000});apply("budget",{month:"2026-12",category:"food",limitMinor:3000});
+apply("planned-record",{id:"future",direction:"out",amountMinor:1000,date:"2026-12-30",category:"food",note:"future"});
+apply("planned-record",{id:"planned_income",direction:"in",amountMinor:4000,date:"2026-12-25",category:null,note:"income"});
+const opts={month:"2026-12",asOf:"2026-12-01",through:"2026-12-31",openingMinor:5000};
+const base=j.view(opts);assert.equal(base.monthlyReport.confirmedNetMinor,8000);assert.equal(base.previousConfirmed.netMinor,-1000);assert.equal(base.budget.overallLimitMinor,5000);assert.equal(base.budget.overall.remainingConfirmedMinor,3000);assert.equal(base.budget.overall.remainingIncludingPlansMinor,2000);assert.equal(base.budget.items[0].remainingIncludingPlansMinor,0);
+assert.equal(base.forecast.closingMinor,8000);assert.equal(j.view({...opts,scenario:"cautious"}).forecast.closingMinor,7500);assert.equal(j.view({...opts,scenario:"optimistic"}).forecast.closingMinor,8500);assert.equal(j.view({...opts,month:"2026-11"}).budget.overallLimitMinor,20000);
+assert.equal(j.view({...opts,query:"future",searchOptions:{status:"confirmed"}}).search.total,0);assert.equal(j.view({...opts,query:"future",searchOptions:{status:"planned"}}).search.total,1);
+assert.deepEqual(parseJournal(JSON.stringify(j.exportJournal())).view(opts),base);
+const rows=Array.from({length:20000},(_,i)=>({id:"r"+i,date:"2026-12-01",amountMinor:-1,status:["confirmed","assumed","planned"][i%3],kind:"expense",category:"c"+i%1000}));
+const limits=Array.from({length:1000},(_,i)=>({category:"c"+i,limitMinor:30})),begin=performance.now();const budget=budgetOverview(rows,"2026-12",limits,{overallLimitMinor:30000});const elapsed=Math.round(performance.now()-begin);assert.equal(budget.status,"ANALYSIS_ONLY");assert.equal(budget.overall.remainingIncludingEstimatesMinor,10000);assert.equal(budget.items.length,1000);assert.equal(budget.unbudgetedConfirmedMinor,0);
+for(const i of [0,1,499,999]){const a=budget.items[i],e=envelope(rows,{month:"2026-12",category:limits[i].category,limitMinor:30});for(const k of ["confirmedMinor","assumedMinor","plannedMinor","remainingConfirmedMinor","remainingIncludingPlansMinor","remainingIncludingEstimatesMinor"])assert.equal(a[k],e[k]);}
+const page1=searchMovements(rows,"",{limit:100,offset:0}),page2=searchMovements(rows,"",{limit:100,offset:100});assert.equal(page1.total,20000);assert.equal(page2.results[0].id,"r100");assert.equal(new Set([...page1.results,...page2.results].map(x=>x.id)).size,200);assert.throws(()=>searchMovements(rows,"",{offset:-1}));assert.equal(searchMovements(rows,"",{limit:100,offset:20000}).truncated,false);
+const overflow=budgetOverview(["confirmed","assumed","planned"].map((status,i)=>({id:"max"+i,date:"2026-12-01",amountMinor:-Number.MAX_SAFE_INTEGER,status,kind:"expense",category:"food"})),"2026-12",[{category:"food",limitMinor:0}]);assert.equal(overflow.status,"BLOCKED");
+console.log(JSON.stringify({stage:"RC2.4-2.9",budgetRows:rows.length,categories:limits.length,budgetMs:elapsed,scope:"synthetic CI; not physical device"}));

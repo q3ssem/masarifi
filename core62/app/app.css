@@ -10,3 +10,6 @@ html[data-layout="unified"] .panel{border-radius:20px;padding:16px}
 
 @media(max-width:480px){html[data-layout="unified"] #nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}html[data-layout="unified"] #nav button{font-size:13px;padding:5px 3px;overflow-wrap:anywhere}html[data-layout="unified"] .panel{padding:12px}}
 @media(max-width:350px){html[data-layout="unified"] .cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* RC2.7: compact, non-overlapping local reports and accessible control focus. */
+.scenario-control{margin:8px 0}.search-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.search-controls>#searchQuery,.search-controls>button,.search-controls>p{grid-column:1/-1}.pagination{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.line strong{font-variant-numeric:tabular-nums}.hero-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.period summary,.recovery-tools summary{min-height:44px;display:list-item;padding-block:9px}summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}#offlineStatus{max-width:1050px;margin:0 auto;padding:8px 12px;color:var(--muted);font-size:13px}@media(max-width:350px){.search-controls{grid-template-columns:1fr}.metric strong{font-size:16px}}
