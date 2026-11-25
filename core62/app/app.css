@@ -313,3 +313,43 @@ html[data-layout="classic"] .legacy-hub .more-nav .hub-tile{min-height:56px;bord
 .legacy-hub .hub-tile .choice-icon{width:34px;height:34px;border-radius:9px}
 .legacy-hub .hub-tile .hub-label small{font-size:12px;line-height:1.4}
 @media(max-width:360px){html[data-layout="classic"][data-style="original"] main{padding-inline:10px}html[data-layout="classic"][data-style="original"] .brand h1{font-size:21px}html[data-style] .entry-sheet #editor{padding-inline:12px}.entry-sheet .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.entry-sheet #fields{grid-template-columns:minmax(0,1fr)}}
+
+/* RC3.15: visual corrections measured against the actual 61.8.1 screenshots. */
+html[data-layout="classic"] .notice{font-size:11px;line-height:1.3;padding:2px 4px;margin:0 0 5px;border:0;background:transparent}
+html[data-layout="classic"] #saveState{margin:10px 0 0;text-align:center}
+html[data-layout="classic"] .period{margin:12px 0 8px}
+html[data-layout="classic"] .identity-hero .hero-total{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;font-weight:700;font-size:30px}
+.amount-label{display:inline-flex;align-items:baseline;gap:3px;max-width:100%;direction:rtl}
+.amount-digits{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.amount-label .amount-unit{font-size:.54em;font-weight:500;color:inherit;white-space:nowrap;opacity:.9}
+.identity-hero .hero-total .amount-unit{font-size:.45em}
+.hero-subtotal{font-size:14px;font-weight:700;line-height:1.4;flex-wrap:wrap}
+.identity-hero .hero-sum>div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.identity-hero .hero-sum>div>small{font-size:11px;font-weight:500}
+html[data-layout="classic"][data-style="original"] .quick-bar #quickIncome{background:var(--action);color:white;border-color:transparent}
+html[data-layout="classic"][data-style="original"] .home-row:has(.home-edit-mark){grid-template-columns:34px minmax(0,1fr) minmax(0,auto) 18px}
+.home-edit-mark{display:grid;place-items:center;color:var(--muted)}.home-edit-mark svg{width:16px;height:16px}
+html[data-layout="classic"][data-style="original"] .home-row-label>span{font-weight:500}
+html[data-layout="classic"][data-style="original"] .home-row-value{font-size:13px}
+html[data-layout="classic"][data-style="original"] .home-row-label small{font-size:12px}
+html[data-style="original"] .entry-sheet{background:var(--panel);--entry-surface:var(--identity-surface);padding-top:12px}
+html[data-style="original"] .entry-sheet #editor{background:transparent}
+html[data-style="original"] .entry-sheet #editor .editor-head,html[data-style="original"] .entry-sheet .entry-submit{background:var(--identity-surface)}
+.entry-sheet>.sheet-grab{margin:0 auto 2px}
+.entry-sheet #editor .editor-head .icon-btn,.legacy-hub .editor-head .icon-btn{background:transparent;border:0;font-size:23px;font-weight:400;box-shadow:none}
+.entry-sheet #fields #amt{background:color-mix(in srgb,var(--identity-soft) 45%,var(--entry-surface));font-size:30px}
+.entry-sheet #amt::placeholder{color:var(--muted);opacity:1}
+.entry-sheet #note::placeholder{color:var(--muted);opacity:.8;font-size:13px}
+.entry-sheet #amt:focus-visible{outline:2px solid var(--border);outline-offset:1px;box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 15%,transparent)}
+.entry-sheet .choice-grid .choice-chip[aria-pressed=true]{background:var(--action);color:#fff;border-color:transparent;box-shadow:0 4px 8px -5px var(--ink)}
+.entry-sheet .choice-grid .choice-chip[aria-pressed=true] .choice-icon{color:#fff}
+.entry-sheet[data-entry-kind="in"] #incomeSourceChoices{display:flex;flex-wrap:wrap;gap:7px;align-items:stretch}
+.entry-sheet[data-entry-kind="in"] #incomeSourceChoices .choice-chip{width:auto;flex:0 1 auto;max-width:100%;padding-inline:12px;min-height:44px}
+html[data-style="original"] .entry-sheet #fields>label input:not(#amt),html[data-style="original"] .entry-sheet #fields>label select{background:color-mix(in srgb,var(--identity-surface) 82%,var(--identity-soft))}
+html[data-style="original"] .legacy-hub .more-nav{background:transparent;border:0;gap:9px!important;overflow:visible}
+html[data-layout="classic"][data-style="original"] .legacy-hub .more-nav .hub-tile{border:1px solid var(--border);border-radius:13px;background:var(--panel);min-height:60px;padding:9px 12px}
+html[data-layout="classic"][data-style="original"] .legacy-hub .more-nav .hub-tile+.hub-tile{border-top:1px solid var(--border)!important}
+.legacy-hub .editor-head{border-bottom:1px solid var(--border);padding-bottom:8px}
+.entry-notice{position:fixed;z-index:4;bottom:max(12px,env(safe-area-inset-bottom));inset-inline:14px;max-width:560px;margin-inline:auto;box-shadow:0 3px 20px #0002;pointer-events:none}
+@media(max-width:360px){html[data-layout="classic"] .identity-hero .hero-total{font-size:26px}.hero-subtotal{font-size:12px}.entry-sheet[data-entry-kind="in"] #incomeSourceChoices .choice-chip{padding-inline:9px}.entry-sheet #fields #amt{font-size:27px}.entry-sheet #editor{padding-inline:12px}}
+@media print{.entry-notice{display:none!important}}
