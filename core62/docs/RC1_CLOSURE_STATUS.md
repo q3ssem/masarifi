@@ -10,3 +10,6 @@ No data or main changes. Do not advance RC2 as fully approved until release auth
 
 ## RC1.11 development follow-up
 RC1.10 run 45595358973 passed unit, Chromium and WebKit. RC1.11 adds bounded project budgets with explicit existing-expense links, equal bill allocation by halalah (reference only; no debts/refunds), and manual SAR SMS amount extraction requiring confirmation. Raw SMS is not stored. Existing expense references must be detached before editing/voiding. No automatic SMS access, comprehensive bank formats, refunds or legacy parity claimed. CI pending for RC1.11. Real backup, production deployment, physical device/offline PWA, remaining advanced feature parity are still release blockers.
+
+## RC1.12 offline candidate
+Packaged build adds a manifest, local icons and versioned integrity-checked service worker shell. Only static allowlisted assets are cached; the sync API and financial records never enter the shell cache. Worker updates use the normal waiting lifecycle, not forced activation. The reference runtime redirects / to /app/index.html. Added separate Chromium/WebKit packaged offline tests with encrypted vault restore. Latest CI required. Actual iPhone PWA installation, upgrades, storage eviction and crash rehearsal remain unverified. No deployment or main changes.
