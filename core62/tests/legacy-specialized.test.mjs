@@ -16,7 +16,7 @@ check("reject monthly debt",()=>previewLegacy(JSON.stringify({...base,debts:[{..
 check("reject estimated installment history",()=>previewLegacy(JSON.stringify({...base,insts:[{...inst,paidBase:1}]}),{asOf}).status==="BLOCKED");
 check("reject automatic installment history",()=>previewLegacy(JSON.stringify({...base,insts:[{...inst,trackPayments:false,mode:"auto"}]}),{asOf}).status==="BLOCKED");
 check("reject savings without date",()=>previewLegacy(JSON.stringify({...base,goals:[{...goal,saved:50}]}),{asOf}).status==="BLOCKED");
-check("reject payment timestamps not preserved",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,pays:[{...debt.pays[0],ts:123}]}]}),{asOf}).status==="BLOCKED");
+check("preserve payment timestamps",()=>previewLegacy(JSON.stringify({...base,debts:[{...debt,pays:[{...debt.pays[0],ts:123}]}]}),{asOf}).status==="IMPORT_PREVIEW");
 check("source unchanged",()=>JSON.stringify(JSON.parse(source))===source&&p.sourcePreserved);
 const result={passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

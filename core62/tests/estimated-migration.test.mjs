@@ -1,0 +1,8 @@
+import assert from "node:assert/strict";
+import {previewLegacy,importIntoEmpty} from "../src/legacy-import.mjs";
+import {parseJournal} from "../src/journal.mjs";
+const asOf="2026-12-15",opts={month:"2026-12",asOf,through:"2027-02-28",openingMinor:0};
+const raw={app:"masarifi",version:2,expenses:[],incomes:[],insts:[{id:"i_1",name:"قسط",amount:100,months:4,start:"2026-10",day:5,mode:"auto",paid:0,paidBase:0,trackPayments:false,paidOn:[]}],debts:[],goals:[],fixeds:[{id:"fx_1",name:"ثابت",cat:"bills",amount:50,start:"2026-11",end:"2027-01",trackFrom:"2026-12",paidMonths:[],paidOn:[]}],budget:0,cats:null,cbud:{},rates:{},prefs:{}};
+const p=previewLegacy(JSON.stringify(raw),{asOf});assert.equal(p.status,"IMPORT_PREVIEW",JSON.stringify(p.issues));const s=importIntoEmpty(p);let v=s.view(opts);assert.equal(v.projection.quality.cents.assumedOut,35000);assert.equal(v.projection.quality.cents.confirmedOut,0);assert.equal(v.projection.quality.cents.plannedOut,20000);assert.equal(v.movements.every(m=>m.accountId===null),true);
+const m=v.movements.find(m=>m.estimateReason==="legacy-auto");assert.equal(s.apply("domain",{type:"confirm-settlement",id:m.id,date:"2026-12-10",accountId:null}).status,"APPLIED_SHADOW");v=s.view(opts);assert.equal(v.projection.quality.cents.assumedOut,25000);assert.equal(v.projection.quality.cents.confirmedOut,10000);assert.equal(v.projection.quality.cents.plannedOut,20000);assert.equal(s.apply("domain",{type:"confirm-settlement",id:m.id,date:"2026-12-10",accountId:null}).status,"BLOCKED");assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
+console.log("RC1 estimated history: separate assumed bucket, no account movement, confirmed review and exact replay passed.");

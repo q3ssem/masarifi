@@ -8,8 +8,8 @@ const p=preview(fx);check("tracked fixed preview",()=>p.status==="IMPORT_PREVIEW
 check("category and confirmed date preserved",()=>v.projection.rows.some(r=>r.category==="phone"&&r.date==="2026-11-20"&&r.amountMinor===-12025&&r.status==="confirmed"));
 check("outstanding category preserved",()=>v.projection.rows.filter(r=>r.status==="planned"&&r.category==="phone").length===2&&v.projection.quality.cents.plannedOut===24050);
 check("end month inclusive",()=>v.occurrences.every(o=>o.due<="2027-01-01"));
-check("estimated history blocked",()=>preview({...fx,trackFrom:"2026-12"}).status==="BLOCKED");
-check("undated payment blocked",()=>preview({...fx,paidMonths:["2026-11","2026-12"]}).status==="BLOCKED");
+check("tracked explicit history before anchor preserved",()=>preview({...fx,trackFrom:"2026-12"}).status==="IMPORT_PREVIEW");
+check("month-only payment accepted as estimated",()=>preview({...fx,paidMonths:["2026-11","2026-12"]}).status==="IMPORT_PREVIEW");
 check("past unpaid semantics blocked",()=>preview({...fx,paidMonths:[],paidOn:[]}).status==="BLOCKED");
 check("unmapped timestamps blocked",()=>preview({...fx,ts:123}).status==="BLOCKED");
 check("category survives replay",()=>JSON.stringify(parseJournal(JSON.stringify(s.exportJournal())).snapshot())===JSON.stringify(s.snapshot()));

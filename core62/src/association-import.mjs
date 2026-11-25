@@ -8,16 +8,17 @@ export function validAssociationDescriptor(a){return !!a&&key(a.id)&&typeof a.na
 export function planAssociation(j,{asOf}={}){
  try{need(isDate(asOf)&&allowed(j,["id","name","amount","n","turn","start","day","names","stop","hide","trackFrom","paidMonths","paidOn","gotOn","gotTs"]),"association-contract");
  need(typeof j.amount==="number"&&Number.isFinite(j.amount),"association-amount");
- const d={id:j.id,name:j.name,amountMinor:minorFromDecimal(String(j.amount)),members:j.n,turn:j.turn,names:j.names??[],start:j.start,day:j.day,stop:j.stop||null,hidden:j.hide===true};need(validAssociationDescriptor(d)&&j.trackFrom===j.start&&Array.isArray(j.paidMonths)&&Array.isArray(j.paidOn),"association-tracked-contract");
+ const d={id:j.id,name:j.name,amountMinor:minorFromDecimal(String(j.amount)),members:j.n,turn:j.turn,names:j.names??[],start:j.start,day:j.day,stop:j.stop||null,hidden:j.hide===true};need(validAssociationDescriptor(d)&&(!j.trackFrom||isDate(j.trackFrom+"-01")&&j.trackFrom>=j.start)&&Array.isArray(j.paidMonths)&&Array.isArray(j.paidOn),"association-tracked-contract");
  const rule={id:d.id,kind:"association",direction:"out",amountMinor:d.amountMinor,start:d.start+"-01",day:d.day,everyMonths:1,count:d.members,end:null,name:d.name,category:"jamiya"};
  const finalMonth=monthAt(d.start,d.members-1);const occurrences=expandSchedules([rule],{from:rule.start,to:finalMonth+"-28"}).filter(o=>!d.stop||o.due.slice(0,7)<d.stop);
  need(occurrences.length>0,"association-stopped-before-start");rule.count=occurrences.length;
  const paid=new Map();for(const p of j.paidOn){need(allowed(p,["m","d","ts"])&&isDate(p.d)&&p.d<=asOf&&p.d.slice(0,7)===p.m&&!paid.has(p.m)&&occurrences.some(o=>o.due.slice(0,7)===p.m)&&(p.ts===undefined||Number.isSafeInteger(p.ts)&&p.ts>=0),"association-payment");paid.set(p.m,p);}
- need(j.paidMonths.every(m=>paid.has(m))&&new Set(j.paidMonths).size===j.paidMonths.length,"association-payment-date-unknown");
+ need(j.paidMonths.every(m=>m<=asOf.slice(0,7)&&occurrences.some(o=>o.due.slice(0,7)===m))&&new Set(j.paidMonths).size===j.paidMonths.length,"association-payment-month");
+ for(const o of occurrences){const m=o.due.slice(0,7);if(m<=asOf.slice(0,7)&&!paid.has(m)&&(j.paidMonths.includes(m)||!j.trackFrom||m<j.trackFrom)){need(o.due<=asOf,"estimated-future-payment");paid.set(m,{m,d:o.due,estimateReason:j.paidMonths.includes(m)?"legacy-month-only":"legacy-untracked"});}}
  // Prior unpaid months have different legacy projection semantics; require review.
  need(occurrences.every(o=>o.due.slice(0,7)>=asOf.slice(0,7)||paid.has(o.due.slice(0,7))),"association-past-unpaid");
  const commands=[{type:"association",fields:d},{type:"rule",fields:rule}];
- for(const o of occurrences){const p=paid.get(o.due.slice(0,7));if(p)commands.push({type:"materialize",fields:{scheduleId:d.id,due:o.due}},{type:"domain",fields:{type:"settle",id:"legacy:"+d.id+":"+p.m,obligationId:o.id,amountMinor:d.amountMinor,date:p.d,accountId:null,note:d.name,...(p.ts!==undefined?{sourceTimestamp:p.ts}:{})}});}
+ for(const o of occurrences){const p=paid.get(o.due.slice(0,7));if(p)commands.push({type:"materialize",fields:{scheduleId:d.id,due:o.due}},{type:"domain",fields:{type:"settle",id:"legacy:"+d.id+":"+p.m,obligationId:o.id,amountMinor:d.amountMinor,date:p.d,accountId:null,note:d.name,...(p.ts!==undefined?{sourceTimestamp:p.ts}:{}),...(p.estimateReason?{estimateReason:p.estimateReason}:{})}});}
  const turn=occurrences[d.turn-1];
  if(turn){const payout=safeMinor(BigInt(d.amountMinor)*BigInt(d.members)),id="association-payout:"+d.id;
  commands.push({type:"domain",fields:{type:"obligation",id,family:"association",direction:"in",amountMinor:payout,due:turn.due,name:"قبض "+d.name}});

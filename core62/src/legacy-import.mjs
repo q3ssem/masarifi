@@ -32,14 +32,13 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
    knownFields(d,["id","who","dir","amount","due","plan","monthly","pays"]);
    const a=strictAmount(d.amount),direction=d.dir==="owe"?"out":"in";let paid=0n;
    out.push(domain({type:"obligation",id:d.id,family:"debt",direction,amountMinor:a,due:d.due,name:d.who}));
-   d.pays.forEach((p,k)=>{require(p&&isDate(p.d)&&p.d<=asOf,"payment-date");knownFields(p,["a","d"]);const v=strictAmount(p.a);paid+=BigInt(v);out.push(domain({type:"settle",id:"legacy:"+d.id+":"+k,obligationId:d.id,amountMinor:v,date:p.d,accountId:null,note:d.who}));});
+   d.pays.forEach((p,k)=>{require(p&&isDate(p.d)&&p.d<=asOf,"payment-date");knownFields(p,["a","d","ts"]);require(p.ts===undefined||Number.isSafeInteger(p.ts)&&p.ts>=0,"payment-timestamp");const v=strictAmount(p.a);paid+=BigInt(v);out.push(domain({type:"settle",id:"legacy:"+d.id+":"+k,obligationId:d.id,amountMinor:v,date:p.d,accountId:null,note:d.who,...(p.ts!==undefined?{sourceTimestamp:p.ts}:{})}));});
    require(paid<=BigInt(a),"overpayment");seen.add(d.id);
  });
  for(let i=0;i<raw.insts.length;i++)group("insts",i,(x,out)=>{
    require(x&&originalId(x.id)&&!seen.has(x.id)&&typeof x.name==="string"&&x.name.trim()&&isDate(x.start+"-01")&&Number.isInteger(x.months)&&x.months>=1&&x.months<=360&&Number.isInteger(x.day)&&x.day>=1&&x.day<=31&&Array.isArray(x.paidOn),"installment-contract");
    require(!nonempty(x.bn)&&!nonempty(x.ex)&&!nonempty(x.cat),"installment-special-metadata");
-   require(!nonempty(x.paidBase),"assumed-payment-history");
-   require(x.trackPayments===true||x.mode==="manual","automatic-history-requires-review");
+   require((x.paidBase===undefined||Number.isInteger(x.paidBase)&&x.paidBase>=0&&x.paidBase<=x.months)&&(x.paid===undefined||Number.isInteger(x.paid)&&x.paid>=0&&x.paid<=x.months)&&["manual","auto"].includes(x.mode),"installment-payment-mode");
    knownFields(x,["id","name","amount","months","start","day","mode","paid","paidBase","trackPayments","paidOn","bn","cat","ex"]);
    const amountMinor=strictAmount(x.amount),r={id:x.id,kind:"installment",direction:"out",amountMinor,start:x.start+"-01",day:x.day,everyMonths:1,count:x.months,end:null,name:x.name};
    require(x.months<=120,"long-schedule-requires-review");
@@ -47,9 +46,10 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
    require(ey<=9999,"schedule-range");
    const endMonth=String(ey).padStart(4,"0")+"-"+String(em).padStart(2,"0");let lastDay=31;while(!isDate(endMonth+"-"+lastDay))lastDay--;
    const occurrences=expandSchedules([r],{from:r.start,to:endMonth+"-"+lastDay}),used=new Set();
-   require(x.trackPayments===true||Number.isInteger(x.paid)&&x.paid===x.paidOn.length,"assumed-payment-history");
+   const base=x.trackPayments===true?(x.paidBase??0):0;const manual=x.trackPayments!==true&&x.mode==="manual";const automatic=x.trackPayments!==true&&x.mode==="auto";require(!automatic||x.paidOn.length===0,"automatic-history-conflict");
    out.push({type:"rule",fields:r});
-   for(const p of x.paidOn){require(p&&Number.isInteger(p.k)&&p.k>=0&&p.k<x.months&&!used.has(p.k)&&isDate(p.d)&&p.d<=asOf,"installment-payment");knownFields(p,["k","d"]);if(x.trackPayments!==true)require(p.k<x.paid,"manual-payment-index");used.add(p.k);const o=occurrences[p.k];out.push({type:"materialize",fields:{scheduleId:r.id,due:o.due}},domain({type:"settle",id:"legacy:"+x.id+":"+p.k,obligationId:o.id,amountMinor,date:p.d,accountId:null,note:x.name}));}
+   for(const p of x.paidOn){require(p&&Number.isInteger(p.k)&&p.k>=0&&p.k<x.months&&!used.has(p.k)&&isDate(p.d)&&p.d<=asOf,"installment-payment");knownFields(p,["k","d","ts"]);require(p.ts===undefined||Number.isSafeInteger(p.ts)&&p.ts>=0,"payment-timestamp");require(p.k>=base,"explicit-base-overlap");if(manual)require(p.k<(x.paid??0),"manual-payment-index");used.add(p.k);const o=occurrences[p.k];out.push({type:"materialize",fields:{scheduleId:r.id,due:o.due}},domain({type:"settle",id:"legacy:"+x.id+":"+p.k,obligationId:o.id,amountMinor,date:p.d,accountId:null,note:x.name,...(p.ts!==undefined?{sourceTimestamp:p.ts}:{})}));}
+   for(let k=0;k<occurrences.length;k++){const o=occurrences[k],reason=k<base?"legacy-base":manual&&k<(x.paid??0)?"legacy-manual":automatic&&o.due<=asOf?"legacy-auto":null;if(!reason||used.has(k))continue;require(o.due<=asOf,"estimated-future-payment");out.push({type:"materialize",fields:{scheduleId:r.id,due:o.due}},domain({type:"settle",id:"legacy:"+x.id+":"+k,obligationId:o.id,amountMinor,date:o.due,accountId:null,note:x.name,estimateReason:reason}));}
    seen.add(x.id);
  });
  for(let i=0;i<raw.goals.length;i++)group("goals",i,(g,out)=>{
@@ -58,17 +58,17 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
  });
 
  for(let i=0;i<raw.fixeds.length;i++)group("fixeds",i,(f,out)=>{
-   require(f&&originalId(f.id)&&!seen.has(f.id)&&typeof f.name==="string"&&f.name.trim()&&f.name.length<=160&&typeof f.cat==="string"&&f.cat.trim()&&f.cat.length<=160&&isDate(f.start+"-01")&&f.trackFrom===f.start&&Array.isArray(f.paidMonths)&&Array.isArray(f.paidOn),"fixed-tracked-contract");
+   require(f&&originalId(f.id)&&!seen.has(f.id)&&typeof f.name==="string"&&f.name.trim()&&f.name.length<=160&&typeof f.cat==="string"&&f.cat.trim()&&f.cat.length<=160&&isDate(f.start+"-01")&&(!f.trackFrom||isDate(f.trackFrom+"-01")&&f.trackFrom>=f.start)&&Array.isArray(f.paidMonths)&&Array.isArray(f.paidOn),"fixed-tracked-contract");
    knownFields(f,["id","name","amount","cat","start","end","trackFrom","paidMonths","paidOn"]);
    require(!f.end||isDate(f.end+"-01")&&f.end>=f.start,"fixed-end");
    const amountMinor=strictAmount(f.amount),end=f.end?f.end+"-01":null,r={id:f.id,kind:"fixed",direction:"out",amountMinor,start:f.start+"-01",day:1,everyMonths:1,count:null,end,name:f.name,category:f.cat};
    const paid=new Map();
-   for(const p of f.paidOn){require(p&&isDate(p.m+"-01")&&isDate(p.d)&&p.d<=asOf&&p.m>=f.start&&(!f.end||p.m<=f.end)&&!paid.has(p.m),"fixed-payment");knownFields(p,["m","d"]);paid.set(p.m,p.d);}
-   require(f.paidMonths.every(m=>paid.has(m))&&new Set(f.paidMonths).size===f.paidMonths.length,"fixed-payment-date-unknown");
+   for(const p of f.paidOn){require(p&&isDate(p.m+"-01")&&isDate(p.d)&&p.d<=asOf&&p.m>=f.start&&(!f.end||p.m<=f.end)&&!paid.has(p.m),"fixed-payment");knownFields(p,["m","d","ts"]);require(p.ts===undefined||Number.isSafeInteger(p.ts)&&p.ts>=0,"payment-timestamp");paid.set(p.m,p);}
+   require(f.paidMonths.every(m=>isDate(m+"-01")&&m>=f.start&&m<=asOf.slice(0,7)&&(!f.end||m<=f.end))&&new Set(f.paidMonths).size===f.paidMonths.length,"fixed-payment-month");
    const current=asOf.slice(0,7)+"-01",to=end&&end<current?end:current;
-   if(r.start<=to){const past=expandSchedules([r],{from:r.start,to});require(past.every(o=>o.due>=current||paid.has(o.due.slice(0,7))),"fixed-past-unpaid-needs-review");}
+   if(r.start<=to){const past=expandSchedules([r],{from:r.start,to});for(const o of past){const m=o.due.slice(0,7);if(!paid.has(m)&&(f.paidMonths.includes(m)||!f.trackFrom||m<f.trackFrom))paid.set(m,{d:o.due,estimateReason:f.paidMonths.includes(m)?"legacy-month-only":"legacy-untracked"});}require(past.every(o=>o.due>=current||paid.has(o.due.slice(0,7))),"fixed-past-unpaid-needs-review");}
    out.push({type:"rule",fields:r});
-   for(const [m,d] of paid){const due=m+"-01";out.push({type:"materialize",fields:{scheduleId:r.id,due}},domain({type:"settle",id:"legacy:"+f.id+":"+m,obligationId:"sch:"+f.id+":"+due,amountMinor,date:d,accountId:null,note:f.name}));}
+   for(const [m,p] of paid){const due=m+"-01";out.push({type:"materialize",fields:{scheduleId:r.id,due}},domain({type:"settle",id:"legacy:"+f.id+":"+m,obligationId:"sch:"+f.id+":"+due,amountMinor,date:p.d,accountId:null,note:f.name,...(p.ts!==undefined?{sourceTimestamp:p.ts}:{}),...(p.estimateReason?{estimateReason:p.estimateReason}:{})}));}
    seen.add(f.id);
  });
 

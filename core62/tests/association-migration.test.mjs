@@ -8,5 +8,5 @@ const p=previewLegacy(JSON.stringify(base),{asOf});assert.equal(p.status,"IMPORT
 assert.equal(v.associations[0].turn,2);assert.equal(v.projection.quality.cents.confirmedIn,40000);assert.equal(v.projection.quality.cents.confirmedOut,20000);assert.equal(v.projection.quality.cents.plannedOut,20000);assert.equal(v.projection.quality.cents.plannedIn,0);assert.equal(s.snapshot().domain.movements.find(m=>m.direction==="in").sourceTimestamp,3);
 assert.deepEqual(parseJournal(JSON.stringify(s.exportJournal())).snapshot(),s.snapshot());
 const inspect=x=>previewLegacy(JSON.stringify({...base,prefs:{jm:[x]}}),{asOf});
-assert.equal(inspect({...j,trackFrom:"2026-12"}).status,"BLOCKED");assert.equal(inspect({...j,paidOn:[]}).status,"BLOCKED");assert.equal(inspect({...j,gotOn:"2026-12-20"}).status,"BLOCKED");
+assert.equal(inspect({...j,trackFrom:"2026-12"}).status,"IMPORT_PREVIEW");assert.equal(inspect({...j,paidOn:[]}).status,"IMPORT_PREVIEW");assert.equal(inspect({...j,gotOn:"2026-12-20"}).status,"BLOCKED");
 console.log("RC1 explicit association migration: participant order, contributions, receipt, timestamps and replay passed.");
