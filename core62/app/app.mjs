@@ -1,10 +1,12 @@
-import {createWorkspace,inputMinor} from "../src/workspace.mjs";
+import {inputMinor} from "../src/workspace.mjs";
+import {createJournalSession} from "../src/journal.mjs";
+import {setupDataCenter} from "./data-center.mjs";
 import {THEMES} from "../src/ui-model.mjs";
-const $=id=>document.getElementById(id),w=createWorkspace();
+const $=id=>document.getElementById(id);let w=createJournalSession(),dataCenter=null;
 const node=(tag,text="",cls="")=>{const x=document.createElement(tag);x.textContent=text;if(cls)x.className=cls;return x;};
 const amount=n=>{if(!Number.isSafeInteger(n))return "غير متاح";const b=BigInt(n),a=b<0n?-b:b;return (b<0n?"−":"")+new Intl.NumberFormat("ar-SA").format(a/100n)+"٫"+new Intl.NumberFormat("ar-SA",{minimumIntegerDigits:2,useGrouping:false}).format(a%100n)+" ر.س";};
 const types={debt:"دين",installment:"قسط",association:"جمعية",fixed:"ثابت",bnpl:"شراء آجل",income:"دخل متكرر",subscription:"اشتراك",buy:"شراء",sell:"بيع",dividend:"توزيعات",value:"تقييم"};
-const sections={overview:["الرئيسية",[]],cash:["الحسابات والحركات",["account","record","edit","transfer","void","archive"]],schedule:["الالتزامات والجدولة",["obligation","settle","rule","materialize"]],plan:["الميزانيات والأهداف",["budget","goal","contribution"]],wealth:["الاستثمارات والثروة",["holding","investment","asset"]],search:["البحث",[]]};
+const sections={overview:["الرئيسية",[]],cash:["الحسابات والحركات",["account","record","edit","transfer","void","archive"]],schedule:["الالتزامات والجدولة",["obligation","settle","rule","materialize"]],plan:["الميزانيات والأهداف",["budget","goal","contribution"]],wealth:["الاستثمارات والثروة",["holding","investment","asset"]],search:["البحث",[]],reports:["التقارير والبيانات",[]]};
 const actions={account:"حساب جديد",record:"تسجيل حركة",edit:"تعديل حركة",transfer:"تحويل داخلي",void:"عكس حركة",archive:"أرشفة حساب",obligation:"التزام يدوي",settle:"سداد أو قبض",rule:"جدولة متكررة",materialize:"تثبيت استحقاق",budget:"ميزانية فئة",goal:"هدف ادخاري",contribution:"ادخار أو سحب",holding:"استثمار جديد",investment:"حركة استثمار",asset:"أصل أو ممتلكات"};
 let section="overview",query="",last=null;
 const selectOpts=(x,opts)=>{x.replaceChildren(...opts.map(([v,t])=>{const o=node("option",t);o.value=v;return o;}));};
@@ -19,9 +21,10 @@ if(section==="cash"){title(p,"الأرصدة");for(const a of x.accounts)line(p,
 if(section==="schedule"){title(p,"الالتزامات المثبتة");for(const o of x.obligations)line(p,o.name+" · "+(types[o.family]||o.family)+" · "+o.due,amount(o.remainingMinor));title(p,"الاستحقاقات المتولدة");for(const o of x.occurrences)line(p,o.name+" · "+o.due,amount(o.amountMinor));p.append(node("p","عدد الاستحقاقات المتولدة: "+x.occurrenceCount+"؛ العرض محدود بـ200.","muted"));}
 if(section==="plan"){title(p,"ميزانيات الشهر");for(const b of x.budget.items??[])line(p,b.category+" · متبقي مع المخطط",amount(b.remainingIncludingPlansMinor));title(p,"الأهداف");for(const g of x.goals)line(p,g.name+" · المتبقي",amount(g.remainingMinor));}
 if(section==="wealth"){p.append(node("p","تقييمات يدوية، وتدفقات الاستثمار غير مرتبطة بالمحافظ تلقائيًا. لا تعتبر الثروة مكتملة قبل مطابقة الحسابات.","muted"));cards(p,[["قيمة الاستثمار",amount(x.portfolio.marketMinor)],["الربح الإجمالي",amount(x.portfolio.totalProfitMinor)],["صافي الثروة المدخل",amount(x.wealth.netMinor)]]);for(const h of x.portfolio.items)line(p,h.name,amount(h.marketMinor));for(const a of w.snapshot().assets)line(p,a.name,amount(a.valueMinor));}
+if(section==="reports"){const r=dataCenter.report();if(r.status!=="REPORT_ONLY")p.append(node("p","التقرير متوقف بسبب جودة البيانات.","negative"));else{cards(p,[["دخل الشهر المؤكد",amount(r.cents.confirmedIn)],["مصروف الشهر المؤكد",amount(r.cents.confirmedOut)],["صافي الشهر",amount(r.confirmedNetMinor)],["مدفوعات متوقعة",amount(r.cents.plannedOut)]]);for(const c of r.categories)line(p,c.category+" · مؤكد / مخطط",amount(c.confirmedMinor)+" / "+amount(c.plannedMinor));}}
 if(section==="search"){const f=node("form"),inp=node("input"),btn=node("button","بحث");inp.value=query;inp.placeholder="اسم أو مبلغ أو تاريخ";inp.setAttribute("aria-label","البحث في الحركات");btn.type="submit";f.append(inp,btn);f.addEventListener("submit",e=>{e.preventDefault();query=inp.value;render();});p.append(f,node("p","النتائج: "+x.search.total,"muted"));for(const r of x.search.results)line(p,(r.note||r.id)+" · "+r.date,amount(r.amountMinor));}
 }catch(e){last=null;p.append(node("p","تعذر عرض البيانات. راجع الفترة والمبالغ.","negative"));}}
-function navigate(id){section=id;for(const b of $("nav").children){if(b.dataset.section===id)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");}const list=sections[id][1];$("editor").hidden=!list.length;selectOpts($("action"),list.map(x=>[x,actions[x]]));render();fields();}
+function navigate(id){section=id;for(const b of $("nav").children){if(b.dataset.section===id)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");}const list=sections[id][1];$("dataPanel").hidden=id!=="reports";$("editor").hidden=!list.length;selectOpts($("action"),list.map(x=>[x,actions[x]]));render();fields();}
 const val=id=>$(id)?.value??"";
 function field(id,label,{type="text",value="",opts=null}={}){const l=node("label",label),x=node(opts?"select":"input");x.id=id;if(opts)selectOpts(x,opts);else{x.type=type;x.value=value;if(["amt","basis","initial"].includes(id))x.inputMode="decimal";}l.append(x);$("fields").append(l);}
 function fields(){const action=val("action"),s=w.snapshot(),accounts=s.domain.accounts.filter(a=>!a.archived).map(a=>[a.id,a.name]),moves=s.domain.movements.filter(m=>!m.voided);$("fields").replaceChildren();
@@ -59,5 +62,5 @@ case "asset":f={id,name:val("name"),valueMinor:a(),valuedOn:date};break;
 default:throw Error("action");}
 if(["account","record","edit","transfer","void","archive","obligation","settle"].includes(action)){type="domain";f={...f,type:action};}
 const r=w.apply(type,f);$("message").textContent=r.status==="APPLIED_SHADOW"?"تم التنفيذ في الجلسة التجريبية · مراجعة "+r.revision:r.status==="ALREADY_MATERIALIZED"?"الاستحقاق مثبت مسبقًا":"تعذر التنفيذ؛ راجع القيم والارتباطات.";
-render();if(r.status==="APPLIED_SHADOW")fields();}catch{$("message").textContent="راجع القيم المدخلة."}}
-$("action").addEventListener("change",fields);$("form").addEventListener("submit",submit);$("refresh").addEventListener("click",()=>{render();fields();});navigate("overview");
+render();if(r.status==="APPLIED_SHADOW"){fields();dataCenter.changed();}}catch{$("message").textContent="راجع القيم المدخلة."}}
+$("action").addEventListener("change",fields);$("form").addEventListener("submit",submit);$("refresh").addEventListener("click",()=>{render();fields();});dataCenter=setupDataCenter({getSession:()=>w,replaceSession:s=>{w=s;},refresh:()=>{render();fields();},getPeriod:options,getRows:()=>{const x=w.view(options()).projection;if(x.status!=="PREVIEW_ONLY")throw Error("projection-blocked");const notes=new Map(w.snapshot().domain.movements.map(m=>[m.id,m.note]));return x.rows.map(r=>({...r,note:notes.get(r.id)??""}));}});navigate("overview");dataCenter.changed();
