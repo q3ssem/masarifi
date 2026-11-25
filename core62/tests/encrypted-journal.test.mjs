@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {webcrypto} from "node:crypto";
 import {createJournalSession,parseJournal} from "../src/journal.mjs";
 import {monthlyReport} from "../src/reporting.mjs";
-import {vaultTransition,saveEncrypted,loadEncrypted} from "../src/journal-store.mjs";
+import {vaultTransition,saveEncrypted,loadEncrypted,recoverPreviousEncrypted} from "../src/journal-store.mjs";
 const j=createJournalSession(),date="2026-12-01",opts={month:"2026-12",asOf:"2026-12-15",through:"2026-12-31",openingMinor:100000};
 function send(type,fields){assert.equal(j.apply(type,fields).status,"APPLIED_SHADOW");}
 send("domain",{type:"account",id:j.nextId("account"),name:"حساب",openingMinor:100000,openingDate:date});const account=j.snapshot().domain.accounts[0].id;
@@ -15,7 +15,7 @@ send("goal",{id:"goal",name:"هدف",targetMinor:100000,due:"2027-03-01"});send(
 send("holding",{id:"h",name:"استثمار",category:"stock"});send("investment",{id:"b",holdingId:"h",date,type:"buy",amountMinor:10000});send("investment",{id:"v",holdingId:"h",date,type:"value",amountMinor:15000});send("asset",{id:"car",name:"أصل",valueMinor:50000,valuedOn:date});
 const restored=parseJournal(JSON.stringify(j.exportJournal()));assert.deepEqual(restored.snapshot(),j.snapshot());assert.deepEqual(restored.view(opts),j.view(opts));
 assert.deepEqual(monthlyReport(restored.view(opts).projection.rows,opts.month),monthlyReport(j.view(opts).projection.rows,opts.month));
-let head=null;const store={read:async()=>structuredClone(head),save:async(expected,envelope)=>{const r=vaultTransition(head,expected,envelope);if(r.status==="SAVED")head=structuredClone(r.next);return r;}};
+let head=null;const store={read:async()=>structuredClone(head),save:async(expected,envelope)=>{const r=vaultTransition(head,expected,envelope);if(r.status==="SAVED")head=structuredClone(r.next);return r;},recover:async(expected,envelope)=>{const r=vaultTransition(head,expected,envelope,{recover:true});if(r.status==="SAVED")head=structuredClone(r.next);return r;}};
 const pw="synthetic-strong-passphrase";const saved=await saveEncrypted(store,webcrypto,j,pw,0);assert.equal(saved.status,"SAVED");assert.equal(head.generation,1);assert.equal(JSON.stringify(head).includes("وجبة"),false);
 const loaded=await loadEncrypted(store,webcrypto,pw);assert.deepEqual(loaded.session.snapshot(),j.snapshot());
 await assert.rejects(loadEncrypted(store,webcrypto,"wrong-strong-passphrase"));
@@ -24,3 +24,12 @@ send("budget",{month:"2026-12",category:"other",limitMinor:50});assert.equal((aw
 assert.deepEqual((await loadEncrypted(store,webcrypto,pw,{previous:true})).session.snapshot(),restored.snapshot());
 const bad=structuredClone(head);bad.envelope.ciphertext=(bad.envelope.ciphertext[0]==="0"?"1":"0")+bad.envelope.ciphertext.slice(1);await assert.rejects(loadEncrypted({read:async()=>bad},webcrypto,pw));assert.equal(head.generation,2);
 console.log("Encrypted journal integration passed: multi-engine replay, report parity, ciphertext-only mock store, wrong password, stale CAS, previous revision and tamper rejection.");
+
+await assert.rejects(saveEncrypted(store,webcrypto,j,"wrong-strong-passphrase",2));assert.equal(head.generation,2);
+head=bad;const damaged=structuredClone(head.envelope);
+await assert.rejects(recoverPreviousEncrypted(store,webcrypto,"wrong-strong-passphrase",2));assert.equal(head.generation,2);
+assert.equal((await recoverPreviousEncrypted(store,webcrypto,pw,1)).status,"CONFLICT");
+const repaired=await recoverPreviousEncrypted(store,webcrypto,pw,2);assert.equal(repaired.status,"RECOVERED");assert.equal(head.generation,3);assert.deepEqual(head.quarantine,damaged);
+assert.deepEqual((await loadEncrypted(store,webcrypto,pw)).session.snapshot(),restored.snapshot());
+assert.equal((await saveEncrypted(store,webcrypto,j,pw,3)).status,"SAVED");assert.deepEqual(head.quarantine,damaged);
+console.log("Pre-RC 5 recovery: wrong password, stale generation, corrupted head repair, quarantine retention and subsequent save passed.");

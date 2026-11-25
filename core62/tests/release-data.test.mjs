@@ -18,9 +18,9 @@ const lp=previewLegacy(JSON.stringify(old),{asOf});check("simple legacy mapping"
 const blocked=previewLegacy(JSON.stringify({...old,prefs:{wallet59:{accounts:[{id:"a"}]}}}),{asOf});check("unsupported wallet blocks migration",()=>blocked.status==="BLOCKED"&&throws(()=>importIntoEmpty(blocked)));
 check("future legacy record blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],date:"2027-01-01"}]}),{asOf}).status==="BLOCKED");
 check("unmapped legacy metadata blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],tag:"project"}]}),{asOf}).status==="BLOCKED");
-const env={format:"masarifi62-backup",version:1};const a=vaultTransition(null,0,env);check("vault first write",()=>a.status==="SAVED"&&a.next.generation===1);
+const env={format:"masarifi62-backup",version:1,kdf:"PBKDF2-SHA256",iterations:600000,cipher:"AES-256-GCM",salt:"0".repeat(32),iv:"0".repeat(24),ciphertext:"0".repeat(32)};const a=vaultTransition(null,0,env);check("vault first write",()=>a.status==="SAVED"&&a.next.generation===1);
 check("vault CAS stale writer",()=>vaultTransition(a.next,0,env).status==="CONFLICT");
-check("vault previous revision",()=>vaultTransition(a.next,1,{...env,x:1}).next.previous===env);
+check("vault previous revision",()=>vaultTransition(a.next,1,{...env,iv:"1".repeat(24)}).next.previous===env);
 check("vault rejects unencrypted record",()=>vaultTransition(null,0,{}).status==="BLOCKED");
 const result={passed:checks.filter(x=>x.pass).length,total:checks.length,checks};
 console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

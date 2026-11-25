@@ -19,6 +19,7 @@ export function createJournalSession(input=null){
  function applyRecords(fields,expected=commands.length){if(expected!==commands.length)return {status:"CONFLICT",productionWriteAllowed:false};try{if(!Array.isArray(fields)||!fields.length)return jfail("batch-contract");if(commands.length+fields.length>JOURNAL_MAX_COMMANDS)return jfail("journal-limit");const list=fields.map(f=>checkRecord({type:"domain",fields:f}));if(!list.every(isRecord))return jfail("batch-contract");const extra=list.reduce((n,c,i)=>n+journalBytes(JSON.stringify(c))+(commands.length||i?1:0),0);if(!fits(commands.length+list.length,extra))return jfail("journal-size");const r=w.applyRecords(list.map(c=>c.fields),expected);if(r.status==="APPLIED_SHADOW")for(const c of list)remember(c);return r;}catch{return jfail("invalid-command");}}
  function nextId(prefix){if(typeof prefix!=="string"||!/^[A-Za-z][A-Za-z0-9_-]{0,20}$/.test(prefix))throw Error("id-contract");let id;do{if(serial>=Number.MAX_SAFE_INTEGER)throw Error("id-overflow");id=prefix+"_"+(++serial);}while(used.has(id));return id;}
  const exportJournal=()=>jcopy(journalEnvelope(serial,commands));
- return Object.freeze({snapshot,view,apply,applyRecords,nextId,exportJournal});
+ const journalInfo=()=>({commands:commands.length,maxCommands:JOURNAL_MAX_COMMANDS,bytes:journalBytes(JSON.stringify(journalEnvelope(serial,[])))+bodyBytes,maxBytes:JOURNAL_MAX_BYTES});
+ return Object.freeze({snapshot,view,apply,applyRecords,nextId,exportJournal,journalInfo});
 }
 export function parseJournal(text){if(typeof text!=="string"||text.length>JOURNAL_MAX_BYTES||journalBytes(text)>JOURNAL_MAX_BYTES)throw Error("journal-size");return createJournalSession(JSON.parse(text));}
