@@ -1,0 +1,82 @@
+{
+  "passed": 18,
+  "total": 18,
+  "stress": {
+    "rows": 100000,
+    "ms": 357
+  },
+  "checks": [
+    {
+      "name": "basis and valuation",
+      "pass": true
+    },
+    {
+      "name": "realized and unrealized separate",
+      "pass": true
+    },
+    {
+      "name": "buy invalidates valuation",
+      "pass": true
+    },
+    {
+      "name": "no valuation means unknown",
+      "pass": true
+    },
+    {
+      "name": "duplicate transaction rejected",
+      "pass": true
+    },
+    {
+      "name": "sale basis underflow rejected",
+      "pass": true
+    },
+    {
+      "name": "future valuation excluded",
+      "pass": true
+    },
+    {
+      "name": "empty portfolio valid",
+      "pass": true
+    },
+    {
+      "name": "wealth separates debt and expenses",
+      "pass": true
+    },
+    {
+      "name": "future salary not a receivable asset",
+      "pass": true
+    },
+    {
+      "name": "duplicate asset identity blocked",
+      "pass": true
+    },
+    {
+      "name": "incomplete portfolio blocks wealth",
+      "pass": true
+    },
+    {
+      "name": "future domain date blocks historical claim",
+      "pass": true
+    },
+    {
+      "name": "Arabic search normalization",
+      "pass": true
+    },
+    {
+      "name": "Arabic digits and decimal",
+      "pass": true
+    },
+    {
+      "name": "status filter",
+      "pass": true
+    },
+    {
+      "name": "date bounds",
+      "pass": true
+    },
+    {
+      "name": "100k search bounded results",
+      "pass": true
+    }
+  ]
+}
