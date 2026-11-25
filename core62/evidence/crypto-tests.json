@@ -1,0 +1,9 @@
+{
+  "runtime": "Node.js v22.16.0 Web Crypto",
+  "sourceBlob": "01ef8cea03c40f59d0e177e8bfeca22d1abdf58a",
+  "testBlob": "440ecba7f75dbc87a12865afb3d88eb3383fb865",
+  "passed": 7,
+  "total": 7,
+  "output": "7 crypto assertions passed",
+  "scope": "synthetic, standalone backup module; no browser, production storage or account tested"
+}
