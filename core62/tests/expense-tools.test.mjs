@@ -1,0 +1,17 @@
+import assert from "node:assert/strict";
+import {equalShares,previewSmsAmount} from "../src/expense-tools.mjs";
+import {createJournalSession,parseJournal} from "../src/journal.mjs";
+assert.deepEqual(equalShares(100,["a","b","c"]).map(x=>x.amountMinor),[34,33,33]);
+assert.throws(()=>equalShares(1,["a","b"]));assert.throws(()=>equalShares(100,["a","a"]));
+assert.equal(previewSmsAmount("شراء ١٬٢٣٤٫٥٦ SAR").amountMinor,123456);
+assert.equal(previewSmsAmount("شراء SAR 19.51").amountMinor,1951);
+for(const x of ["SAR 1.234","شراء SAR 12 رصيد SAR 100","USD 20 SAR 75","شراء 200","SAR 1,23"])assert.throws(()=>previewSmsAmount(x));
+const j=createJournalSession(),apply=(t,f)=>assert.equal(j.apply(t,f).status,"APPLIED_SHADOW");
+apply("domain",{type:"record",id:"r",direction:"out",amountMinor:100,date:"2026-12-01",category:"food",note:"bill",accountId:null});
+apply("project",{id:"p",name:"trip",limitMinor:500,start:"2026-12-01",end:"2026-12-31"});apply("project-link",{projectId:"p",movementId:"r"});apply("bill-split",{movementId:"r",names:["a","b","c"]});
+assert.equal(j.apply("project-link",{projectId:"p",movementId:"r"}).status,"BLOCKED");
+assert.equal(j.apply("domain",{type:"void",id:"r"}).code,"expense-reference-locked");
+const v=j.view({month:"2026-12",asOf:"2026-12-15",through:"2026-12-31"});assert.equal(v.projects[0].spentMinor,100);assert.equal(v.projects[0].remainingMinor,400);assert.equal(v.projection.quality.cents.confirmedOut,100);assert.equal(v.billSplits[0].shares.reduce((s,x)=>s+x.amountMinor,0),100);
+assert.deepEqual(parseJournal(JSON.stringify(j.exportJournal())).snapshot(),j.snapshot());
+apply("bill-unsplit",{movementId:"r"});apply("project-unlink",{movementId:"r"});apply("domain",{type:"void",id:"r"});
+console.log("Project links, exact equal bill shares, SMS amount preview and replay passed.");

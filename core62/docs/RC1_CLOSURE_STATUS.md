@@ -7,3 +7,6 @@ Open release gates:
 - Feature parity: templates/project budgets, advanced budget transfers and subscriptions/renewals, SMS import, split bills/refunds, reminders, reporting variations, linked purchase editing, true asset reconciliation, language/accessibility and offline PWA/install/upgrade. Existing new UI is not pixel-identical; manual device comparison remains.
 - Journal cap 20,000 and mixed history performance, browser persistence and quota/crash behavior remain device gates.
 No data or main changes. Do not advance RC2 as fully approved until release authority explicitly accepts scope and gates are closed.
+
+## RC1.11 development follow-up
+RC1.10 run 45595358973 passed unit, Chromium and WebKit. RC1.11 adds bounded project budgets with explicit existing-expense links, equal bill allocation by halalah (reference only; no debts/refunds), and manual SAR SMS amount extraction requiring confirmation. Raw SMS is not stored. Existing expense references must be detached before editing/voiding. No automatic SMS access, comprehensive bank formats, refunds or legacy parity claimed. CI pending for RC1.11. Real backup, production deployment, physical device/offline PWA, remaining advanced feature parity are still release blockers.
