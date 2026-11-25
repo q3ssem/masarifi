@@ -42,13 +42,13 @@ try{
  assert.ok((await page.title()).includes("upgrade witness"));await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{},{timeout:60000});
  await page.waitForFunction(async name=>!(await caches.keys()).includes(name),firstCache,{timeout:60000});assert.ok(await page.evaluate(async name=>(await caches.keys()).includes(name),otherScopeCache));
  await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#openLocal").click();await page.locator("#dataStatus").getByText(/تم فتح الخزنة/).waitFor({timeout:30000});
- await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();await page.locator("#view").getByText("Offline synthetic",{exact:true}).waitFor();
+ await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();await page.locator("#view").getByText("Offline synthetic · نقدي",{exact:true}).waitFor();
  // Cut the real HTTP origin, not just a browser automation network flag.
  // Chromium and WebKit must both recover from the cache with no reachable server.
  server.closeAllConnections();await new Promise(r=>server.close(r));server=null;
  await assert.rejects(fetch(origin+"/app/index.html"));
  await page.reload();await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#openLocal").click();await page.locator("#dataStatus").getByText(/تم فتح الخزنة/).waitFor({timeout:30000});
- await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();await page.locator("#view").getByText("Offline synthetic",{exact:true}).waitFor();
+ await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();await page.locator("#view").getByText("Offline synthetic · نقدي",{exact:true}).waitFor();
  await page.locator("#action").selectOption("record");await page.locator("#amt").fill("12.34");await page.locator("#note").fill("Offline added after upgrade");await page.locator("#form button[type=submit]").click();await page.locator("#message").getByText(/تم التنفيذ/).waitFor();
  assert.match(await page.locator("#saveState").textContent(),/غير محفوظة/);
  await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#saveLocal").click();await page.locator("#dataStatus").getByText(/تمت معاملة الحفظ/).waitFor({timeout:30000});assert.match(await page.locator("#saveState").textContent(),/تم حفظ هذه المراجعة/);

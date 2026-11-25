@@ -14,3 +14,5 @@ Replaced repeated scans for obligation settlements, movement/asset/refund links,
 
 ## RC2.3 — local account and obligation lifecycle
 RC2.1 (45604776832) and RC2.2 (45604883568) completed all jobs successfully. Added typed local account creation, audited rename and reactivation preserving identity, balances and journal history; future-dated account opening is blocked in UI. Obligation view now identifies payable/receivable, original amount, paid and remaining amount, completed state; settlement entry requires an explicit amount. New exact lifecycle/replay test and browser rename regression. New commands are additive; RC1 journals remain readable by the new engine, but older engines cannot replay new command types. Latest CI pending. No migration approval, device claim, online features, or main change.
+
+RC2.3 follow-up: updated offline regression selectors to require the new cash account type label after upgrade and restore; no test removed.
