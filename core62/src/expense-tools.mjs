@@ -16,7 +16,7 @@ export function previewSmsAmount(text){
  const pattern=/(?:SAR|ر\.?\s?س\.?|ريال سعودي)\s*(\d+(?:,\d{3})*(?:\.\d{1,2})?)(?![\d.,])|(?<![\d.,])(\d+(?:,\d{3})*(?:\.\d{1,2})?)\s*(?:SAR|ر\.?\s?س\.?|ريال سعودي)/gi;
  const hits=[...s.matchAll(pattern)];
  if(hits.length!==1)throw Error("sms-ambiguous");
- const raw=hits[0][1]??hits[0][2];if(!/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)(?:\.\d{1,2})?$/.test(raw))throw Error("sms-amount");
+ const hit=hits[0];const prefix=s.slice(0,hit.index).trimEnd();if(["-","+","−"].includes(prefix.at(-1)))throw Error("sms-signed");const raw=hit[1]??hit[2];if(!/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)(?:\.\d{1,2})?$/.test(raw))throw Error("sms-amount");
  const amountMinor=minorFromDecimal(raw.replace(/,/g,""));if(amountMinor<=0)throw Error("sms-amount");
  return {status:"REVIEW_REQUIRED",amountMinor};
 }

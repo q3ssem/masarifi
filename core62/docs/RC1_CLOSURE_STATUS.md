@@ -13,3 +13,6 @@ RC1.10 run 45595358973 passed unit, Chromium and WebKit. RC1.11 adds bounded pro
 
 ## RC1.12 offline candidate
 Packaged build adds a manifest, local icons and versioned integrity-checked service worker shell. Only static allowlisted assets are cached; the sync API and financial records never enter the shell cache. Worker updates use the normal waiting lifecycle, not forced activation. The reference runtime redirects / to /app/index.html. Added separate Chromium/WebKit packaged offline tests with encrypted vault restore. Latest CI required. Actual iPhone PWA installation, upgrades, storage eviction and crash rehearsal remain unverified. No deployment or main changes.
+
+## RC1.13 subscription lifecycle
+Added journal-backed inclusive stop date and atomic price renewal at an existing due date for open-ended subscriptions. Renewal preserves the previous schedule and creates a successor without overlapping occurrences; existing materialized obligations cannot be removed. UI disallows retroactive stop/renew. SMS review rejects explicitly signed amounts before currency token extraction. New synthetic regression tests; latest CI pending. Finite-term contract renewal, comprehensive refund semantics, actual backup and device/production gates remain open.

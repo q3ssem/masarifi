@@ -5,7 +5,7 @@ assert.deepEqual(equalShares(100,["a","b","c"]).map(x=>x.amountMinor),[34,33,33]
 assert.throws(()=>equalShares(1,["a","b"]));assert.throws(()=>equalShares(100,["a","a"]));
 assert.equal(previewSmsAmount("شراء ١٬٢٣٤٫٥٦ SAR").amountMinor,123456);
 assert.equal(previewSmsAmount("شراء SAR 19.51").amountMinor,1951);
-for(const x of ["SAR 1.234","شراء SAR 12 رصيد SAR 100","USD 20 SAR 75","شراء 200","SAR 1,23"])assert.throws(()=>previewSmsAmount(x));
+for(const x of ["SAR 1.234","شراء SAR 12 رصيد SAR 100","USD 20 SAR 75","شراء 200","SAR 1,23","-100 SAR","− 100 SAR","+100 SAR","SAR -100"])assert.throws(()=>previewSmsAmount(x));
 const j=createJournalSession(),apply=(t,f)=>assert.equal(j.apply(t,f).status,"APPLIED_SHADOW");
 apply("domain",{type:"record",id:"r",direction:"out",amountMinor:100,date:"2026-12-01",category:"food",note:"bill",accountId:null});
 apply("project",{id:"p",name:"trip",limitMinor:500,start:"2026-12-01",end:"2026-12-31"});apply("project-link",{projectId:"p",movementId:"r"});apply("bill-split",{movementId:"r",names:["a","b","c"]});
