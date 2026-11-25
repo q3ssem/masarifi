@@ -13,8 +13,8 @@
     },
     {
       "path": "app/app.mjs",
-      "bytes": 48545,
-      "sha256": "22acc779156eda63e9f8c703a4416ce8ed438b75b0d61d51e071da480f18eadb"
+      "bytes": 48827,
+      "sha256": "51c07f3b7b4ccc07c8e5045c740a2e4b7e74896331633287bafdac39f6e2cfdb"
     },
     {
       "path": "app/app.webmanifest",
@@ -59,7 +59,7 @@
     {
       "path": "app/offline-worker.mjs",
       "bytes": 5479,
-      "sha256": "fc855a2b0409c3cd81aeb198b8cb53239cbba825dd9f3bad68b5e008e828b09b"
+      "sha256": "db7924c1df6344d31b368760c982ad222a6f9c22a7840e807ed929cd05b1c93d"
     },
     {
       "path": "app/offline.mjs",

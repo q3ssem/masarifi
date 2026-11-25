@@ -21,7 +21,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/candidate"
           cp -r app src build-manifest.json README.txt "$RUNNER_TEMP/candidate/"
           node core62/scripts/verify-local-release.mjs "$RUNNER_TEMP/candidate"
-          echo "35219453dac3960ee77da9a6a9cd2939f2564b96439c717719e284e0bd724b8f  build-manifest.json" | sha256sum -c -
+          echo "972e9f19390c059f3a1182018c3881be50fd58c3f4e1981dfe48c9e60b263521  build-manifest.json" | sha256sum -c -
           grep -F './app/index.html' index.html
           grep -F './legacy-61.8.1/index.html' index.html
           node --check sw.js
