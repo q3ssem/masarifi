@@ -377,3 +377,32 @@ html[data-layout="classic"] details.home-group:not([open]) .home-group-head{min-
 html[data-layout="classic"] #view>h2{font-size:17px;line-height:1.4}
 @media(max-width:350px){.settings-sheet{padding-inline:10px}.expense-day{padding-inline:9px}.settings-row{gap:7px;padding-inline:8px}}
 @media print{.settings-sheet{display:none!important}}
+
+/* RC3.17: original dedicated obligation/goal cards and report summary; display only. */
+html[data-layout="classic"][data-style="original"] .identity-hero{padding:16px}
+html[data-layout="classic"][data-style="original"] .home-group{margin-block:12px}
+html[data-layout="classic"][data-style="original"] .home-group-head{min-height:38px}
+html[data-layout="classic"][data-style="original"] .home-group:not(details) .home-group-head{margin-bottom:6px}
+html[data-layout="classic"][data-style="original"] #nav{margin-bottom:12px}
+html[data-layout="classic"][data-style="original"] .hero-sum{margin-top:9px;padding-top:10px}
+html[data-style="original"] .settings-list{gap:0;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--panel)}
+html[data-style="original"] .settings-row{background:transparent;border:0;border-radius:0}
+html[data-style="original"] .settings-row+.settings-row{border-top:1px solid var(--border)}
+.finance-card{background:var(--identity-surface);border:1px solid var(--border);border-radius:14px;padding:12px;margin-block:8px;min-width:0}
+.finance-card-head{display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,auto);gap:10px;align-items:center}
+.finance-card-title{display:grid;gap:3px;min-width:0;overflow-wrap:anywhere}
+.finance-card-title b{font-size:15px}.finance-card-title small{font-size:12px;color:var(--muted)}
+.finance-value{font-size:20px;font-weight:700;max-width:100%;flex-wrap:wrap;justify-content:flex-end}
+.finance-card .choice-icon{width:36px;height:36px;border-radius:10px}
+.finance-card-meta{display:flex;gap:6px 12px;justify-content:space-between;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:10px 0 0}
+.finance-card progress{display:block;width:100%;height:7px;margin:10px 0;accent-color:var(--tile-color);border:0;border-radius:10px;overflow:hidden}
+.finance-card progress[hidden]{display:none}
+.finance-card progress::-webkit-progress-bar{background:var(--identity-soft);border-radius:10px}
+.finance-card progress::-webkit-progress-value{background:var(--tile-color);border-radius:10px}
+.finance-action{width:100%;min-height:44px;margin-top:9px;background:var(--action);border:0;color:white;font-size:14px;border-radius:10px}
+.report-hero-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;color:var(--accent);background:var(--identity-soft)}
+.report-hero-icon svg{width:24px;height:24px}
+html[data-layout="classic"] .report-hero{margin-bottom:12px}
+html[data-style="glass"] .finance-card{border-radius:22px;background:color-mix(in srgb,var(--choice-surface) 92%,transparent)}
+html[data-style="android"] .finance-card{background:var(--android-surface);border-radius:24px;border-color:transparent}
+@media(max-width:350px){.finance-card{padding:10px}.finance-card-head{grid-template-columns:30px minmax(0,1fr) minmax(0,auto);gap:6px}.finance-card .choice-icon{width:30px;height:30px}.finance-value{font-size:17px}.finance-card-title small{font-size:11px}}
