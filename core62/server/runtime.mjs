@@ -1,0 +1,15 @@
+import {createServer} from "node:http";
+import {readFile,realpath} from "node:fs/promises";
+import {resolve,relative,extname} from "node:path";
+import {createHash,timingSafeEqual} from "node:crypto";
+import {openSqliteVaults} from "./sqlite-vaults.mjs";
+import {createSyncServer} from "./sync-server.mjs";
+const mime={".html":"text/html; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8"};
+const digest=s=>createHash("sha256").update(s).digest();
+export function createTokenAuthenticator(accounts){if(!Array.isArray(accounts)||!accounts.length||accounts.length>1000)throw Error("auth-config");const ids=new Set(),hashes=new Set(),rows=accounts.map(a=>{if(!a||Object.keys(a).length!==2||typeof a.uid!=="string"||!/^[A-Za-z0-9_-]{1,100}$/.test(a.uid)||ids.has(a.uid)||typeof a.tokenSha256!=="string"||!/^[a-f0-9]{64}$/.test(a.tokenSha256)||hashes.has(a.tokenSha256))throw Error("auth-config");ids.add(a.uid);hashes.add(a.tokenSha256);return {uid:a.uid,hash:Buffer.from(a.tokenSha256,"hex")};});
+ return header=>{if(typeof header!=="string"||!/^Bearer [A-Za-z0-9_-]{43,256}$/.test(header))return null;const h=digest(header.slice(7));let uid=null;for(const a of rows)if(timingSafeEqual(h,a.hash))uid=a.uid;return uid;};}
+export async function createRuntime({dist,database,accounts}){const root=await realpath(dist),dbPath=resolve(database);const rel=relative(root,dbPath);if(!rel.startsWith("..")||rel==="..")throw Error("database-inside-public-root");const authenticate=createTokenAuthenticator(accounts),manifest=JSON.parse(await readFile(resolve(root,"build-manifest.json"),"utf8"));if(manifest.entry!=="app/index.html"||!Array.isArray(manifest.assets)||manifest.assets.length>200)throw Error("runtime-manifest");const assets=new Map();for(const a of manifest.assets){if(typeof a.path!=="string"||! /^(app|src)\/[A-Za-z0-9_.-]+\.(html|mjs|css)$/.test(a.path)||assets.has("/"+a.path)||!mime[extname(a.path)])throw Error("runtime-path");const path=resolve(root,a.path);if(await realpath(path)!==path)throw Error("runtime-symlink");const body=await readFile(path);if(body.length!==a.bytes||createHash("sha256").update(body).digest("hex")!==a.sha256)throw Error("runtime-integrity");assets.set("/"+a.path,{body,type:mime[extname(a.path)]});}if(!assets.has("/app/index.html"))throw Error("runtime-entry");
+ const store=openSqliteVaults(dbPath),api=createSyncServer({authenticate,store});
+ const server=createServer((req,res)=>{if(req.url==="/v1/vault"){api.emit("request",req,res);return;}if(!["GET","HEAD"].includes(req.method)){res.writeHead(405);res.end();return;}const path=req.url==="/"?"/app/index.html":req.url,a=assets.get(path);if(!a){res.writeHead(404,{"cache-control":"no-store"});res.end();return;}res.writeHead(200,{"content-type":a.type,"cache-control":"no-store","x-content-type-options":"nosniff","referrer-policy":"no-referrer","x-frame-options":"DENY"});res.end(req.method==="HEAD"?undefined:a.body);});
+ server.requestTimeout=60000;server.headersTimeout=15000;server.on("close",()=>store.close());return server;
+}
