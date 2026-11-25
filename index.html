@@ -1225,6 +1225,50 @@ html[data-design] :focus-visible{outline:2px solid var(--accent);outline-offset:
   window.claude = { use: async function (n) { return n === 'downloads' ? { save: save } : null; } };
 })();
 </script>
+<!-- CORE62_BRIDGE_BEGIN -->
+<script>
+/* Generated from core62/src; see core62/scripts/build-bridge.mjs. */
+(function(root){"use strict";
+// Masarifi 62 — exact monetary contract (SAR halalah).
+const MAX=BigInt(Number.MAX_SAFE_INTEGER);
+function safeMinor(n){if(typeof n!=="bigint"||n>MAX||n< -MAX)throw new RangeError("minor-overflow");return Number(n);}
+function minorFromDecimal(value){if(typeof value!=="string"||!/^-?(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(value)||value.length>22)throw new TypeError("decimal-format");const neg=value.startsWith("-"),[whole,frac=""]=value.replace(/^-/,"").split(".");return safeMinor((neg?-1n:1n)*(BigInt(whole)*100n+BigInt(frac.padEnd(2,"0"))));}
+function isDate(d){if(typeof d!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const [y,m,day]=d.split("-").map(Number);if(y<1||m<1||m>12)return false;const leap=y%4===0&&(y%100!==0||y%400===0);return day>=1&&day<=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31][m-1];}
+
+
+const STATUSES=Object.freeze(["confirmed","assumed","planned"]);
+const BUCKETS=Object.freeze(STATUSES.flatMap(s=>[s+"In",s+"Out"]));
+function validRow(r){return !!r&&typeof r.id==="string"&&r.id.trim().length>0&&isDate(r.date)&&Number.isSafeInteger(r.amountMinor)&&r.amountMinor!==0&&STATUSES.includes(r.status)&&typeof r.kind==="string"&&r.kind.trim().length>0&&(r.category===null||typeof r.category==="string");}
+function analyzeLedger(rows){if(!Array.isArray(rows))throw new TypeError("rows-array");const sums=Object.fromEntries(BUCKETS.map(k=>[k,0n])),counts=Object.fromEntries(STATUSES.map(k=>[k,0])),issues=[],seen=new Set();let valid=0;for(let i=0;i<rows.length;i++){const r=rows[i];if(!validRow(r)){issues.push({index:i,code:"invalid-row"});continue;}const key=JSON.stringify([r.id,r.date,r.status,r.kind]);if(seen.has(key))issues.push({index:i,id:r.id,code:"duplicate"});seen.add(key);const bucket=r.status+(r.amountMinor>0?"In":"Out");sums[bucket]+=BigInt(Math.abs(r.amountMinor));counts[r.status]++;valid++;}const cents={};for(const k of BUCKETS){try{cents[k]=safeMinor(sums[k]);}catch{cents[k]=null;issues.push({bucket:k,code:"overflow"});}}return {cents,counts,issues,valid,count:rows.length,complete:issues.length===0};}
+
+
+// 61.8.1 ledgerMonth projection only; NOT raw localStorage or full migration.
+function legacyRows(rows){if(!Array.isArray(rows))throw new TypeError("legacy-array");return rows.map(r=>{if(!r||typeof r.a!=="number"||!Number.isFinite(r.a))return null;const mag=Math.round(Math.abs(r.a)*100);return {id:r.id,date:r.d,amountMinor:Number.isSafeInteger(mag)?(r.a<0?-mag:mag):null,status:r.status,kind:r.kind,category:r.category??null};});}
+function parityReport(legacy,rows){const actual=analyzeLedger(rows),diff=[];if(!legacy||legacy.complete!==true)diff.push({code:"legacy-incomplete"});for(const k of BUCKETS){if(!Number.isSafeInteger(legacy?.cents?.[k])||legacy.cents[k]!==actual.cents[k])diff.push({code:"bucket-mismatch",bucket:k,expected:legacy?.cents?.[k]??null,actual:actual.cents[k]});}for(const k of STATUSES){if(legacy?.counts?.[k]!==actual.counts[k])diff.push({code:"status-count-mismatch",status:k});}if(legacy?.count!==actual.count||legacy?.valid!==actual.valid)diff.push({code:"row-count-mismatch"});return {status:actual.complete&&diff.length===0?"SHADOW_PARITY_OK":"BLOCKED",writeAllowed:false,actual,diff};}
+
+
+function rowParity(original,converted){const issues=[];if(!Array.isArray(original)||!Array.isArray(converted)||original.length!==converted.length)return {status:"BLOCKED",issues:[{code:"length-mismatch"}],writeAllowed:false};for(let i=0;i<original.length;i++){const a=original[i],b=converted[i];if(!a||!b||typeof a.a!=="number"||!Number.isFinite(a.a)||!Number.isSafeInteger(b.amountMinor)||a.a===0||b.amountMinor!==Math.round(Math.abs(a.a)*100)*(a.a<0?-1:1)||a.id!==b.id||a.d!==b.date||a.status!==b.status||a.kind!==b.kind||(a.category??null)!==b.category)issues.push({index:i,code:"row-mismatch"});}return {status:issues.length?"BLOCKED":"ROWS_MATCH",issues,writeAllowed:false};}
+function gate(original,converted,oldAnalysis){const rows=rowParity(original,converted),totals=parityReport(oldAnalysis,converted);return {status:rows.status==="ROWS_MATCH"&&totals.status==="SHADOW_PARITY_OK"?"PROJECTION_PARITY_OK":"BLOCKED",rows,totals,writeAllowed:false};}
+
+// The legacy result is authoritative unless both financial and row parity pass.
+const BRIDGE_VERSION="62.6.1-alpha.1";
+function chooseLedgerAnalysis(original,legacy){
+  const fallback=reason=>({...legacy,bridgeStatus:"LEGACY_FALLBACK",bridgeReason:reason});
+  if(!legacy||legacy.complete!==true)return fallback("legacy-incomplete");
+  try{
+    const converted=legacyRows(original),report=gate(original,converted,legacy);
+    if(report.status!=="PROJECTION_PARITY_OK")return fallback("parity-blocked");
+    const a=report.totals.actual;
+    // Preserve the legacy result contract and provide fresh objects; no mutation.
+    const cents={...a.cents},totals=Object.fromEntries(BUCKETS.map(k=>[k,cents[k]/100]));
+    return {...legacy,cents,totals,counts:{...a.counts},issues:[],valid:a.valid,count:a.count,complete:true,bridgeStatus:"CORE62_PARITY_OK",bridgeReason:null};
+  }catch{return fallback("core-exception");}
+}
+
+Object.defineProperty(root,"Masarifi62Bridge",{value:Object.freeze({version:BRIDGE_VERSION,chooseLedgerAnalysis}),configurable:false,writable:false});
+})(window);
+</script>
+<!-- CORE62_BRIDGE_END -->
 <script>
 (function () {
   /* ---------- icon library (stroke paths, 24x24) ---------- */
@@ -2848,7 +2892,7 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
   function setHtml(sel, h) { if (htmlCache[sel] === h) return; htmlCache[sel] = h; var el = $(sel); if (el) el.innerHTML = h; }
   function isStandalone() { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } }
   function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
-  var APP_VER = '61.8.1';
+  var APP_VER = '62.6.1-alpha.1 (61.8.1 UI)';
   function aboutHtml() {
     var n = state.expenses.length + state.incomes.length, f = lsGet('masarifi.first');
     return '<div class="about"><div class="ab-logo"><img src="icon-180.png" alt="" onerror="this.style.display=\'none\'"></div><b class="ab-n">مصاريف</b><small>النسخة ' + APP_VER + '</small></div>' +
@@ -5942,11 +5986,19 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
   }
   /* v61.8 foundation: signed integer-halalah aggregation. No mutation or migration of original records. */
   function fin618Cents(a){if(typeof a!=='number'||!Number.isFinite(a))return null;var c=Math.round(Math.abs(a)*100);return Number.isSafeInteger(c)?(a<0?-c:c):null;}
-  function fin618Analyze(rows){var sums={confirmedIn:0,confirmedOut:0,assumedIn:0,assumedOut:0,plannedIn:0,plannedOut:0},issues=[],seen=new Set(),valid=0,counts={confirmed:0,assumed:0,planned:0};
+  function fin618AnalyzeLegacy(rows){var sums={confirmedIn:0,confirmedOut:0,assumedIn:0,assumedOut:0,plannedIn:0,plannedOut:0},issues=[],seen=new Set(),valid=0,counts={confirmed:0,assumed:0,planned:0};
     rows.forEach(function(e,i){var c=e&&fin618Cents(e.a),d=e&&parseYMD(e.d),k=e&&(e.status+(e.a>0?'In':'Out'));if(!e||c===null||!c||!d||ymd(d)!==e.d||!Object.prototype.hasOwnProperty.call(sums,k)||typeof e.id!=='string'||!e.id){issues.push({index:i,id:e&&e.id||'',code:'invalid'});return;}
       var identity=JSON.stringify([e.id,e.d,e.status,e.kind]);if(seen.has(identity)){issues.push({index:i,id:e.id,code:'duplicate'});/* Do not infer which duplicate is correct. Preserve both in totals until reviewed. */}seen.add(identity);
       var n=sums[k]+Math.abs(c);if(!Number.isSafeInteger(n)){issues.push({index:i,id:e.id,code:'overflow'});return;}sums[k]=n;valid++;counts[e.status]++;
     });var totals={};Object.keys(sums).forEach(function(k){totals[k]=sums[k]/100;});return {cents:sums,totals:totals,issues:issues,valid:valid,count:rows.length,counts:counts,complete:issues.length===0};}
+  function fin618Analyze(rows){
+    var legacy=fin618AnalyzeLegacy(rows);
+    try{
+      var b=window.Masarifi62Bridge;
+      if(b&&b.version==='62.6.1-alpha.1'&&typeof b.chooseLedgerAnalysis==='function')return b.chooseLedgerAnalysis(rows,legacy);
+    }catch(e){}
+    legacy.bridgeStatus='LEGACY_FALLBACK';legacy.bridgeReason='bridge-unavailable';return legacy;
+  }
   function ledgerTotals(rows){var a=fin618Analyze(rows);Object.defineProperty(a.totals,"quality",{value:a,enumerable:false});return a.totals;}
   function fin618Warning(a){return a.complete?'':'<p class="note" role="alert">'+T2('نتيجة تحتاج مراجعة: توجد حركات غير صالحة أو مكررة؛ لا تعتمد الإجمالي قبل التصحيح.','Review required: invalid or duplicate movements; do not rely on totals until reviewed.')+' · '+num(a.issues.length)+'</p>';}
 
@@ -5965,7 +6017,7 @@ var incShow = state.sel ? incs.filter(function (e) { return e.date === state.sel
     state.insts.forEach(function(i){var n=instInfo(i);if(n.dueUnpaid)issues.push(T2('دفعات مستحقة غير مسددة: ','Unpaid due installments: ')+i.name+' · '+fmt(n.dueUnpaid*i.amount));});
     state.fixeds.forEach(function(f){if(fxActive(f,today.slice(0,7))&&!fixedPaymentDate(f,today.slice(0,7)))issues.push(T2('ثابت غير مسدد: ','Unpaid fixed expense: ')+f.name);});
     var rawIds=Object.create(null);state.expenses.concat(state.incomes,state.insts,state.debts,state.fixeds,state.goals).forEach(function(e){if(!e.id||rawIds[e.id])issues.push(T2('راجع معرف السجل: ','Review record ID: ')+String(e.id||'—'));rawIds[e.id]=1;});
-    var v=state.view, check=fin618Analyze(ledgerMonth(v.y,v.m)), totals=check.totals;check.issues.forEach(function(x){issues.push(T2('حركة تحتاج مراجعة: ','Movement needs review: ')+x.id+' · '+x.code);});if(totals.assumedOut||totals.assumedIn)issues.push(T2('حركات تاريخية تقديرية تحتاج مراجعة، وليست سداداً مؤكداً.','Historical estimated transactions need review; not confirmed payments.'));
+    var v=state.view, check=fin618Analyze(ledgerMonth(v.y,v.m)), totals=check.totals;if(check.bridgeStatus==='LEGACY_FALLBACK')issues.push(T2('النواة الجديدة: استُخدم المحرك السابق احترازيًا.','New core: legacy engine retained as a precaution.'));check.issues.forEach(function(x){issues.push(T2('حركة تحتاج مراجعة: ','Movement needs review: ')+x.id+' · '+x.code);});if(totals.assumedOut||totals.assumedIn)issues.push(T2('حركات تاريخية تقديرية تحتاج مراجعة، وليست سداداً مؤكداً.','Historical estimated transactions need review; not confirmed payments.'));
     riIncomes(true).filter(function(r){return r.date.slice(0,7)===fixedKey(v.y,v.m);}).forEach(function(r){var matches=state.incomes.filter(function(e){return e.src===r.src&&parseYMD(e.date)&&Math.abs(e.amount-r.amount)<=Math.max(1,r.amount*.1)&&Math.abs(dayDiff(parseYMD(e.date),parseYMD(r.date)))<=10;});if(matches.length>1)issues.push(T2('أكثر من دخل يطابق نفس الراتب؛ راجع المصدر والتاريخ: ','Multiple incomes match one salary; review source and date: ')+r.note);});
     if(!pget('rc').d)issues.push(T2('ما فيه مطابقة رصيد بنكي','No bank balance reconciliation'));
     return issues;

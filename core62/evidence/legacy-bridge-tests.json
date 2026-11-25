@@ -1,0 +1,89 @@
+{
+  "passed": 13,
+  "total": 13,
+  "stress": [
+    {
+      "rows": 100000,
+      "ms": 516,
+      "exact": true
+    },
+    {
+      "rows": 250000,
+      "ms": 1302,
+      "exact": true
+    }
+  ],
+  "tests": [
+    {
+      "name": "exact valid bridge",
+      "pass": true
+    },
+    {
+      "name": "legacy display contract",
+      "pass": true
+    },
+    {
+      "name": "no source or legacy mutation",
+      "pass": true
+    },
+    {
+      "name": "fresh result objects",
+      "pass": true
+    },
+    {
+      "name": "duplicates retain legacy warnings",
+      "pass": true
+    },
+    {
+      "name": "mismatch does not substitute totals",
+      "pass": true
+    },
+    {
+      "name": "stricter core validation uses fallback",
+      "pass": true
+    },
+    {
+      "name": "empty month parity",
+      "pass": true
+    },
+    {
+      "name": "invalid amount fallback",
+      "pass": true
+    },
+    {
+      "name": "invalid date fallback",
+      "pass": true
+    },
+    {
+      "name": "overflow fallback",
+      "pass": true
+    },
+    {
+      "name": "integrated bridge 100000",
+      "pass": true
+    },
+    {
+      "name": "integrated bridge 250000",
+      "pass": true
+    }
+  ],
+  "integrationChecks": [
+    {
+      "name": "classic inline bundle executes",
+      "pass": true
+    },
+    {
+      "name": "legacy entry point uses bundled core",
+      "pass": true
+    },
+    {
+      "name": "missing bundle safely falls back",
+      "pass": true
+    },
+    {
+      "name": "unexpected legacy code change absent",
+      "pass": true
+    }
+  ],
+  "environment": "JS execution environment, source-level and classic-script invocation; no real browser"
+}
