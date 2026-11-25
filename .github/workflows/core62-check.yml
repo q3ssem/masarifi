@@ -65,6 +65,24 @@ jobs:
           BROWSER_ENGINE: ${{ matrix.engine }}
         run: node core62/tests/offline-release.mjs
 
+      - name: Prepare immutable RC1.19 and RC2.10 upgrade baselines
+        shell: bash
+        run: |
+          set -euo pipefail
+          old1=eb987964a5e4bfda0e09546d7b1b829ad95632a7
+          old2=5fd6ca9853e20ca20313f5d836de8bfaa0651397
+          git fetch --no-tags --depth=1 origin "$old1" "$old2"
+          for item in "rc1:$old1" "rc2:$old2"; do
+            name="${item%%:*}"
+            sha="${item#*:}"
+            mkdir -p "$RUNNER_TEMP/masarifi-$name"
+            git archive "$sha" core62/app core62/src core62/scripts icon-180.png icon-192.png icon-512.png | tar -xf - -C "$RUNNER_TEMP/masarifi-$name"
+          done
+      - name: Upgrade frozen RC1.19 and RC2.10 to RC3 with actual encrypted data
+        env:
+          BROWSER_ENGINE: ${{ matrix.engine }}
+        run: node core62/tests/historical-upgrade.mjs "$RUNNER_TEMP/masarifi-rc1" "$RUNNER_TEMP/masarifi-rc2"
+
       - name: Capture local visual acceptance evidence
         env:
           BROWSER_ENGINE: ${{ matrix.engine }}
