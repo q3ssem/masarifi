@@ -24,7 +24,7 @@ try{
  const shell=await page.evaluate(async()=>{const names=(await caches.keys()).filter(n=>n.startsWith("masarifi62-shell-"));const cache=await caches.open(names[0]);return (await cache.keys()).map(r=>new URL(r.url).pathname);});
  assert.ok(shell.includes("/app/index.html")&&shell.includes("/src/journal.mjs"));assert.ok(shell.every(p=>p.startsWith("/app/")||p.startsWith("/src/")));assert.ok(!shell.includes("/v1/vault"));assert.ok(!shell.includes("/src/journal-sync.mjs"));
  await page.locator("#moreToggle").click();await page.locator("#moreNav").getByRole("button",{name:"الحسابات والحركات",exact:true}).click();
- await page.locator("#action").selectOption("account");await page.locator("#name").fill("Offline synthetic");await page.locator("#form button[type=submit]").click();await page.locator("#message").getByText(/تم التنفيذ/).waitFor();
+ await page.locator("#action").selectOption("account");await page.locator("#name").fill("Offline synthetic");assert.equal(await page.locator("#initial").inputValue(),"0");await page.locator("#form button[type=submit]").click();await page.locator("#message").getByText(/تم التنفيذ/).waitFor();
  await page.locator("#nav").getByRole("button",{name:"التقارير والبيانات",exact:true}).click();await page.locator("#vaultPassword").fill("synthetic-offline-password");await page.locator("#saveLocal").click();await page.locator("#dataStatus").getByText(/تمت معاملة الحفظ/).waitFor({timeout:30000});
  // Build a second real package from an isolated synthetic source copy; never edit tracked files.
  const fixture=join(root,"upgrade-source"),fixtureCore=join(fixture,"core62"),nextDist=join(root,"public-next");

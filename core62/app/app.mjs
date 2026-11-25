@@ -8,7 +8,8 @@ const $=id=>document.getElementById(id);let w=createJournalSession(),dataCenter=
 const localDate=d=>String(d.getFullYear()).padStart(4,"0")+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");const now=new Date();$("asOf").value=localDate(now);$("month").value=localDate(now).slice(0,7);$("through").value=localDate(new Date(now.getFullYear(),now.getMonth()+1,0));
 const node=(tag,text="",cls="")=>{const x=document.createElement(tag);x.textContent=text;if(cls)x.className=cls;return x;};
 let masked=false;
-const amount=n=>{if(masked)return "••••";if(!Number.isSafeInteger(n))return "غير متاح";const b=BigInt(n),a=b<0n?-b:b;return (b<0n?"−":"")+new Intl.NumberFormat("ar-SA").format(a/100n)+"٫"+new Intl.NumberFormat("ar-SA",{minimumIntegerDigits:2,useGrouping:false}).format(a%100n)+" ر.س";};
+const moneyWhole=new Intl.NumberFormat("ar-SA"),moneyFraction=new Intl.NumberFormat("ar-SA",{minimumIntegerDigits:2,useGrouping:false});
+const amount=n=>{if(masked)return "••••";if(!Number.isSafeInteger(n))return "غير متاح";const b=BigInt(n),a=b<0n?-b:b;return (b<0n?"−":"")+moneyWhole.format(a/100n)+"٫"+moneyFraction.format(a%100n)+" ر.س";};
 const categoryName=(id,x)=>new Map(categoryOptions(x?.categories??[])).get(id)??id;
 const sourceName=id=>new Map(sourceOptions([id])).get(id)??id;
 const types={debt:"دين",installment:"قسط",association:"جمعية",fixed:"ثابت",bnpl:"شراء آجل",income:"دخل متكرر",subscription:"اشتراك",buy:"شراء",sell:"بيع",dividend:"توزيعات",value:"تقييم"};
@@ -33,7 +34,7 @@ function refreshFinancialPrefs(){const p=w.snapshot().financialPreferences;$("pa
 $("saveFinancialPrefs").addEventListener("click",()=>{try{if(!$("paydayPref").value.trim())throw Error("payday");const r=w.apply("financial-preferences",{payday:Number($("paydayPref").value),savingsTargetBps:inputMinor($("savingsPref").value)});if(r.status!=="APPLIED_SHADOW")throw Error(r.code);$("financialPrefStatus").textContent="حُفظت في الجلسة المالية.";dataCenter.changed();render();}catch{$("financialPrefStatus").textContent="راجع يوم الراتب وهدف الادخار.";}});
 $("openSettings").addEventListener("click",()=>{const open=$("settingsPanel").hidden;if(open)refreshFinancialPrefs();$("settingsPanel").hidden=!open;$("openSettings").setAttribute("aria-expanded",String(open));});
 $("mask").addEventListener("click",()=>{masked=!masked;$("mask").setAttribute("aria-pressed",String(masked));render();});
-$("closeEditor").addEventListener("click",()=>{$("editor").hidden=true;});
+$("closeEditor").addEventListener("click",()=>{$("editor").hidden=true;$("reopenEditor").hidden=false;$("reopenEditor").focus();});$("reopenEditor").addEventListener("click",()=>{$("editor").hidden=false;$("reopenEditor").hidden=true;$("action").focus();$("editor").scrollIntoView({block:"nearest"});});
 function syncMonth(){const m=$("month").value;if(!/^\d{4}-\d{2}$/.test(m))return;$("currentMonth").textContent=new Intl.DateTimeFormat("ar-SA",{calendar:"gregory",month:"long",year:"numeric"}).format(new Date(m+"-15T12:00:00"));}
 function moveMonth(delta){const [y,m]=$("month").value.split("-").map(Number);const d=new Date(y,m-1+delta,1);if(d.getFullYear()<1900||d.getFullYear()>9999)return;$("month").value=localDate(d).slice(0,7);syncMonth();render();fields();}
 $("prevMonth").addEventListener("click",()=>moveMonth(-1));$("nextMonth").addEventListener("click",()=>moveMonth(1));
@@ -55,12 +56,12 @@ if(section==="wealth"){p.append(node("p","تقييمات يدوية، وتدفق
 if(section==="reports"){const r=dataCenter.report();if(r.status!=="REPORT_ONLY")p.append(node("p","التقرير متوقف بسبب جودة البيانات.","negative"));else{cards(p,[["دخل الشهر دون الاستردادات",amount(r.confirmedIncomeExcludingRefundsMinor)],["الاستردادات",amount(r.refundMinor)],["مصروف الشهر المؤكد",amount(r.cents.confirmedOut)],["صافي الشهر",amount(r.confirmedNetMinor)],["مدفوعات متوقعة",amount(r.cents.plannedOut)],["مصروف تقديري",amount(r.cents.assumedOut)],["دخل تقديري",amount(r.cents.assumedIn)]]);for(const c of r.categories)line(p,categoryName(c.category,x)+" · مؤكد / تقديري / مخطط",amount(c.confirmedMinor)+" / "+amount(c.assumedMinor)+" / "+amount(c.plannedMinor));}}
 if(section==="search"){const f=node("form"),inp=node("input"),btn=node("button","بحث");inp.value=query;inp.placeholder="اسم أو مبلغ أو تاريخ";inp.setAttribute("aria-label","البحث في الحركات");btn.type="submit";f.append(inp,btn);f.addEventListener("submit",e=>{e.preventDefault();query=inp.value;render();});p.append(f,node("p","النتائج: "+x.search.total,"muted"));for(const r of x.search.results)line(p,(r.note||r.id)+" · "+r.date+(metadataLabel(r)?" · "+metadataLabel(r):""),amount(r.amountMinor));}
 }catch(e){last=null;p.append(node("p","تعذر عرض البيانات. راجع الفترة والمبالغ.","negative"));}}
-function navigate(id){section=id;$("message").textContent="";showMore(false);markNavigation();const list=sections[id][1];$("dataPanel").hidden=id!=="reports";$("editor").hidden=!list.length;selectOpts($("action"),list.map(x=>[x,actions[x]]));render();fields();}
+function navigate(id){section=id;$("message").textContent="";showMore(false);markNavigation();const list=sections[id][1];$("dataPanel").hidden=id!=="reports";$("editor").hidden=!list.length;$("reopenEditor").hidden=true;selectOpts($("action"),list.map(x=>[x,actions[x]]));render();fields();}
 const val=id=>$(id)?.value??"";
 function field(id,label,{type="text",value="",opts=null}={}){const l=node("label",label),x=node(opts?"select":"input");x.id=id;if(opts)selectOpts(x,opts);else{x.type=type;x.value=value;if(["amt","basis","initial"].includes(id))x.inputMode="decimal";}l.append(x);$("fields").append(l);}
 function fields(){const action=val("action"),s=w.snapshot(),accounts=s.domain.accounts.filter(a=>!a.archived).map(a=>[a.id,a.name]),moves=s.domain.movements.filter(m=>!m.voided);$("fields").replaceChildren();
-const date=()=>field("date","التاريخ",{type:"date",value:val("asOf")}),amt=()=>field("amt","المبلغ بالريال",{value:"100"}),name=()=>field("name","الاسم",{value:"تجريبي"}),note=()=>field("note","الوصف"),dir=()=>field("direction","الاتجاه",{opts:[["out","دفع"],["in","قبض"]]}),acct=()=>field("accountId","الحساب",{opts:[["","غير مرتبط"],...accounts]}),category=()=>field("category","الفئة",{value:"عام"});
-if(action==="account"){name();field("initial","رصيد افتتاحي بالريال",{value:"1000"});date();}
+const date=()=>field("date","التاريخ",{type:"date",value:val("asOf")}),amt=()=>field("amt","المبلغ بالريال"),name=()=>field("name","الاسم"),note=()=>field("note","الوصف"),dir=()=>field("direction","الاتجاه",{opts:[["out","دفع"],["in","قبض"]]}),acct=()=>field("accountId","الحساب",{opts:[["","غير مرتبط"],...accounts]}),category=()=>field("category","الفئة",{value:"عام"});
+if(action==="account"){name();field("initial","رصيد افتتاحي بالريال",{value:"0"});date();}
 const expenseOptions=()=>moves.filter(m=>m.kind==="record"&&m.direction==="out").map(m=>[m.id,(m.note||m.id)+" · "+m.date+" · "+amount(m.amountMinor)]);
 if(action==="refund"){field("target","المصروف الأصلي",{opts:expenseOptions()});amt();date();acct();note();}
 if(action==="refund-void")field("target","الاسترداد",{opts:s.refunds.map(r=>moves.find(m=>m.id===r.id)).filter(Boolean).map(m=>[m.id,m.note||m.id])});
@@ -93,13 +94,13 @@ if(action==="wish-status"){field("target","الرغبة",{opts:s.wishes.map(x=>[
 if(action==="goal"){name();amt();date();}
 if(action==="contribution"){field("target","الهدف",{opts:s.goals.map(g=>[g.id,g.name])});amt();date();}
 if(action==="holding"){name();category();}
-if(action==="investment"){field("target","الاستثمار",{opts:s.holdings.map(h=>[h.id,h.name])});field("trade","العملية",{opts:Object.entries(types).filter(([k])=>["buy","sell","dividend","value"].includes(k))});amt();field("basis","تكلفة الجزء المباع (للبيع فقط)",{value:"0"});date();}
+if(action==="investment"){field("target","الاستثمار",{opts:s.holdings.map(h=>[h.id,h.name])});field("trade","العملية",{opts:Object.entries(types).filter(([k])=>["buy","sell","dividend","value"].includes(k))});amt();field("basis","تكلفة الجزء المباع (للبيع فقط)");const toggle=()=>{$("basis").parentElement.hidden=val("trade")!=="sell";};$("trade").addEventListener("change",toggle);toggle();date();}
 if(action==="asset"){name();amt();date();}
 if(action==="asset-revalue"){field("target","الأصل",{opts:s.assets.map(a=>[a.id,a.name])});amt();date();}
 if(action==="linked-purchase-note"){const candidates=moves.filter(m=>s.rules.some(r=>r.firstMovementId===m.id));field("target","الشراء المرتبط",{opts:candidates.map(m=>[m.id,m.note||m.id])});note();const fill=()=>{$("note").value=candidates.find(m=>m.id===val("target"))?.note??"";};$("target").addEventListener("change",fill);fill();}
 if(action==="edit"){const target=$("target");const load=()=>{const m=moves.find(m=>m.id===target.value);if(!m)return;const b=BigInt(m.amountMinor);$("amt").value=String(b/100n)+"."+String(b%100n).padStart(2,"0");$("direction").value=m.direction;$("date").value=m.date;$("category").value=m.category??"";$("incomeSource").value=m.metadata?.incomeSource??"";$("direction").dispatchEvent(new Event("change"));$("note").value=m.note;$("accountId").value=m.accountId??"";};target.addEventListener("change",load);load();}
 }
-function submit(e){e.preventDefault();const action=val("action"),id=w.nextId(action),date=val("date"),direction=val("direction"),a=()=>inputMinor(val("amt"));let type=action,f;
+function submit(e){e.preventDefault();const action=val("action"),id=w.nextId(action),date=val("date"),direction=val("direction"),a=()=>{if(!val("amt").trim())throw Error("amount-required");return inputMinor(val("amt"));};let type=action,f;
 try{if(["edit","transfer","settle","confirm-settlement","pay-occurrence","contribution","investment","asset","asset-revalue","refund"].includes(action)&&date>localDate(new Date())){ $("message").textContent="لا يمكن تأكيد حركة مالية بتاريخ مستقبلي. استخدم الجدولة أو الحركة المخططة.";return;}switch(action){
 case "refund":f={id,movementId:val("target"),amountMinor:a(),date,accountId:val("accountId")||null,note:val("note")};if(date>localDate(new Date()))throw Error("future-refund");break;
 case "refund-void":f={id:val("target")};break;
@@ -134,7 +135,7 @@ case "cancel-record":f={id:val("target")};break;
 case "goal":f={id,name:val("name"),targetMinor:a(),due:date};break;
 case "contribution":f={id,goalId:val("target"),date,amountMinor:a()};break;
 case "holding":f={id,name:val("name"),category:val("category")};break;
-case "investment":f={id,holdingId:val("target"),date,type:val("trade"),amountMinor:a()};if(f.type==="sell")f.basisRemovedMinor=inputMinor(val("basis"));break;
+case "investment":f={id,holdingId:val("target"),date,type:val("trade"),amountMinor:a()};if(f.type==="sell"){if(!val("basis").trim())throw Error("basis-required");f.basisRemovedMinor=inputMinor(val("basis"));}break;
 case "asset":f={id,name:val("name"),valueMinor:a(),valuedOn:date};break;
 case "asset-revalue":f={id:val("target"),valueMinor:a(),valuedOn:date};if(date>localDate(new Date()))throw Error("future-valuation");break;
 case "linked-purchase-note":f={id:val("target"),note:val("note")};break;
