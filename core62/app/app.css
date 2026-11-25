@@ -493,3 +493,10 @@ html[data-style="mono"] :is(.finance-card,.search-card,.search-results,.wealth-h
   html[data-layout="classic"] :is(.finance-card-meta,.wealth-facts small,.search-result-head span){font-size:12px}
 }
 @media(forced-colors:active){html :is(button,summary,input,select):focus-visible{outline:2px solid Highlight}html .finance-card progress{forced-color-adjust:auto}}
+
+/* RC3.21 — final narrow-width and long-amount safeguards. */
+html[data-layout="classic"] .finance-card-head{grid-template-columns:36px minmax(0,1fr) fit-content(44%)}
+html[data-layout="classic"] .search-result{grid-template-columns:32px minmax(0,1fr) fit-content(44%)}
+html[data-layout="classic"] :is(.finance-value,.search-result-amount) .amount-digits{min-width:0;overflow-wrap:anywhere;max-width:100%}
+@media(max-width:360px){html[data-layout="classic"] .finance-card-head{grid-template-columns:30px minmax(0,1fr) fit-content(43%)}html[data-layout="classic"] .search-result{grid-template-columns:28px minmax(0,1fr) fit-content(43%)}}
+@media(prefers-reduced-motion:reduce){html :is(.finance-action,.report-tool,.search-filter,.settings-row,.hub-tile,.appearance-choice):active{transform:none!important}}

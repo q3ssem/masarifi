@@ -33,6 +33,10 @@ jobs:
         run: node core62/scripts/build-clean-release.mjs
       - name: Verify reproducible local release and reject corrupt packages
         run: node core62/tests/package-integrity.mjs dist/masarifi62-pre-rc
+      - name: Fetch frozen RC3.19 candidate baseline
+        run: git fetch --no-tags --depth=1 origin 7ab060eb7b224d0acf5db558b1d71a745a178fd7
+      - name: Enforce final release boundary and record evidence
+        run: node core62/tests/final-release-gate.mjs dist/masarifi62-pre-rc
       - uses: actions/upload-artifact@v4
         with:
           name: masarifi62-pre-rc
