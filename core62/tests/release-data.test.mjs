@@ -16,7 +16,7 @@ check("atomic import into fresh session",()=>importIntoEmpty(preview).snapshot()
 const old={app:"masarifi",version:2,expenses:[{id:"e_1",amount:12.34,cat:"food",note:"قديم",date:"2026-12-01"}],incomes:[],insts:[],debts:[],goals:[],fixeds:[],budget:0,cats:null,cbud:{},rates:{},prefs:{}};
 const lp=previewLegacy(JSON.stringify(old),{asOf});check("simple legacy mapping",()=>lp.status==="IMPORT_PREVIEW"&&importIntoEmpty(lp).snapshot().domain.movements[0].amountMinor===1234);
 const blocked=previewLegacy(JSON.stringify({...old,prefs:{wallet59:{accounts:[{id:"a"}]}}}),{asOf});check("unsupported wallet blocks migration",()=>blocked.status==="BLOCKED"&&throws(()=>importIntoEmpty(blocked)));
-check("future legacy record blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],date:"2027-01-01"}]}),{asOf}).status==="BLOCKED");
+check("future legacy record retained as planned",()=>{const p=previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],date:"2027-01-01"}]}),{asOf});return p.status==="IMPORT_PREVIEW"&&importIntoEmpty(p).snapshot().plannedRecords.length===1&&importIntoEmpty(p).snapshot().domain.movements.length===0;});
 check("unmapped legacy metadata blocked",()=>previewLegacy(JSON.stringify({...old,expenses:[{...old.expenses[0],unmappedField:"project"}]}),{asOf}).status==="BLOCKED");
 const env={format:"masarifi62-backup",version:1,kdf:"PBKDF2-SHA256",iterations:600000,cipher:"AES-256-GCM",salt:"0".repeat(32),iv:"0".repeat(24),ciphertext:"0".repeat(32)};const a=vaultTransition(null,0,env);check("vault first write",()=>a.status==="SAVED"&&a.next.generation===1);
 check("vault CAS stale writer",()=>vaultTransition(a.next,0,env).status==="CONFLICT");
