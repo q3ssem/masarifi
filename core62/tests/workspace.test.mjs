@@ -26,5 +26,8 @@ check("wealth integrated",()=>w.view(params).wealth.netMinor===235000&&w.view(pa
 check("snapshot detached",()=>{const x=w.snapshot();x.domain.accounts[0].openingMinor=0;return w.snapshot().domain.accounts[0].openingMinor===100000;});
 check("all production writes forbidden",()=>run("budget",{month:"2026-12",category:"other",limitMinor:0}).productionWriteAllowed===false);
 check("other session unchanged",()=>other.snapshot().revision===0);
+check("asset identity cannot become account",()=>run("domain",{type:"account",id:"car",name:"duplicate",openingMinor:0,openingDate:date}).code==="duplicate-asset-identity");
+check("account identity cannot become holding",()=>run("holding",{id:"cash",name:"duplicate",category:"stock"}).status==="BLOCKED");
+check("holding identity cannot become account",()=>run("domain",{type:"account",id:"h",name:"duplicate",openingMinor:0,openingDate:date}).status==="BLOCKED");
 const result={passed:tests.filter(t=>t.pass).length,total:tests.length,tests};
 console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

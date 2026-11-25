@@ -1,6 +1,6 @@
 {
-  "passed": 24,
-  "total": 24,
+  "passed": 27,
+  "total": 27,
   "tests": [
     {
       "name": "isolated clean state",
@@ -96,6 +96,18 @@
     },
     {
       "name": "other session unchanged",
+      "pass": true
+    },
+    {
+      "name": "asset identity cannot become account",
+      "pass": true
+    },
+    {
+      "name": "account identity cannot become holding",
+      "pass": true
+    },
+    {
+      "name": "holding identity cannot become account",
       "pass": true
     }
   ]

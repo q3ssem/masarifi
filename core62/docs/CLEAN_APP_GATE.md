@@ -19,3 +19,6 @@ Entry: core62/app/index.html (isolated HTTP origin required; no file://). One co
 
 ## Decision
 HOLD. Main 61.8.1 stays intact. Legacy file and bridge stay as reference on development branch only; final clean app must not load them. Next gates: complete feature inventory and rebuild missing workflows; durable encrypted state + migration adapter; verify record-level parity, browser/device and authenticated cloud; only then remove legacy runtime from candidate. No deletion of reference or evidence. No data lost in this change because production untouched, not a guarantee of future migration.
+
+## Alpha 4 integrity follow-up
+Workspace asset IDs guarded across holdings, assets and accounts in both creation orders; 27/27 current workspace tests pass in source-level JS execution. A static clean-dependency gate and branch-only Node CI workflow were added; CI execution status must be checked separately. No deployment job. No production change.

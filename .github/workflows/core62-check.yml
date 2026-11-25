@@ -1,0 +1,29 @@
+name: Core 62 isolated verification
+on:
+  push:
+    branches: ['work/masarifi-62-core']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check isolated module graph
+        run: node core62/scripts/check-clean-app.mjs
+      - name: Run all isolated core tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in core62/tests/*.test.mjs; do
+            echo "::group::$f"
+            node "$f"
+            echo "::endgroup::"
+          done
+      - name: Verify temporary legacy bridge generation
+        run: node core62/scripts/build-bridge.mjs --check
