@@ -16,7 +16,7 @@ export async function addPwaShell(out,source,paths){
  const registration=`const status=document.getElementById("offlineStatus");
  if("serviceWorker" in navigator&&window.isSecureContext){
   const ready=()=>{status.textContent="ملفات التطبيق جاهزة للعمل دون اتصال. افتح الخزنة المشفرة لاستعادة بياناتك."};
-  navigator.serviceWorker.register("./offline-worker.mjs",{scope:"./",updateViaCache:"none"}).then(async r=>{if(r.active)ready();else await navigator.serviceWorker.ready.then(ready);}).catch(()=>{status.textContent="تعذر تجهيز العمل دون اتصال.";});
+  const controlled=()=>{if(navigator.serviceWorker.controller)ready();};\n  navigator.serviceWorker.addEventListener("controllerchange",controlled);\n  navigator.serviceWorker.register("./offline-worker.mjs",{scope:"./",updateViaCache:"none"}).then(async()=>{if(navigator.serviceWorker.controller)ready();else status.textContent="جارٍ تجهيز ملفات العمل دون اتصال." ;await navigator.serviceWorker.ready;controlled();}).catch(()=>{status.textContent="تعذر تجهيز العمل دون اتصال.";});
  }else status.textContent="العمل دون اتصال يحتاج اتصال HTTPS أو بيئة محلية آمنة.";
  `;
  await writeFile(resolve(out,"app/offline.mjs"),registration);

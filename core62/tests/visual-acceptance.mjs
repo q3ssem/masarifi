@@ -30,13 +30,13 @@ try{
     await nav(label);await page.evaluate(()=>window.scrollTo(0,0));await page.evaluate(()=>document.fonts.ready);
     const file=layout+"-"+mode+"-"+width+"x"+height+"-"+(i+1)+".png";
     await page.screenshot({path:join(out,file),fullPage:true,animations:"disabled"});
-    const checks=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,docWidth:document.documentElement.scrollWidth,viewport:innerWidth,unlabelled:[...document.querySelectorAll("button,input,select,textarea")].filter(e=>e.getClientRects().length&&!(e.getAttribute("aria-label")||Array.from(e.labels??[]).map(l=>l.textContent).join(" ")||(e.tagName==="BUTTON"?e.textContent:""))?.trim()).length}));
+    const checks=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,docWidth:document.documentElement.scrollWidth,viewport:innerWidth,shortControls:[...document.querySelectorAll("button,input,select,textarea")].filter(e=>e.getClientRects().length&&e.getBoundingClientRect().height<43.5).map(e=>e.id||e.tagName),unlabelled:[...document.querySelectorAll("button,input,select,textarea")].filter(e=>e.getClientRects().length&&!(e.getAttribute("aria-label")||Array.from(e.labels??[]).map(l=>l.textContent).join(" ")||(e.tagName==="BUTTON"?e.textContent:""))?.trim()).length}));
     metrics.push({file,layout,mode,width,height,section:label,...checks});
    }
   }
  }
  await writeFile(join(out,"metrics.json"),JSON.stringify({engine,version:manifest.version,scope:"synthetic data; default theme, not physical device or manual visual approval",screens:metrics.length,errors,metrics},null,2));
- assert.equal(metrics.length,112);assert.deepEqual(errors,[]);assert.ok(metrics.every(x=>!x.overflow&&!x.unlabelled),"visual geometry or accessible name regression");
- console.log("Visual witnesses: "+metrics.length+" PNG screenshots, no measured horizontal overflow or unnamed visible controls.");
+ assert.equal(metrics.length,112);assert.deepEqual(errors,[]);assert.ok(metrics.every(x=>!x.overflow&&!x.unlabelled&&!x.shortControls.length),"visual geometry or accessible name regression");
+ console.log("Visual witnesses: "+metrics.length+" PNG screenshots, no measured horizontal overflow, unnamed controls or controls below 44 CSS px height.");
  await context.close();
 }finally{if(browser)await browser.close();if(server){server.closeAllConnections();await new Promise(r=>server.close(r));}await rm(root,{recursive:true,force:true});}
