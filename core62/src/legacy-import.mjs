@@ -1,5 +1,5 @@
 import {isDate,minorFromDecimal} from "./money.mjs";
-import {createJournalSession} from "./journal.mjs";
+import {createJournalSession,JOURNAL_MAX_COMMANDS} from "./journal.mjs";
 import {expandSchedules} from "./schedule.mjs";
 const families=["expenses","incomes","insts","debts","goals","fixeds"];
 const nonempty=x=>x!==null&&x!==undefined&&x!==false&&x!==0&&x!==""&&(Array.isArray(x)?x.length>0:typeof x==="object"?Object.keys(x).length>0:true);
@@ -46,5 +46,5 @@ export function previewLegacy(text,{asOf}={}){if(typeof text!=="string"||text.le
    require(g&&originalId(g.id)&&!seen.has(g.id)&&typeof g.name==="string"&&g.name.trim()&&isDate(g.deadline+"-01"),"goal-contract");knownFields(g,["id","name","target","saved","deadline"]);
    require(g.saved===0,"goal-savings-date-unknown");out.push({type:"goal",fields:{id:g.id,name:g.name,targetMinor:strictAmount(g.target),due:g.deadline+"-01"}});seen.add(g.id);
  });
- if(commands.length>2000)issues.push({path:"records",code:"journal-limit"});return {status:issues.length?"BLOCKED":"IMPORT_PREVIEW",counts,commands,issues,sourcePreserved:true,productionWriteAllowed:false};}
-export function importIntoEmpty(preview){if(preview?.status!=="IMPORT_PREVIEW"||!Array.isArray(preview.commands)||!Array.isArray(preview.issues)||preview.issues.length)throw Error("import-blocked");const s=createJournalSession();for(const c of preview.commands){if(s.apply(c.type,c.fields).status!=="APPLIED_SHADOW")throw Error("import-replay-failed");}return s;}
+ if(commands.length>JOURNAL_MAX_COMMANDS)issues.push({path:"records",code:"journal-limit"});return {status:issues.length?"BLOCKED":"IMPORT_PREVIEW",counts,commands,issues,sourcePreserved:true,productionWriteAllowed:false};}
+export function importIntoEmpty(preview){if(preview?.status!=="IMPORT_PREVIEW"||!Array.isArray(preview.commands)||!Array.isArray(preview.issues)||preview.issues.length)throw Error("import-blocked");return createJournalSession({format:"masarifi62-journal",version:1,serial:0,commands:preview.commands});}

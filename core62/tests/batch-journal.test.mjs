@@ -1,0 +1,21 @@
+import {createJournalSession,parseJournal,JOURNAL_MAX_COMMANDS} from "../src/journal.mjs";
+const checks=[];function check(name,f){try{if(f()!==true)throw Error("assertion");checks.push({name,pass:true});}catch(e){checks.push({name,pass:false,error:String(e)});}}
+const rec=(id,amountMinor=101,direction="out",accountId=null)=>({type:"record",id,direction,amountMinor,date:"2026-12-01",category:direction==="out"?"food":null,note:"اختبار",accountId});
+const a=createJournalSession(),b=createJournalSession(),account={type:"account",id:"cash",name:"cash",openingMinor:10000,openingDate:"2026-12-01"};
+a.apply("domain",account);b.apply("domain",account);const list=Array.from({length:250},(_,i)=>rec("r"+i,1+i,i%3?"out":"in","cash"));for(const f of list)a.apply("domain",f);
+check("batch success",()=>b.applyRecords(list).status==="APPLIED_SHADOW");
+check("sequential state and audit parity",()=>JSON.stringify(a.snapshot())===JSON.stringify(b.snapshot()));
+check("journal parity",()=>JSON.stringify(a.exportJournal())===JSON.stringify(b.exportJournal()));
+check("mixed replay exact",()=>{b.apply("domain",{...list[1],type:"edit",amountMinor:123});b.applyRecords([rec("later")]);return JSON.stringify(parseJournal(JSON.stringify(b.exportJournal())).snapshot())===JSON.stringify(b.snapshot());});
+const before=JSON.stringify(b.snapshot()),rev=b.snapshot().revision;
+check("duplicate atomic rejection",()=>b.applyRecords([rec("new"),rec("r1")]).status==="BLOCKED"&&JSON.stringify(b.snapshot())===before);
+check("invalid account atomic rejection",()=>b.applyRecords([rec("new"),rec("new2",1,"out","absent")]).status==="BLOCKED"&&JSON.stringify(b.snapshot())===before);
+check("stale batch",()=>b.applyRecords([rec("new")],rev-1).status==="CONFLICT");
+check("non-record rejected",()=>b.applyRecords([{...rec("new"),type:"edit"}]).status==="BLOCKED");
+const ov=createJournalSession();ov.apply("domain",{...account,openingMinor:Number.MAX_SAFE_INTEGER});
+check("intermediate overflow blocked",()=>ov.applyRecords([rec("plus",1,"in","cash"),rec("minus",1,"out","cash")]).status==="BLOCKED"&&ov.snapshot().revision===1);
+const gross=createJournalSession();gross.apply("domain",rec("max",Number.MAX_SAFE_INTEGER));
+check("gross overflow blocked",()=>gross.applyRecords([rec("small")]).status==="BLOCKED");
+check("20k capacity",()=>JOURNAL_MAX_COMMANDS===20000);
+const result={passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
+console.log(JSON.stringify(result,null,2));if(result.passed!==result.total)process.exitCode=1;

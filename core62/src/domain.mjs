@@ -12,6 +12,8 @@ const exact=(x,keys)=>!!x&&typeof x==="object"&&!Array.isArray(x)&&Object.keys(x
 export function emptyDomain(){return {schema:1,revision:0,accounts:[],movements:[],obligations:[],audit:[]};}
 function find(xs,id){return xs.find(x=>x.id===id);}
 function requireAccount(s,id,date){if(id===null)return;const a=find(s.accounts,id);must(a&&!a.archived&&date>=a.openingDate,"account-unavailable");}
+function recordFieldsOK(c){return ["in","out"].includes(c.direction)&&amountOK(c.amountMinor)&&isDate(c.date)&&textOK(c.note)&&(c.direction==="in"?c.category===null:typeof c.category==="string"&&c.category.trim()&&textOK(c.category));}
+function makeRecord(c){return {id:c.id,kind:"record",direction:c.direction,amountMinor:c.amountMinor,date:c.date,category:c.category,note:c.note,accountId:c.accountId,voided:false};}
 function normalizeCommand(c){must(c&&typeof c.type==="string"&&idOK(c.opId)&&Number.isSafeInteger(c.expectedRevision)&&c.expectedRevision>=0,"command-contract");const fields={account:["id","name","openingMinor","openingDate"],archive:["id"],record:["id","direction","amountMinor","date","category","note","accountId"],edit:["id","direction","amountMinor","date","category","note","accountId"],void:["id"],transfer:["id","from","to","amountMinor","date","note"],obligation:["id","family","direction","amountMinor","due","name"],settle:["id","obligationId","amountMinor","date","accountId","note"]};const extra=fields[c.type];must(extra&&Array.isArray(extra)&&exact(c,["type","opId","expectedRevision",...extra]),"command-fields");return JSON.stringify(Object.fromEntries(["type","opId","expectedRevision",...extra].map(k=>[k,c[k]])));}
 function remainingBig(s,id){const o=find(s.obligations,id);must(o,"obligation-missing");let paid=0n;for(const m of s.movements)if(!m.voided&&m.kind==="settlement"&&m.obligationId===id)paid+=BigInt(m.amountMinor);return BigInt(o.amountMinor)-paid;}
 export function accountBalances(s){const balances=new Map(s.accounts.map(a=>[a.id,BigInt(a.openingMinor)]));for(const m of s.movements){if(m.voided)continue;const v=BigInt(m.amountMinor);if(m.kind==="transfer"){balances.set(m.from,balances.get(m.from)-v);balances.set(m.to,balances.get(m.to)+v);}else if(m.accountId!==null)balances.set(m.accountId,balances.get(m.accountId)+(m.direction==="in"?v:-v));}return s.accounts.map(a=>({id:a.id,balanceMinor:safeMinor(balances.get(a.id)),archived:a.archived}));}
@@ -32,7 +34,7 @@ const n=copy(s);let before=null,after=null;
 switch(c.type){
 case "account":must(idOK(c.id)&&!find(n.accounts,c.id)&&textOK(c.name)&&c.name.trim()&&Number.isSafeInteger(c.openingMinor)&&isDate(c.openingDate),"account-contract");after={id:c.id,name:c.name,openingMinor:c.openingMinor,openingDate:c.openingDate,archived:false};n.accounts.push(after);break;
 case "archive":{const a=find(n.accounts,c.id);must(a&&!a.archived,"account-unavailable");before=copy(a);a.archived=true;after=a;break;}
-case "record":case "edit":{const m=find(n.movements,c.id);must(idOK(c.id)&&(c.type==="record"?!m:m&&m.kind==="record"&&!m.voided),"record-id");must(["in","out"].includes(c.direction)&&amountOK(c.amountMinor)&&isDate(c.date)&&textOK(c.note)&&(c.direction==="in"?c.category===null:typeof c.category==="string"&&c.category.trim()&&textOK(c.category)),"record-contract");requireAccount(n,c.accountId,c.date);after={id:c.id,kind:"record",direction:c.direction,amountMinor:c.amountMinor,date:c.date,category:c.category,note:c.note,accountId:c.accountId,voided:false};if(m){before=copy(m);n.movements[n.movements.indexOf(m)]=after;}else n.movements.push(after);break;}
+case "record":case "edit":{const m=find(n.movements,c.id);must(idOK(c.id)&&(c.type==="record"?!m:m&&m.kind==="record"&&!m.voided),"record-id");must(recordFieldsOK(c),"record-contract");requireAccount(n,c.accountId,c.date);after=makeRecord(c);if(m){before=copy(m);n.movements[n.movements.indexOf(m)]=after;}else n.movements.push(after);break;}
 case "void":{const m=find(n.movements,c.id);must(m&&!m.voided,"movement-unavailable");before=copy(m);m.voided=true;after=m;break;}
 case "transfer":must(idOK(c.id)&&!find(n.movements,c.id)&&idOK(c.from)&&idOK(c.to)&&c.from!==c.to&&amountOK(c.amountMinor)&&isDate(c.date)&&textOK(c.note),"transfer-contract");requireAccount(n,c.from,c.date);requireAccount(n,c.to,c.date);after={id:c.id,kind:"transfer",from:c.from,to:c.to,amountMinor:c.amountMinor,date:c.date,note:c.note,voided:false};n.movements.push(after);break;
 case "obligation":must(idOK(c.id)&&!find(n.obligations,c.id)&&FAMILIES.includes(c.family)&&["in","out"].includes(c.direction)&&amountOK(c.amountMinor)&&isDate(c.due)&&textOK(c.name)&&c.name.trim(),"obligation-contract");after={id:c.id,family:c.family,direction:c.direction,amountMinor:c.amountMinor,due:c.due,name:c.name};n.obligations.push(after);break;
@@ -41,4 +43,16 @@ default:return deny("unknown-command");
 }
 n.revision++;n.audit.push({revision:n.revision,opId:c.opId,command,before:copy(before),after:copy(after)});validateState(n);return {status:"APPLIED_SHADOW",state:n,productionWriteAllowed:false};
 }catch(e){return deny(e instanceof RangeError?"balance-overflow":String(e.message||"invalid-command"));}
+}
+
+export function executeRecordBatch(s,commands){
+ try{validateState(s);must(Array.isArray(commands)&&commands.length>0&&commands.length<=20000,"batch-contract");
+ const n=copy(s),ids=new Set(n.movements.map(x=>x.id)),ops=new Set(n.audit.map(x=>x.opId)),accounts=new Map(n.accounts.map(a=>[a.id,a])),balances=new Map(accountBalances(n).map(a=>[a.id,BigInt(a.balanceMinor)])),totals=analyzeLedger(domainLedger(n)).cents;
+ let grossIn=BigInt(totals.confirmedIn),grossOut=BigInt(totals.confirmedOut);
+ for(const c of commands){const command=normalizeCommand(c);must(c.type==="record"&&c.expectedRevision===n.revision&&!ops.has(c.opId)&&idOK(c.id)&&!ids.has(c.id),"batch-record-identity");must(n.revision<Number.MAX_SAFE_INTEGER&&recordFieldsOK(c),"record-contract");
+ if(c.accountId!==null){const a=accounts.get(c.accountId);must(a&&!a.archived&&c.date>=a.openingDate,"account-unavailable");const balance=balances.get(a.id)+(c.direction==="in"?1n:-1n)*BigInt(c.amountMinor);safeMinor(balance);balances.set(a.id,balance);}
+ if(c.direction==="in"){grossIn+=BigInt(c.amountMinor);safeMinor(grossIn);}else{grossOut+=BigInt(c.amountMinor);safeMinor(grossOut);}
+ const after=makeRecord(c);n.movements.push(after);n.revision++;n.audit.push({revision:n.revision,opId:c.opId,command,before:null,after:copy(after)});ids.add(c.id);ops.add(c.opId);}
+ validateState(n);return {status:"APPLIED_SHADOW",state:n,productionWriteAllowed:false};
+ }catch(e){return deny(e instanceof RangeError?"balance-overflow":String(e.message||"invalid-batch"));}
 }
